@@ -1,0 +1,40 @@
+# Gradle
+.gradle
+build/
+*.apk
+*.ap_
+
+# IDE
+.idea/
+*.iml
+out/
+.vscode/
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+thumbs.db
+
+# Local properties
+local.properties
+gradle.properties
+
+# Build outputs
+bin/
+gen/
+
+# Native
+.cxx/
+.externalNativeBuild/
+
+# Other
+*.swp
+*.swo
+*~
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
