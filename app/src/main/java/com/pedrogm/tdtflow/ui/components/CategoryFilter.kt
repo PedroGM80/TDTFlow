@@ -8,7 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import com.composables.icons.lucide.*
+import com.composables.icons.lucide.Check
+import com.composables.icons.lucide.Lucide
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.data.model.ChannelCategory
 
