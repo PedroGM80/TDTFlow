@@ -32,6 +32,6 @@ class TvActivity : ComponentActivity() {
 
     override fun onStop() {
         super.onStop()
-        viewModel.player?.exoPlayer?.pause()
+        viewModel.pausePlayer()
     }
 }

@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/pedro/Downloads/tdtflow/tdtflow/**)",
+      "Read(//c/$RECYCLE.BIN/**)",
+      "Bash(ls:*)",
+      "Bash(find C:\\\\Users\\\\pedro\\\\Downloads\\\\tdtflow\\\\tdtflow\\\\app\\\\src\\\\main\\\\java:*)",
+      "Bash(./gradlew build:*)",
+      "Bash(gradle build:*)"
+    ]
+  }
+}

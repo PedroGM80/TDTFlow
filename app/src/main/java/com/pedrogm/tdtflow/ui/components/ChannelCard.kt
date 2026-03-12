@@ -118,15 +118,3 @@ fun ChannelCard(
         }
     }
 }
-
-/** Mapea cada categoría a un icono Lucide. */
-fun ChannelCategory.toLucideIcon() = when (this) {
-    ChannelCategory.GENERAL -> Lucide.Tv
-    ChannelCategory.NEWS -> Lucide.Newspaper
-    ChannelCategory.SPORTS -> Lucide.Trophy
-    ChannelCategory.KIDS -> Lucide.Baby
-    ChannelCategory.ENTERTAINMENT -> Lucide.Clapperboard
-    ChannelCategory.REGIONAL -> Lucide.MapPin
-    ChannelCategory.MUSIC -> Lucide.Music
-    ChannelCategory.OTHER -> Lucide.LayoutGrid
-}

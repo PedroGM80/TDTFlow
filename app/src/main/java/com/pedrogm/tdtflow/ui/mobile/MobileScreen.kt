@@ -114,19 +114,7 @@ fun MobileScreen(viewModel: TdtViewModel) {
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(
-                                imageVector = Lucide.SearchX,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.outline,
-                                modifier = Modifier.size(dimensionResource(R.dimen.icon_size_extra_large))
-                            )
-                            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_medium)))
-                            Text(
-                                stringResource(R.string.no_channels_found),
-                                color = MaterialTheme.colorScheme.outline
-                            )
-                        }
+                        EmptyState(message = stringResource(R.string.no_channels_found))
                     }
                 }
 

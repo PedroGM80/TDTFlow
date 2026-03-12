@@ -259,6 +259,10 @@ class TdtViewModel(application: Application) : AndroidViewModel(application) {
         _currentChannel.value = null
     }
 
+    fun pausePlayer() {
+        player?.exoPlayer?.pause()
+    }
+
     fun togglePlayPause() {
         player?.togglePlayPause()
     }
@@ -278,18 +282,7 @@ class TdtViewModel(application: Application) : AndroidViewModel(application) {
     }
 }
 
-// ── Data classes ──────────────────────────────────────────────────
-
-data class TdtUiState(
-    val channels: List<Channel> = emptyList(),
-    val filteredChannels: List<Channel> = emptyList(),
-    val currentChannel: Channel? = null,
-    val selectedCategory: ChannelCategory? = null,
-    val searchQuery: String = Constants.EMPTY_STRING,
-    val isLoading: Boolean = true,
-    val isPlaying: Boolean = false,
-    val error: String? = null
-)
+// ── Private data class for internal state combination ──────────────────
 
 private data class PartialState(
     val filtered: List<Channel>,
