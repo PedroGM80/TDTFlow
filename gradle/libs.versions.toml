@@ -24,7 +24,7 @@ ktor = "2.3.8"
 coil = "2.6.0"
 
 # Lottie & Icons
-compottie = "2.0.0-beta"
+compottie = "1.1.0"
 lucideIcons = "0.263.1"
 
 [libraries]
