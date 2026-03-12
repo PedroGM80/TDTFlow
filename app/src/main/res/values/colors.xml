@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark Palette -->
+    <color name="primary_dark">#64B5F6</color>
+    <color name="on_primary_dark">#0D2137</color>
+    <color name="primary_container_dark">#1565C0</color>
+    <color name="on_primary_container_dark">#D1E4FF</color>
+    <color name="secondary_dark">#80CBC4</color>
+    <color name="on_secondary_dark">#003731</color>
+    <color name="tertiary_dark">#FFB74D</color>
+    <color name="surface_dark">#101318</color>
+    <color name="on_surface_dark">#E1E2E8</color>
+    <color name="surface_variant_dark">#1A1D24</color>
+    <color name="on_surface_variant_dark">#C3C6CF</color>
+    <color name="background_dark">#0B0E13</color>
+    <color name="error_dark">#EF9A9A</color>
+    <color name="outline_dark">#8D9199</color>
+
+    <!-- Light Palette -->
+    <color name="primary_light">#1565C0</color>
+    <color name="on_primary_light">#FFFFFF</color>
+    <color name="primary_container_light">#D1E4FF</color>
+    <color name="on_primary_container_light">#001D36</color>
+    <color name="secondary_light">#00796B</color>
+    <color name="tertiary_light">#E65100</color>
+    <color name="surface_light">#F8F9FF</color>
+    <color name="on_surface_light">#191C20</color>
+    <color name="surface_variant_light">#E7E9F0</color>
+    <color name="on_surface_variant_light">#44474F</color>
+    <color name="background_light">#F8F9FF</color>
+    <color name="error_light">#BA1A1A</color>
+    <color name="outline_light">#74777F</color>
+
+    <!-- TV Specific Colors -->
+    <color name="tv_background">#0A0D12</color>
+    <color name="tv_surface">#1E2128</color>
+    <color name="tv_surface_focused">#42A5F5</color>
+    <color name="tv_card">#151820</color>
+    <color name="tv_card_focused">#1976D2</color>
+    <color name="live_indicator">#FF5252</color>
+
+    <!-- Alphas -->
+    <integer name="alpha_high_percent">85</integer>
+    <integer name="alpha_medium_percent">50</integer>
+    <integer name="alpha_overlay_percent">90</integer>
+    <integer name="alpha_buffering_percent">80</integer>
+</resources>

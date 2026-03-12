@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TDTFlow</string>
+    <string name="search_placeholder">Buscar canal&#8230;</string>
+    <string name="search_description">Buscar</string>
+    <string name="clear_description">Limpiar</string>
+    <string name="reload_description">Recargar</string>
+    <string name="unknown_error">Error desconocido</string>
+    <string name="no_channels_found">No se encontraron canales</string>
+    <string name="close">Cerrar</string>
+    <string name="fullscreen_description">Pantalla completa</string>
+    <string name="tuning_channels">Sintonizando canales&#8230;</string>
+    <string name="loading_description">Cargando</string>
+    <string name="error_description">Error</string>
+    <string name="playback_error">Error de reproducción</string>
+    <string name="retry_button">Reintentar</string>
+    <string name="error_loading_channels">Error cargando canales: %1$s</string>
+    <string name="category_all">Todos</string>
+    <string name="live_indicator">EN DIRECTO</string>
+
+    <!-- Categorías -->
+    <string name="category_general">Generales</string>
+    <string name="category_news">Noticias</string>
+    <string name="category_sports">Deportes</string>
+    <string name="category_kids">Infantil</string>
+    <string name="category_entertainment">Entretenimiento</string>
+    <string name="category_regional">Autonómicos</string>
+    <string name="category_music">Música</string>
+    <string name="category_other">Otros</string>
+</resources>
