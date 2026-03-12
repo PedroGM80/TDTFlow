@@ -1,0 +1,81 @@
+[versions]
+# Android & Kotlin
+androidGradlePlugin = "8.3.0"
+kotlin = "1.9.22"
+ksp = "1.9.22-1.0.17"
+
+# AndroidX
+androidxCore = "1.12.0"
+androidxActivity = "1.8.1"
+androidxLifecycle = "2.7.0"
+androidxNavigation = "2.7.7"
+androidxComposeBom = "2024.03.00"
+androidxMedia3 = "1.2.1"
+tvComposeBom = "1.0.0-alpha10"
+
+# Kotlin
+kotlinxCoroutines = "1.7.3"
+kotlinxSerialization = "1.6.2"
+
+# Ktor
+ktor = "2.3.8"
+
+# Networking & Serialization
+coil = "2.6.0"
+
+# Lottie & Icons
+compottie = "2.0.0-beta"
+lucideIcons = "0.263.1"
+
+[libraries]
+# Core
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCore" }
+androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "androidxActivity" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
+
+# Lifecycle
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidxLifecycle" }
+androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidxLifecycle" }
+androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "androidxLifecycle" }
+
+# Compose
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "androidxComposeBom" }
+androidx-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidxNavigation" }
+
+# TV Compose
+tv-compose-foundation = { group = "androidx.tv", name = "tv-foundation", version.ref = "tvComposeBom" }
+tv-compose-material = { group = "androidx.tv", name = "tv-material", version.ref = "tvComposeBom" }
+
+# Media3
+media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "androidxMedia3" }
+media3-exoplayer-hls = { group = "androidx.media3", name = "media3-exoplayer-hls", version.ref = "androidxMedia3" }
+media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "androidxMedia3" }
+media3-session = { group = "androidx.media3", name = "media3-session", version.ref = "androidxMedia3" }
+
+# Coroutines
+kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
+
+# Ktor
+ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
+ktor-client-android = { group = "io.ktor", name = "ktor-client-android", version.ref = "ktor" }
+ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-serialization-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+
+# Icons & Animations
+lucide-icons = { group = "com.composables", name = "icons-lucide", version.ref = "lucideIcons" }
+compottie = { group = "io.github.alexzhirkevich", name = "compottie", version.ref = "compottie" }
+compottie-dot = { group = "io.github.alexzhirkevich", name = "compottie-dot", version.ref = "compottie" }
+compottie-network = { group = "io.github.alexzhirkevich", name = "compottie-network", version.ref = "compottie" }
+
+# Images
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
