@@ -1,6 +1,6 @@
 [versions]
 # Android & Kotlin
-androidGradlePlugin = "8.3.0"
+androidGradlePlugin = "8.13.2"
 kotlin = "2.0.0"
 ksp = "2.0.0-1.0.21"
 
@@ -41,6 +41,7 @@ androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "l
 # Compose
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "androidxComposeBom" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-foundation = { group = "androidx.compose.foundation", name = "foundation" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
