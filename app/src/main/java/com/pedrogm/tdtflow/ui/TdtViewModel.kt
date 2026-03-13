@@ -10,6 +10,7 @@ import com.pedrogm.tdtflow.data.repository.ChannelRepository
 import com.pedrogm.tdtflow.player.PlayerState
 import com.pedrogm.tdtflow.player.TdtPlayer
 import com.pedrogm.tdtflow.util.Constants
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 
@@ -102,7 +103,7 @@ class TdtViewModel(application: Application) : AndroidViewModel(application) {
      */
     private val _filteredChannels: StateFlow<List<Channel>> = combine(
         _channels,
-        _selectedCategory.distinctUntilChanged(),
+        _selectedCategory,
         debouncedQuery
     ) { channels, category, query ->
         channels
@@ -141,14 +142,14 @@ class TdtViewModel(application: Application) : AndroidViewModel(application) {
      */
     val uiState: StateFlow<TdtUiState> = combine(
         _filteredChannels,
-        _currentChannel.distinctUntilChanged(),
-        _selectedCategory.distinctUntilChanged(),
+        _currentChannel,
+        _selectedCategory,
         _searchQuery, // raw query para el TextField (no debounced)
-        _isLoading.distinctUntilChanged(),
+        _isLoading,
     ) { filtered, current, category, query, loading ->
         PartialState(filtered, current, category, query, loading)
     }.combine(
-        _error.distinctUntilChanged()
+        _error
     ) { partial, error ->
         TdtUiState(
             channels = _channels.value, // lectura directa, no suscripción
