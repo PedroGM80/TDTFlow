@@ -6,7 +6,21 @@
       "Bash(ls:*)",
       "Bash(find C:\\\\Users\\\\pedro\\\\Downloads\\\\tdtflow\\\\tdtflow\\\\app\\\\src\\\\main\\\\java:*)",
       "Bash(./gradlew build:*)",
-      "Bash(gradle build:*)"
+      "Bash(gradle build:*)",
+      "WebSearch",
+      "Bash(find . -name \"*.kt\" -type f -exec grep -l \"import.*lucide\\\\.\" {} \\\\; | head -10)",
+      "Bash(cd C:/Users/pedro/Downloads/tdtflow/tdtflow && ./gradlew compileDebugKotlin 2>&1 | tail -100)",
+      "WebFetch(domain:github.com)",
+      "Bash(find . -path \"*/raw/*\" -type f | grep -E \"\\\\.\\(json|lottie\\)$\")",
+      "Bash(cd C:/Users/pedro/Downloads/tdtflow/tdtflow && timeout 120 ./gradlew compileDebugKotlin 2>&1 | grep -E \"error|Error|ERROR|BUILD\" | head -30)",
+      "Bash(cd C:/Users/pedro/Downloads/tdtflow/tdtflow && timeout 120 ./gradlew compileDebugKotlin 2>&1 | grep \"^e:\")",
+      "Bash(cd C:/Users/pedro/Downloads/tdtflow/tdtflow && timeout 120 ./gradlew compileDebugKotlin 2>&1 | grep \"^e:\" | head -10)",
+      "Bash(cd C:/Users/pedro/Downloads/tdtflow/tdtflow && timeout 120 ./gradlew compileDebugKotlin 2>&1 | tail -20)",
+      "Bash(cd C:/Users/pedro/Downloads/tdtflow/tdtflow && ./gradlew clean 2>&1 | tail -3 && echo \"Clean done, now compiling...\" && timeout 120 ./gradlew compileDebugKotlin 2>&1 | grep \"BUILD\\\\|^e:\")",
+      "Bash(cd C:/Users/pedro/Downloads/tdtflow/tdtflow && timeout 120 ./gradlew compileDebugKotlin 2>&1 | grep -A 3 \"TvPlayerFullscreen.kt:58\")",
+      "Bash(cd C:/Users/pedro/Downloads/tdtflow/tdtflow && timeout 120 ./gradlew compileDebugKotlin 2>&1 | grep \"BUILD\\\\|^e:\" | head -5)",
+      "Bash(cd C:/Users/pedro/Downloads/tdtflow/tdtflow && ./gradlew compileDebugKotlin 2>&1 | tail -5)",
+      "Bash(cd C:/Users/pedro/Downloads/tdtflow/tdtflow && timeout 180 ./gradlew compileDebugKotlin assembleDebug 2>&1 | tail -40)"
     ]
   }
 }
