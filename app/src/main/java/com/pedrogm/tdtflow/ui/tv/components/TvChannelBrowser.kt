@@ -20,6 +20,8 @@ import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.items
 import androidx.tv.material3.*
 import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.LayoutGrid
+import com.composables.icons.lucide.Tv
 import androidx.compose.material3.Icon
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.data.model.ChannelCategory
