@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.SearchX
 import com.pedrogm.tdtflow.R
 
 @Composable
