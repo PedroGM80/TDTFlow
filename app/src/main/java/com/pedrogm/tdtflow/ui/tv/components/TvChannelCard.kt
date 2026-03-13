@@ -20,7 +20,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.*
 import coil.compose.AsyncImage
-import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.*
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.data.model.Channel
 import com.pedrogm.tdtflow.ui.components.toLucideIcon
@@ -37,9 +37,9 @@ internal fun TvChannelCard(
     Surface(
         onClick = onClick,
         shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(dimensionResource(R.dimen.radius_large))),
-        color = ClickableSurfaceDefaults.color(
-            color = if (isSelected) colorResource(R.color.primary_container_dark) else colorResource(R.color.tv_card),
-            focusedColor = colorResource(R.color.tv_card_focused)
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = if (isSelected) colorResource(R.color.primary_container_dark) else colorResource(R.color.tv_card),
+            focusedContainerColor = colorResource(R.color.tv_card_focused)
         ),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1.06f),
         modifier = Modifier.onFocusChanged { isFocused = it.isFocused }
@@ -94,7 +94,7 @@ internal fun TvChannelCard(
                     horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_tiny))
                 ) {
                     Icon(
-                        imageVector = Lucide.Radio,
+                        imageVector = Lucide.Music,
                         contentDescription = null,
                         tint = colorResource(R.color.live_indicator),
                         modifier = Modifier.size(dimensionResource(R.dimen.chip_padding_vertical))

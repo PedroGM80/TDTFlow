@@ -102,7 +102,7 @@ fun ChannelCard(
                     horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_tiny))
                 ) {
                     Icon(
-                        imageVector = Lucide.Radio,
+                        imageVector = Lucide.Music,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.tertiary,
                         modifier = Modifier.size(dimensionResource(R.dimen.icon_size_small))

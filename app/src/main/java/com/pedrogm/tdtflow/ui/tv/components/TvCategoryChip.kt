@@ -26,9 +26,9 @@ internal fun TvCategoryChip(
     Surface(
         onClick = onClick,
         shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(dimensionResource(R.dimen.radius_extra_large))),
-        color = ClickableSurfaceDefaults.color(
-            color = if (isSelected) colorResource(R.color.primary_container_dark) else colorResource(R.color.tv_surface),
-            focusedColor = colorResource(R.color.tv_surface_focused)
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = if (isSelected) colorResource(R.color.primary_container_dark) else colorResource(R.color.tv_surface),
+            focusedContainerColor = colorResource(R.color.tv_surface_focused)
         )
     ) {
         Row(

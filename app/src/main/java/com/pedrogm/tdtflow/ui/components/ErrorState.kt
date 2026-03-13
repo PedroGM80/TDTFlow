@@ -5,13 +5,18 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.composables.icons.lucide.*
 import com.pedrogm.tdtflow.R
-import io.github.alexzhirkevich.compottie.*
+import io.github.alexzhirkevich.compottie.LottieCompositionSpec
+import io.github.alexzhirkevich.compottie.rememberLottieComposition
+import io.github.alexzhirkevich.compottie.rememberLottiePainter
+import io.github.alexzhirkevich.compottie.Compottie
 
 @Composable
 fun ErrorState(
@@ -19,8 +24,12 @@ fun ErrorState(
     onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val jsonString = remember {
+        context.resources.openRawResource(R.raw.error_animation).bufferedReader().use { it.readText() }
+    }
     val composition by rememberLottieComposition {
-        LottieCompositionSpec.RawRes(R.raw.error_animation)
+        LottieCompositionSpec.JsonString(jsonString)
     }
 
     Column(

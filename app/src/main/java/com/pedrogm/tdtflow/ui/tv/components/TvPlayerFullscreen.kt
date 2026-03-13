@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.PlayerView
-import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.*
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.ui.TdtViewModel
 
@@ -55,7 +55,7 @@ internal fun TvPlayerFullscreen(viewModel: TdtViewModel, channelName: String) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = Lucide.Radio,
+                imageVector = Lucide.Music,
                 contentDescription = null,
                 tint = colorResource(R.color.live_indicator),
                 modifier = Modifier.size(dimensionResource(R.dimen.icon_size_small))

@@ -48,7 +48,7 @@ fun VideoPlayer(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = Lucide.Radio,
+                imageVector = Lucide.Music,
                 contentDescription = null,
                 tint = if (playerState == PlayerState.PLAYING) colorResource(R.color.live_indicator) else Color.Gray,
                 modifier = Modifier.size(dimensionResource(R.dimen.icon_size_small))
