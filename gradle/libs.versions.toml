@@ -1,7 +1,7 @@
 [versions]
 # Android & Kotlin
-androidGradlePlugin = "8.13.2"
-kotlin = "2.0.0"
+androidGradlePlugin = "9.1.0"
+kotlin = "2.2.10"
 ksp = "2.0.0-1.0.21"
 
 # AndroidX
@@ -24,8 +24,8 @@ ktor = "2.3.8"
 coil = "2.6.0"
 
 # Lottie & Icons
-compottie = "1.1.0"
-lucideIcons = "0.263.1"
+compottie = "2.1.0"
+lucideIcons = "1.1.0"
 
 [libraries]
 # Core
