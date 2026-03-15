@@ -12,9 +12,12 @@ import com.pedrogm.tdtflow.ui.tv.components.TvPlayerFullscreen
 fun TvScreen(viewModel: TdtViewModel) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    if (uiState.isPlaying && uiState.currentChannel != null && viewModel.player != null) {
-        TvPlayerFullscreen(viewModel = viewModel, channelName = uiState.currentChannel!!.name)
-    } else {
-        TvChannelBrowser(viewModel = viewModel)
+    when {
+        uiState.isPlaying && uiState.currentChannel != null && viewModel.player != null -> {
+            TvPlayerFullscreen(viewModel = viewModel, channelName = uiState.currentChannel!!.name)
+        }
+        else -> {
+            TvChannelBrowser(viewModel = viewModel)
+        }
     }
 }

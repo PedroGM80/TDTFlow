@@ -1,20 +1,49 @@
 package com.pedrogm.tdtflow.ui.mobile
 
+import android.app.Activity
+import android.content.res.Configuration
+import androidx.compose.animation.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.ui.AspectRatioFrameLayout
+import androidx.media3.ui.PlayerView
+import coil.compose.AsyncImage
 import com.composables.icons.lucide.*
 import com.pedrogm.tdtflow.R
+import com.pedrogm.tdtflow.data.model.Channel
+import com.pedrogm.tdtflow.player.PlayerState
+import com.pedrogm.tdtflow.ui.TdtUiState
 import com.pedrogm.tdtflow.ui.TdtViewModel
 import com.pedrogm.tdtflow.ui.components.*
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -22,6 +51,254 @@ fun MobileScreen(viewModel: TdtViewModel) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showSearch by remember { mutableStateOf(false) }
 
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val isPlaying = uiState.currentChannel != null && viewModel.player != null
+
+    if (isLandscape && isPlaying) {
+        // --- FULLSCREEN LANDSCAPE: video ocupa toda la pantalla ---
+        LandscapeFullscreenPlayer(
+            viewModel = viewModel,
+            uiState = uiState
+        )
+    } else {
+        // --- PORTRAIT: layout normal con Scaffold ---
+        PortraitLayout(
+            viewModel = viewModel,
+            uiState = uiState,
+            showSearch = showSearch,
+            onToggleSearch = { showSearch = !showSearch },
+            isPlaying = isPlaying
+        )
+    }
+}
+
+// ── Fullscreen landscape con overlay ───────────────────────────────
+
+@androidx.annotation.OptIn(UnstableApi::class)
+@Composable
+private fun LandscapeFullscreenPlayer(
+    viewModel: TdtViewModel,
+    uiState: TdtUiState
+) {
+    val view = LocalView.current
+    var showOverlay by remember { mutableStateOf(false) }
+
+    // Immersive mode: ocultar barras del sistema
+    DisposableEffect(Unit) {
+        val window = (view.context as Activity).window
+        val controller = WindowCompat.getInsetsController(window, view)
+        controller.hide(WindowInsetsCompat.Type.systemBars())
+        controller.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+
+        onDispose {
+            controller.show(WindowInsetsCompat.Type.systemBars())
+        }
+    }
+
+    // Auto-hide overlay despues de 4 segundos
+    LaunchedEffect(showOverlay) {
+        if (showOverlay) {
+            delay(4000)
+            showOverlay = false
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { showOverlay = !showOverlay }
+    ) {
+        // Video fullscreen
+        AndroidView(
+            factory = { context ->
+                PlayerView(context).apply {
+                    player = viewModel.player?.exoPlayer
+                    this.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+                    useController = false
+                    setShowNextButton(false)
+                    setShowPreviousButton(false)
+                }
+            },
+            modifier = Modifier.fillMaxSize()
+        )
+
+        // Overlay de buffering
+        val playerState by viewModel.player!!.playerState.collectAsStateWithLifecycle()
+        if (playerState == PlayerState.BUFFERING) {
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .size(48.dp),
+                color = Color.White.copy(alpha = 0.7f)
+            )
+        }
+
+        // --- Overlay superior: info del canal + cerrar ---
+        AnimatedVisibility(
+            visible = showOverlay,
+            enter = fadeIn() + slideInVertically { -it },
+            exit = fadeOut() + slideOutVertically { -it },
+            modifier = Modifier.align(Alignment.TopCenter)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(Color.Black.copy(alpha = 0.8f), Color.Transparent)
+                        )
+                    )
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .statusBarsPadding(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Lucide.Radio,
+                    contentDescription = null,
+                    tint = Color(0xFF4CAF50),
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = uiState.currentChannel?.name ?: "",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    modifier = Modifier.weight(1f)
+                )
+                IconButton(onClick = { viewModel.stopPlayback() }) {
+                    Icon(
+                        Lucide.X,
+                        contentDescription = stringResource(R.string.close),
+                        tint = Color.White
+                    )
+                }
+            }
+        }
+
+        // --- Overlay inferior: lista de canales horizontal ---
+        AnimatedVisibility(
+            visible = showOverlay,
+            enter = fadeIn() + slideInVertically { it },
+            exit = fadeOut() + slideOutVertically { it },
+            modifier = Modifier.align(Alignment.BottomCenter)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.85f))
+                        )
+                    )
+                    .navigationBarsPadding()
+                    .padding(bottom = 8.dp)
+            ) {
+                // Filtro de categorias compacto
+                CategoryFilter(
+                    selectedCategory = uiState.selectedCategory,
+                    onCategorySelected = { viewModel.filterByCategory(it) }
+                )
+
+                // Lista horizontal de canales
+                LazyRow(
+                    contentPadding = PaddingValues(horizontal = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(
+                        items = uiState.filteredChannels,
+                        key = { it.url }
+                    ) { channel ->
+                        LandscapeChannelChip(
+                            channel = channel,
+                            isSelected = channel == uiState.currentChannel,
+                            onClick = {
+                                viewModel.selectChannel(channel)
+                                // No ocultar overlay al cambiar canal para que siga visible
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun LandscapeChannelChip(
+    channel: Channel,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    val bgColor = if (isSelected) Color.White.copy(alpha = 0.25f) else Color.White.copy(alpha = 0.1f)
+    val borderColor = if (isSelected) Color.White else Color.Transparent
+
+    Surface(
+        onClick = onClick,
+        shape = MaterialTheme.shapes.medium,
+        color = bgColor,
+        border = if (isSelected) ButtonDefaults.outlinedButtonBorder(enabled = true) else null,
+        tonalElevation = 0.dp,
+        modifier = Modifier.width(100.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (channel.logo.isNotEmpty()) {
+                AsyncImage(
+                    model = channel.logo,
+                    contentDescription = channel.name,
+                    modifier = Modifier.size(40.dp)
+                )
+            } else {
+                Icon(
+                    imageVector = Lucide.Tv,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(40.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = channel.name,
+                color = Color.White,
+                fontSize = 11.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+            )
+            if (isSelected) {
+                Text(
+                    text = stringResource(R.string.live_indicator),
+                    color = Color(0xFF4CAF50),
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
+
+// ── Portrait layout normal ─────────────────────────────────────────
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PortraitLayout(
+    viewModel: TdtViewModel,
+    uiState: TdtUiState,
+    showSearch: Boolean,
+    onToggleSearch: () -> Unit,
+    isPlaying: Boolean
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -38,7 +315,7 @@ fun MobileScreen(viewModel: TdtViewModel) {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { showSearch = !showSearch }) {
+                    IconButton(onClick = onToggleSearch) {
                         Icon(
                             imageVector = if (showSearch) Lucide.X else Lucide.Search,
                             contentDescription = stringResource(R.string.search_description)
@@ -59,19 +336,15 @@ fun MobileScreen(viewModel: TdtViewModel) {
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            // Reproductor
-            if (uiState.currentChannel != null && viewModel.player != null) {
+            if (isPlaying) {
                 VideoPlayer(
                     player = viewModel.player!!,
                     channel = uiState.currentChannel!!,
                     onClose = { viewModel.stopPlayback() },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(16f / 9f)
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
 
-            // Barra de búsqueda
             if (showSearch) {
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_small)))
                 SearchBar(
@@ -80,65 +353,16 @@ fun MobileScreen(viewModel: TdtViewModel) {
                 )
             }
 
-            // Filtro de categorías
             CategoryFilter(
                 selectedCategory = uiState.selectedCategory,
                 onCategorySelected = { viewModel.filterByCategory(it) }
             )
 
-            // Contenido
-            when {
-                uiState.isLoading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        LoadingAnimation()
-                    }
-                }
-
-                uiState.error != null && uiState.channels.isEmpty() -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        ErrorState(
-                            message = uiState.error ?: stringResource(R.string.unknown_error),
-                            onRetry = { viewModel.retry() }
-                        )
-                    }
-                }
-
-                uiState.filteredChannels.isEmpty() -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        EmptyState(message = stringResource(R.string.no_channels_found))
-                    }
-                }
-
-                else -> {
-                    LazyVerticalGrid(
-                        columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.min_grid_cell_size)),
-                        contentPadding = PaddingValues(dimensionResource(R.dimen.spacing_medium)),
-                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small)),
-                        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small)),
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        items(
-                            items = uiState.filteredChannels,
-                            key = { it.url }
-                        ) { channel ->
-                            ChannelCard(
-                                channel = channel,
-                                isSelected = channel == uiState.currentChannel,
-                                onClick = { viewModel.selectChannel(channel) }
-                            )
-                        }
-                    }
-                }
-            }
+            ChannelContent(
+                uiState = uiState,
+                viewModel = viewModel,
+                modifier = Modifier.fillMaxSize()
+            )
         }
 
         // Snackbar de error overlay
@@ -151,7 +375,58 @@ fun MobileScreen(viewModel: TdtViewModel) {
                     }
                 }
             ) {
-                Text(uiState.error!!)
+                Text(uiState.error)
+            }
+        }
+    }
+}
+
+@Composable
+private fun ChannelContent(
+    uiState: TdtUiState,
+    viewModel: TdtViewModel,
+    modifier: Modifier = Modifier
+) {
+    when {
+        uiState.isLoading -> {
+            Box(modifier = modifier, contentAlignment = Alignment.Center) {
+                LoadingAnimation()
+            }
+        }
+
+        uiState.error != null && uiState.channels.isEmpty() -> {
+            Box(modifier = modifier, contentAlignment = Alignment.Center) {
+                ErrorState(
+                    message = uiState.error ?: stringResource(R.string.unknown_error),
+                    onRetry = { viewModel.retry() }
+                )
+            }
+        }
+
+        uiState.filteredChannels.isEmpty() -> {
+            Box(modifier = modifier, contentAlignment = Alignment.Center) {
+                EmptyState(message = stringResource(R.string.no_channels_found))
+            }
+        }
+
+        else -> {
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.min_grid_cell_size)),
+                contentPadding = PaddingValues(dimensionResource(R.dimen.spacing_medium)),
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small)),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small)),
+                modifier = modifier
+            ) {
+                items(
+                    items = uiState.filteredChannels,
+                    key = { it.url }
+                ) { channel ->
+                    ChannelCard(
+                        channel = channel,
+                        isSelected = channel == uiState.currentChannel,
+                        onClick = { viewModel.selectChannel(channel) }
+                    )
+                }
             }
         }
     }

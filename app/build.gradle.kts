@@ -75,10 +75,11 @@ dependencies {
     implementation(libs.media3.session)
 
     // TV Compose
-    implementation(libs.tv.compose.foundation)
     implementation(libs.tv.compose.material)
 
     // Networking
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.android)
     implementation(libs.ktor.client.content.negotiation)

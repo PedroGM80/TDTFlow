@@ -7,9 +7,9 @@ import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.data.model.Channel
 import com.pedrogm.tdtflow.data.model.ChannelCategory
 import com.pedrogm.tdtflow.data.repository.ChannelRepository
-import com.pedrogm.tdtflow.player.PlayerState
 import com.pedrogm.tdtflow.player.TdtPlayer
 import com.pedrogm.tdtflow.util.Constants
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
@@ -120,15 +120,6 @@ class TdtViewModel(application: Application) : AndroidViewModel(application) {
             initialValue = emptyList()
         )
 
-    // ── Estado del reproductor (reactivo) ───────────────────────────
-
-    /** Flow que emite el estado del player. Lazy: no se crea player hasta que se necesita. */
-    private val _playerStateFlow: Flow<PlayerState>
-        get() = player?.playerState ?: flowOf(PlayerState.IDLE)
-
-    private val _playerErrorFlow: Flow<String?>
-        get() = player?.playerError ?: flowOf(null)
-
     // ── Estado UI combinado ─────────────────────────────────────────
 
     /**
@@ -212,6 +203,7 @@ class TdtViewModel(application: Application) : AndroidViewModel(application) {
      * Propaga errores del player al flow de error global.
      * Se lanza una sola vez; cuando se crea el player, se reconecta.
      */
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun observePlayerErrors() {
         _currentChannel
             .filterNotNull()
@@ -262,10 +254,6 @@ class TdtViewModel(application: Application) : AndroidViewModel(application) {
 
     fun pausePlayer() {
         player?.exoPlayer?.pause()
-    }
-
-    fun togglePlayPause() {
-        player?.togglePlayPause()
     }
 
     fun dismissError() {

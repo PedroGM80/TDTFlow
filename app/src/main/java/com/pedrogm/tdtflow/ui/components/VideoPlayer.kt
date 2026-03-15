@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import com.composables.icons.lucide.*
 import com.pedrogm.tdtflow.R
@@ -94,11 +95,16 @@ fun VideoPlayer(
         }
 
         // PlayerView
-        Box {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(16f / 9f)
+        ) {
             AndroidView(
                 factory = { context ->
                     PlayerView(context).apply {
                         this.player = player.exoPlayer
+                        this.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
                         useController = true
                         setShowNextButton(false)
                         setShowPreviousButton(false)
@@ -107,7 +113,7 @@ fun VideoPlayer(
                     }
                 },
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
                     .background(Color.Black)
             )
 
