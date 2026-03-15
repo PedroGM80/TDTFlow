@@ -4,20 +4,14 @@ import com.pedrogm.tdtflow.data.model.Channel
 import com.pedrogm.tdtflow.data.model.ChannelCategory
 
 internal fun fallbackChannels(): List<Channel> = listOf(
-    Channel("La 1", "https://rtvelivestream.akamaized.net/rtvesec/la1/la1_main.m3u8", "https://www.tdtchannels.com/logos/tv/la1.png", ChannelCategory.GENERAL),
-    Channel("La 2", "https://rtvelivestream.akamaized.net/rtvesec/la2/la2_main.m3u8", "https://www.tdtchannels.com/logos/tv/la2.png", ChannelCategory.GENERAL),
-    Channel("Antena 3", "https://antena3-grp.akamaized.net/live/a3_hls/a3_main.m3u8", "https://www.tdtchannels.com/logos/tv/antena3.png", ChannelCategory.GENERAL),
-    Channel("Cuatro", "https://mdslivehlsb-i.akamaihd.net/hls/live/623614/cuatro/bitrate_1.m3u8", "https://www.tdtchannels.com/logos/tv/cuatro.png", ChannelCategory.GENERAL),
-    Channel("Telecinco", "https://mdslivehlsb-i.akamaihd.net/hls/live/623617/telecinco/bitrate_1.m3u8", "https://www.tdtchannels.com/logos/tv/telecinco.png", ChannelCategory.GENERAL),
-    Channel("laSexta", "https://antena3-grp.akamaized.net/live/lasexta_hls/lasexta_main.m3u8", "https://www.tdtchannels.com/logos/tv/lasexta.png", ChannelCategory.GENERAL),
-    Channel("24 Horas", "https://rtvelivestream.akamaized.net/rtvesec/24h/24h_main.m3u8", "https://www.tdtchannels.com/logos/tv/24h.png", ChannelCategory.NEWS),
-    Channel("Teledeporte", "https://rtvelivestream.akamaized.net/rtvesec/tdp/tdp_main.m3u8", "https://www.tdtchannels.com/logos/tv/teledeporte.png", ChannelCategory.SPORTS),
-    Channel("Clan TV", "https://rtvelivestream.akamaized.net/rtvesec/clan/clan_main.m3u8", "https://www.tdtchannels.com/logos/tv/clantve.png", ChannelCategory.KIDS),
-    Channel("Neox", "https://antena3-grp.akamaized.net/live/neox_hls/neox_main.m3u8", "https://www.tdtchannels.com/logos/tv/neox.png", ChannelCategory.ENTERTAINMENT),
-    Channel("Nova", "https://antena3-grp.akamaized.net/live/nova_hls/nova_main.m3u8", "https://www.tdtchannels.com/logos/tv/nova.png", ChannelCategory.ENTERTAINMENT),
-    Channel("Mega", "https://antena3-grp.akamaized.net/live/mega_hls/mega_main.m3u8", "https://www.tdtchannels.com/logos/tv/mega.png", ChannelCategory.ENTERTAINMENT),
-    Channel("FDF", "https://mdslivehlsb-i.akamaihd.net/hls/live/623625/fdf/bitrate_1.m3u8", "https://www.tdtchannels.com/logos/tv/fdf.png", ChannelCategory.ENTERTAINMENT),
-    Channel("Energy", "https://mdslivehlsb-i.akamaihd.net/hls/live/623627/energy/bitrate_1.m3u8", "https://www.tdtchannels.com/logos/tv/energy.png", ChannelCategory.ENTERTAINMENT),
-    Channel("Divinity", "https://mdslivehlsb-i.akamaihd.net/hls/live/623626/divinity/bitrate_1.m3u8", "https://www.tdtchannels.com/logos/tv/divinity.png", ChannelCategory.ENTERTAINMENT),
-    Channel("BeMad", "https://mdslivehlsb-i.akamaihd.net/hls/live/623629/bemad/bitrate_1.m3u8", "https://www.tdtchannels.com/logos/tv/bemad.png", ChannelCategory.ENTERTAINMENT),
+    // RTVE - URLs actualizadas desde TDTChannels (ztnr.rtve.es)
+    Channel("La 1", "https://ztnr.rtve.es/ztnr/1688877.m3u8", "https://pbs.twimg.com/profile_images/2008842210414915584/zIp_go25_200x200.jpg", ChannelCategory.GENERAL),
+    Channel("La 2", "https://ztnr.rtve.es/ztnr/1688885.m3u8", "https://yt3.googleusercontent.com/ytc/AIdro_kqgHWySi5xprs1VFCNCX0IKNT8yXBLZC43JMoB8j0JUto=s200", ChannelCategory.GENERAL),
+    Channel("24 Horas", "https://ztnr.rtve.es/ztnr/1694255.m3u8", "https://pbs.twimg.com/profile_images/1634293543987453954/mb1Rzmso_200x200.jpg", ChannelCategory.NEWS),
+    Channel("Clan TV", "https://rtvelivestream.rtve.es/rtvesec/clan/clan_main_dvr.m3u8", "", ChannelCategory.KIDS),
+    Channel("Teledeporte", "https://rtvelivestream.rtve.es/rtvesec/tdp/tdp_main_dvr.m3u8", "", ChannelCategory.SPORTS),
+    // RTVE alternativas (CloudFront)
+    Channel("La 1 HD", "https://d2jws8nf49xuk0.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-3ikffw175xm6u/La1ES.m3u8", "", ChannelCategory.GENERAL),
+    Channel("La 2 HD", "https://d4g9wh8d4wiaw.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-crbrakk0yedqb/La2ES.m3u8", "", ChannelCategory.GENERAL),
+    Channel("24H HD", "https://d32rw80ytx9uxs.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-vlldndmow4yre/24HES.m3u8", "", ChannelCategory.NEWS),
 )
