@@ -1,19 +1,26 @@
 package com.pedrogm.tdtflow.ui.components
 
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.*
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.composables.icons.lucide.Check
 import com.composables.icons.lucide.Lucide
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.data.model.ChannelCategory
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryFilter(
     selectedCategory: ChannelCategory?,
@@ -24,36 +31,48 @@ fun CategoryFilter(
         modifier = modifier
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
-            .padding(horizontal = dimensionResource(R.dimen.spacing_large), vertical = dimensionResource(R.dimen.spacing_small)),
-        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small))
+            .padding(horizontal = 12.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         FilterChip(
             selected = selectedCategory == null,
             onClick = { onCategorySelected(null) },
-            label = { Text(stringResource(R.string.category_all)) },
+            label = { 
+                Text(
+                    text = stringResource(R.string.category_all),
+                    fontSize = 12.sp
+                ) 
+            },
             leadingIcon = if (selectedCategory == null) {
                 {
                     Icon(
                         imageVector = Lucide.Check,
                         contentDescription = null,
-                        modifier = Modifier.size(dimensionResource(R.dimen.spacing_large))
+                        modifier = Modifier.size(14.dp)
                     )
                 }
-            } else null
+            } else null,
+            modifier = Modifier.height(32.dp)
         )
 
         ChannelCategory.entries.forEach { category ->
             FilterChip(
                 selected = selectedCategory == category,
                 onClick = { onCategorySelected(category) },
-                label = { Text(stringResource(category.stringResId)) },
+                label = { 
+                    Text(
+                        text = stringResource(category.stringResId),
+                        fontSize = 12.sp
+                    ) 
+                },
                 leadingIcon = {
                     Icon(
                         imageVector = category.toLucideIcon(),
                         contentDescription = null,
-                        modifier = Modifier.size(dimensionResource(R.dimen.spacing_large))
+                        modifier = Modifier.size(14.dp)
                     )
-                }
+                },
+                modifier = Modifier.height(32.dp)
             )
         }
     }
