@@ -38,16 +38,16 @@ private fun createChannels(block: ChannelBuilder.() -> Unit): List<Channel> =
 internal fun fallbackChannels(): List<Channel> = createChannels {
 
     // RTVE
-    channel("La 1", ztnr("1688877"), ChannelCategory.GENERAL, fbLogo("la1"))
+    channel("La 1", ztnr("1688877"), ChannelCategory.GENERAL, fbLogo("la1detve"))
     channel("La 2", ztnr("1688885"), ChannelCategory.GENERAL, fbLogo("la2detve"))
-    channel("24 Horas", ztnr("1694255"), ChannelCategory.NEWS, fbLogo("canal24horas"))
+    channel("24 Horas", ztnr("1694255"), ChannelCategory.NEWS, fbLogo("24h_tve"))
     channel("Clan", dvr("clan"), ChannelCategory.KIDS, fbLogo("clantve"))
     channel("Teledeporte", dvr("tdp"), ChannelCategory.SPORTS, fbLogo("teledeporteRTVE"))
 
     // Nacionales libres
-    channel("Trece", "https://trecetv.vnet.es/index.m3u8", ChannelCategory.GENERAL, fbLogo("TRECEtves"))
-    channel("Ten", "https://ten.vnet.es/index.m3u8", ChannelCategory.GENERAL, fbLogo("TenTV"))
-    channel("Real Madrid TV", "https://realmadrid-3-es.akamaized.net/master.m3u8", ChannelCategory.SPORTS, fbLogo("RealMadrid"))
+    channel("Trece", "http://176.65.146.237:8401/play/a0a9/index.m3u8", ChannelCategory.GENERAL, fbLogo("TRECEtves"))
+    channel("Ten", "https://unlimited1-us.dps.live/ten/ten.smil/playlist.m3u8", ChannelCategory.GENERAL, fbLogo("TenTV"))
+    channel("Real Madrid TV", "https://rmtv.akamaized.net/hls/live/2043153/rmtv-es-web/master.m3u8", ChannelCategory.SPORTS, fbLogo("RealMadrid"))
 
     // Andalucía
     channel(
@@ -66,7 +66,7 @@ internal fun fallbackChannels(): List<Channel> = createChannels {
     // Madrid
     channel(
         "Telemadrid",
-        "https://telemadridhls2-live-hls.secure2.footprint.net/egress/chandler/telemadrid/telemadrid/index.m3u8",
+        "https://telemadrid-23-secure2.akamaized.net/master.m3u8",
         ChannelCategory.GENERAL,
         fbLogo("telemadrid")
     )
@@ -90,7 +90,7 @@ internal fun fallbackChannels(): List<Channel> = createChannels {
     // Galicia
     channel(
         "TVG Galicia",
-        "https://06-03.streaming.crtvg.es/live/tvg_europa/index.m3u8",
+        "https://crtvg-galicia-schlive.flumotion.cloud/crtvglive/smil:channel1PRG.smil/playlist.m3u8",
         ChannelCategory.GENERAL,
         fbLogo("TelevisionGalicia")
     )
@@ -98,7 +98,7 @@ internal fun fallbackChannels(): List<Channel> = createChannels {
     // Aragón
     channel(
         "Aragón TV",
-        "https://cartv-streaming.aranova.es/hls/live/aragontv_canal1.m3u8",
+        "https://cartv.streaming.aranova.es/hls/live/aragontv_canal1.m3u8",
         ChannelCategory.GENERAL,
         fbLogo("aragontelevision")
     )
@@ -106,8 +106,15 @@ internal fun fallbackChannels(): List<Channel> = createChannels {
     // Baleares
     channel(
         "IB3 Baleares",
-        "http://ibsatiphone.ib3tv.com/iphoneliveIB3/IB3/bitrate_3.m3u8",
+        "http://ibsatiphone.ib3tv.com/iphoneliveIB3/IB3/bitrate_2.m3u8",
         ChannelCategory.GENERAL,
         fbLogo("IB3TV")
     )
+
+    // RADIO / MÚSICA
+    channel("LOS40", "https://live.los40.com/stream/LOS40/48_aac/index.m3u8", ChannelCategory.MUSIC, fbLogo("los40"))
+    channel("Rock FM", "https://shoutcast.cope.es/rockfm-free.mp3", ChannelCategory.MUSIC, fbLogo("rockfm"))
+    channel("Cadena SER", "https://playerservices.streamtheworld.com/api/livestream-redirect/CADENASER.mp3", ChannelCategory.MUSIC, fbLogo("cadenaser"))
+    channel("Radio 3", "https://rtvelivestream.rtve.es/rtvesec/rne/rne3_main.m3u8", ChannelCategory.MUSIC, fbLogo("radio3tve"))
+    channel("Kiss FM", "https://kissfm.kissfmradio.es/stream.mp3", ChannelCategory.MUSIC, fbLogo("KissFMSpain"))
 }

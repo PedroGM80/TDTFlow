@@ -2,26 +2,31 @@ package com.pedrogm.tdtflow.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
+import coil.compose.AsyncImage
 import com.composables.icons.lucide.*
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.data.model.Channel
+import com.pedrogm.tdtflow.data.model.ChannelCategory
 import com.pedrogm.tdtflow.player.PlayerState
 import com.pedrogm.tdtflow.player.TdtPlayer
 
@@ -125,6 +130,44 @@ fun VideoPlayer(
                         .size(dimensionResource(R.dimen.icon_size_extra_large)),
                     color = Color.White.copy(alpha = bufferingAlpha)
                 )
+            }
+
+            // Marcador de posición para canales de audio (Music)
+            if (channel.category == ChannelCategory.MUSIC) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        when {
+                            channel.logo.isNotEmpty() -> {
+                                AsyncImage(
+                                    model = channel.logo,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(120.dp)
+                                        .clip(RoundedCornerShape(16.dp))
+                                )
+                            }
+                            else -> {
+                                Icon(
+                                    imageVector = Lucide.Music,
+                                    contentDescription = null,
+                                    tint = colorResource(R.color.live_indicator),
+                                    modifier = Modifier.size(80.dp)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = stringResource(R.string.category_music),
+                            color = Color.Gray,
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    }
+                }
             }
         }
     }

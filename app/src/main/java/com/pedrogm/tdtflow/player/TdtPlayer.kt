@@ -8,7 +8,7 @@ import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.exoplayer.hls.HlsMediaSource
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.datasource.DefaultHttpDataSource
 import com.pedrogm.tdtflow.R
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,15 +34,15 @@ class TdtPlayer(context: Context) {
         .build()
         .apply { playWhenReady = true }
 
-    /**
-     * Factory reutilizable. Se configura una sola vez en la construcción
-     * y se pasa a HlsMediaSource.Factory en cada play().
-     */
     @OptIn(UnstableApi::class)
-    private val dataSourceFactory = DefaultHttpDataSource.Factory()
-        .setUserAgent("TDTFlow/1.0")
-        .setConnectTimeoutMs(10_000)
-        .setReadTimeoutMs(15_000)
+    private val mediaSourceFactory = DefaultMediaSourceFactory(context)
+        .setDataSourceFactory(
+            DefaultHttpDataSource.Factory()
+                .setUserAgent("TDTFlow/1.0")
+                .setConnectTimeoutMs(10_000)
+                .setReadTimeoutMs(15_000)
+                .setAllowCrossProtocolRedirects(true)
+        )
 
     // ── Estado reactivo ─────────────────────────────────────────────
 
@@ -86,20 +86,15 @@ class TdtPlayer(context: Context) {
     }
 
     /**
-     * Reproduce un stream HLS.
-     * Reutiliza [dataSourceFactory] para evitar recrear la factory cada vez.
-     *
-     * NOTA: ExoPlayer internamente usa sus propios hilos para buffering
-     * y decodificación. No necesitamos mover esta llamada fuera del Main --
-     * setMediaSource/prepare son non-blocking y delegan al hilo de ExoPlayer.
+     * Reproduce un stream (HLS, MP3, etc).
+     * Reutiliza [mediaSourceFactory] para evitar recrear la factory cada vez.
      */
     @OptIn(UnstableApi::class)
     fun play(streamUrl: String) {
         Log.d("TdtPlayer", "Playing: $streamUrl")
         _playerError.value = null
 
-        val mediaSource = HlsMediaSource.Factory(dataSourceFactory)
-            .createMediaSource(MediaItem.fromUri(streamUrl))
+        val mediaSource = mediaSourceFactory.createMediaSource(MediaItem.fromUri(streamUrl))
 
         exoPlayer.setMediaSource(mediaSource)
         exoPlayer.prepare()
