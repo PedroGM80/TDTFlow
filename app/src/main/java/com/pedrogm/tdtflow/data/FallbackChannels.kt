@@ -111,10 +111,10 @@ internal fun fallbackChannels(): List<Channel> = createChannels {
         fbLogo("IB3TV")
     )
 
-    // RADIO / MÚSICA
-    channel("LOS40", "https://live.los40.com/stream/LOS40/48_aac/index.m3u8", ChannelCategory.MUSIC, fbLogo("los40"))
-    channel("Rock FM", "https://shoutcast.cope.es/rockfm-free.mp3", ChannelCategory.MUSIC, fbLogo("rockfm"))
+    // RADIO / MÚSICA - Servidores estables 2025
+    channel("LOS40", "https://playerservices.streamtheworld.com/api/livestream-redirect/LOS40.mp3", ChannelCategory.MUSIC, fbLogo("los40"))
+    channel("Rock FM", "https://rockfm-cope-rrcast.flumotion.com/cope/net1.mp3", ChannelCategory.MUSIC, fbLogo("rockfm"))
     channel("Cadena SER", "https://playerservices.streamtheworld.com/api/livestream-redirect/CADENASER.mp3", ChannelCategory.MUSIC, fbLogo("cadenaser"))
-    channel("Radio 3", "https://rtvelivestream.rtve.es/rtvesec/rne/rne3_main.m3u8", ChannelCategory.MUSIC, fbLogo("radio3tve"))
-    channel("Kiss FM", "https://kissfm.kissfmradio.es/stream.mp3", ChannelCategory.MUSIC, fbLogo("KissFMSpain"))
+    channel("Radio 3", "https://rtvelivestream.akamaized.net/rtvesec/rne/rne_r3_main.m3u8", ChannelCategory.MUSIC, fbLogo("radio3tve"))
+    channel("Kiss FM", "https://kissfm.kissfmradio.cires21.com/kissfm.mp3", ChannelCategory.MUSIC, fbLogo("KissFMSpain"))
 }
