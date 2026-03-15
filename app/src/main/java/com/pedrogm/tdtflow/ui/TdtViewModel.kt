@@ -108,7 +108,16 @@ class TdtViewModel(application: Application) : AndroidViewModel(application) {
     ) { channels, category, query ->
         channels
             .asSequence()
-            .filter { category == null || it.category == category }
+            // Filtro de seguridad: no mostrar canales sin URL
+            .filter { it.url.isNotBlank() }
+            .filter { 
+                if (category == null) {
+                    // En "Todos", ocultamos canales de música/radio por ser solo audio
+                    it.category != ChannelCategory.MUSIC
+                } else {
+                    it.category == category
+                }
+            }
             .filter { query.isBlank() || it.name.contains(query, ignoreCase = true) }
             .toList()
     }
