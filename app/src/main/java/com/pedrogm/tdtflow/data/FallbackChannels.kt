@@ -8,7 +8,7 @@ private const val RTVE_LIVE = "https://rtvelivestream.rtve.es/rtvesec"
 
 private fun ztnr(id: String) = "$RTVE_ZTNR/$id.m3u8"
 private fun dvr(name: String) = "$RTVE_LIVE/$name/${name}_main_dvr.m3u8"
-private fun tdtLogo(name: String) = "https://www.tdtchannels.com/images/logos/$name.png"
+private fun fbLogo(id: String) = "https://graph.facebook.com/$id/picture?width=200&height=200"
 
 private class ChannelBuilder {
 
@@ -38,29 +38,29 @@ private fun createChannels(block: ChannelBuilder.() -> Unit): List<Channel> =
 internal fun fallbackChannels(): List<Channel> = createChannels {
 
     // RTVE
-    channel("La 1", ztnr("1688877"), ChannelCategory.GENERAL, tdtLogo("La_1"))
-    channel("La 2", ztnr("1688885"), ChannelCategory.GENERAL, tdtLogo("La_2"))
-    channel("24 Horas", ztnr("1694255"), ChannelCategory.NEWS, tdtLogo("Canal_24_Horas"))
-    channel("Clan", dvr("clan"), ChannelCategory.KIDS, tdtLogo("Clan"))
-    channel("Teledeporte", dvr("tdp"), ChannelCategory.SPORTS, tdtLogo("Teledeporte"))
+    channel("La 1", ztnr("1688877"), ChannelCategory.GENERAL, fbLogo("la1"))
+    channel("La 2", ztnr("1688885"), ChannelCategory.GENERAL, fbLogo("la2detve"))
+    channel("24 Horas", ztnr("1694255"), ChannelCategory.NEWS, fbLogo("canal24horas"))
+    channel("Clan", dvr("clan"), ChannelCategory.KIDS, fbLogo("clantve"))
+    channel("Teledeporte", dvr("tdp"), ChannelCategory.SPORTS, fbLogo("teledeporteRTVE"))
 
     // Nacionales libres
-    channel("Trece", "https://trecetv.vnet.es/index.m3u8", ChannelCategory.GENERAL, tdtLogo("TRECE"))
-    channel("Ten", "https://ten.vnet.es/index.m3u8", ChannelCategory.GENERAL, tdtLogo("TEN"))
-    channel("Real Madrid TV", "https://realmadrid-3-es.akamaized.net/master.m3u8", ChannelCategory.SPORTS, tdtLogo("Real_Madrid_TV"))
+    channel("Trece", "https://trecetv.vnet.es/index.m3u8", ChannelCategory.GENERAL, fbLogo("TRECEtves"))
+    channel("Ten", "https://ten.vnet.es/index.m3u8", ChannelCategory.GENERAL, fbLogo("TenTV"))
+    channel("Real Madrid TV", "https://realmadrid-3-es.akamaized.net/master.m3u8", ChannelCategory.SPORTS, fbLogo("RealMadrid"))
 
     // Andalucía
     channel(
         "Canal Sur Andalucía",
         "https://d35x6iaiw8f75z.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-kbwsl0jk1bvoo/canal_sur_andalucia_es.m3u8",
         ChannelCategory.GENERAL,
-        tdtLogo("Canal_Sur_Andalucia")
+        fbLogo("canalsurradioytv")
     )
     channel(
         "Canal Sur 2",
         "https://cdnlive.codev8.net/rtvalive/smil:channel22.smil/playlist.m3u8",
         ChannelCategory.GENERAL,
-        tdtLogo("Canal_Sur_2")
+        fbLogo("canalsurradioytv")
     )
 
     // Madrid
@@ -68,7 +68,7 @@ internal fun fallbackChannels(): List<Channel> = createChannels {
         "Telemadrid",
         "https://telemadridhls2-live-hls.secure2.footprint.net/egress/chandler/telemadrid/telemadrid/index.m3u8",
         ChannelCategory.GENERAL,
-        tdtLogo("Telemadrid")
+        fbLogo("telemadrid")
     )
 
     // Cataluña
@@ -76,7 +76,7 @@ internal fun fallbackChannels(): List<Channel> = createChannels {
         "TV3 Cataluña",
         "https://directes-tv-cat.3catdirectes.cat/live-content/tv3-hls/master.m3u8",
         ChannelCategory.GENERAL,
-        tdtLogo("TV3")
+        fbLogo("tv3")
     )
 
     // País Vasco
@@ -84,7 +84,7 @@ internal fun fallbackChannels(): List<Channel> = createChannels {
         "ETB 1",
         "https://multimedia.eitb.eus/live-content/etb1hd-hls/master.m3u8",
         ChannelCategory.GENERAL,
-        tdtLogo("ETB1")
+        fbLogo("eitb")
     )
 
     // Galicia
@@ -92,7 +92,7 @@ internal fun fallbackChannels(): List<Channel> = createChannels {
         "TVG Galicia",
         "https://06-03.streaming.crtvg.es/live/tvg_europa/index.m3u8",
         ChannelCategory.GENERAL,
-        tdtLogo("TVG")
+        fbLogo("TelevisionGalicia")
     )
 
     // Aragón
@@ -100,7 +100,7 @@ internal fun fallbackChannels(): List<Channel> = createChannels {
         "Aragón TV",
         "https://cartv-streaming.aranova.es/hls/live/aragontv_canal1.m3u8",
         ChannelCategory.GENERAL,
-        tdtLogo("Aragon_TV")
+        fbLogo("aragontelevision")
     )
 
     // Baleares
@@ -108,6 +108,6 @@ internal fun fallbackChannels(): List<Channel> = createChannels {
         "IB3 Baleares",
         "http://ibsatiphone.ib3tv.com/iphoneliveIB3/IB3/bitrate_3.m3u8",
         ChannelCategory.GENERAL,
-        tdtLogo("IB3")
+        fbLogo("IB3TV")
     )
 }
