@@ -13,11 +13,11 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import androidx.tv.foundation.lazy.grid.TvGridCells
-import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
-import androidx.tv.foundation.lazy.grid.items
-import androidx.tv.foundation.lazy.list.TvLazyRow
-import androidx.tv.foundation.lazy.list.items
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.tv.material3.*
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.LayoutGrid
@@ -71,7 +71,7 @@ internal fun TvChannelBrowser(viewModel: TdtViewModel) {
         }
 
         // Categorías
-        TvLazyRow(
+        LazyRow(
             horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium)),
             modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_extra_large))
         ) {
@@ -94,8 +94,8 @@ internal fun TvChannelBrowser(viewModel: TdtViewModel) {
         }
 
         // Grid de canales
-        TvLazyVerticalGrid(
-            columns = TvGridCells.Adaptive(dimensionResource(R.dimen.card_width_tv)),
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(dimensionResource(R.dimen.card_width_tv)),
             horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_large)),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_large)),
             modifier = Modifier.fillMaxSize()
