@@ -1,27 +1,28 @@
 [versions]
 # Android & Kotlin
 androidGradlePlugin = "9.1.0"
-kotlin = "2.2.10"
+kotlin = "2.3.10"
 ksp = "2.0.0-1.0.21"
 
 # AndroidX
-androidxCore = "1.12.0"
-androidxActivity = "1.8.1"
-androidxLifecycle = "2.7.0"
-androidxNavigation = "2.7.7"
-androidxComposeBom = "2024.03.00"
-androidxMedia3 = "1.2.1"
-tvComposeBom = "1.0.0-alpha10"
+androidxCore = "1.18.0"
+androidxActivity = "1.13.0"
+androidxLifecycle = "2.10.0"
+androidxNavigation = "2.9.7"
+androidxComposeBom = "2026.03.00"
+androidxMedia3 = "1.9.2"
+tvFoundation = "1.0.0-alpha12"
+tvMaterial = "1.1.0-alpha01"
 
 # Kotlin
-kotlinxCoroutines = "1.7.3"
-kotlinxSerialization = "1.6.2"
+kotlinxCoroutines = "1.10.2"
+kotlinxSerialization = "1.10.0"
 
 # Ktor
-ktor = "2.3.8"
+ktor = "3.4.1"
 
 # Networking & Serialization
-coil = "2.6.0"
+coil = "2.7.0"
 
 # Lottie & Icons
 compottie = "2.1.0"
@@ -48,8 +49,8 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidxNavigation" }
 
 # TV Compose
-tv-compose-foundation = { group = "androidx.tv", name = "tv-foundation", version.ref = "tvComposeBom" }
-tv-compose-material = { group = "androidx.tv", name = "tv-material", version.ref = "tvComposeBom" }
+tv-compose-foundation = { group = "androidx.tv", name = "tv-foundation", version.ref = "tvFoundation" }
+tv-compose-material = { group = "androidx.tv", name = "tv-material", version.ref = "tvMaterial" }
 
 # Media3
 media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "androidxMedia3" }
