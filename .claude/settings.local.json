@@ -20,7 +20,9 @@
       "Bash(cd C:/Users/pedro/Downloads/tdtflow/tdtflow && timeout 120 ./gradlew compileDebugKotlin 2>&1 | grep -A 3 \"TvPlayerFullscreen.kt:58\")",
       "Bash(cd C:/Users/pedro/Downloads/tdtflow/tdtflow && timeout 120 ./gradlew compileDebugKotlin 2>&1 | grep \"BUILD\\\\|^e:\" | head -5)",
       "Bash(cd C:/Users/pedro/Downloads/tdtflow/tdtflow && ./gradlew compileDebugKotlin 2>&1 | tail -5)",
-      "Bash(cd C:/Users/pedro/Downloads/tdtflow/tdtflow && timeout 180 ./gradlew compileDebugKotlin assembleDebug 2>&1 | tail -40)"
+      "Bash(cd C:/Users/pedro/Downloads/tdtflow/tdtflow && timeout 180 ./gradlew compileDebugKotlin assembleDebug 2>&1 | tail -40)",
+      "Bash(./gradlew assembleDebug 2>&1 | head -100)",
+      "Bash(git add:*)"
     ]
   }
 }
