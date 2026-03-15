@@ -3,17 +3,17 @@ package com.pedrogm.tdtflow.data.repository
 import com.pedrogm.tdtflow.data.fallbackChannels
 import com.pedrogm.tdtflow.data.model.Channel
 import com.pedrogm.tdtflow.data.model.ChannelCategory
-import io.ktor.client.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.android.Android
+import io.ktor.client.request.get
+import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 
 class ChannelRepository(
-    private val httpClient: HttpClient = HttpClient()
+    private val httpClient: HttpClient = HttpClient(Android)
 ) {
     /**
      * Emite canales como Flow con dispatchers optimizados:
@@ -25,13 +25,17 @@ class ChannelRepository(
      * que podrían estar atendiendo otras peticiones de red.
      */
     fun getChannelsFlow(): Flow<List<Channel>> = flow {
-        // IO: descarga del fichero M3U
-        val m3uContent = withContext(Dispatchers.IO) {
-            httpClient.get(M3U_URL).bodyAsText()
-        }
-        // Default: parseo CPU-bound
-        val channels = withContext(Dispatchers.Default) {
-            parseM3u(m3uContent)
+        val channels = try {
+            // IO: descarga del fichero M3U
+            val m3uContent = withContext(Dispatchers.IO) {
+                httpClient.get(M3U_URL).bodyAsText()
+            }
+            // Default: parseo CPU-bound
+            withContext(Dispatchers.Default) {
+                parseM3u(m3uContent)
+            }
+        } catch (_: Throwable) {
+            emptyList()
         }
         emit(channels.ifEmpty { fallbackChannels() })
     }
