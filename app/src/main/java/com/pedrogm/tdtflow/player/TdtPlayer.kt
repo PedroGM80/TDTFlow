@@ -1,6 +1,7 @@
 package com.pedrogm.tdtflow.player
 
 import android.content.Context
+import android.util.Log
 import androidx.annotation.OptIn
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
@@ -26,6 +27,7 @@ import kotlinx.coroutines.flow.asStateFlow
  * - Errores expuestos como [playerError] StateFlow en vez de callback,
  *   compatible con el pipeline de Flow del ViewModel.
  */
+@UnstableApi
 class TdtPlayer(context: Context) {
 
     val exoPlayer: ExoPlayer = ExoPlayer.Builder(context)
@@ -53,12 +55,15 @@ class TdtPlayer(context: Context) {
     init {
         exoPlayer.addListener(object : Player.Listener {
             override fun onPlaybackStateChanged(playbackState: Int) {
+                Log.d("TdtPlayer", "Playback state changed: $playbackState")
                 _playerState.value = when (playbackState) {
                     Player.STATE_IDLE -> PlayerState.IDLE
                     Player.STATE_BUFFERING -> PlayerState.BUFFERING
                     Player.STATE_READY -> {
-                        if (exoPlayer.playWhenReady) PlayerState.PLAYING
-                        else PlayerState.PAUSED
+                        when {
+                            exoPlayer.playWhenReady -> PlayerState.PLAYING
+                            else -> PlayerState.PAUSED
+                        }
                     }
                     Player.STATE_ENDED -> PlayerState.ENDED
                     else -> PlayerState.IDLE
@@ -66,10 +71,14 @@ class TdtPlayer(context: Context) {
             }
 
             override fun onIsPlayingChanged(isPlaying: Boolean) {
-                _playerState.value = if (isPlaying) PlayerState.PLAYING else PlayerState.PAUSED
+                _playerState.value = when {
+                    isPlaying -> PlayerState.PLAYING
+                    else -> PlayerState.PAUSED
+                }
             }
 
             override fun onPlayerError(error: PlaybackException) {
+                Log.e("TdtPlayer", "Playback error: ${error.errorCodeName} (${error.errorCode})", error)
                 _playerError.value = error.localizedMessage ?: context.getString(R.string.playback_error)
                 _playerState.value = PlayerState.ERROR
             }
@@ -86,6 +95,7 @@ class TdtPlayer(context: Context) {
      */
     @OptIn(UnstableApi::class)
     fun play(streamUrl: String) {
+        Log.d("TdtPlayer", "Playing: $streamUrl")
         _playerError.value = null
 
         val mediaSource = HlsMediaSource.Factory(dataSourceFactory)

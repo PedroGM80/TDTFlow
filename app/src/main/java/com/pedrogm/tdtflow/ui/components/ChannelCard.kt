@@ -1,5 +1,6 @@
 package com.pedrogm.tdtflow.ui.components
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,6 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.compose.AsyncImagePainter
 import com.composables.icons.lucide.*
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.data.model.Channel
@@ -53,6 +55,11 @@ fun ChannelCard(
             if (channel.logo.isNotEmpty()) {
                 AsyncImage(
                     model = channel.logo,
+                    onState = { state ->
+                        if (state is AsyncImagePainter.State.Error) {
+                            Log.e("ChannelCard", "Error loading logo for ${channel.name}: ${channel.logo}", state.result.throwable)
+                        }
+                    },
                     contentDescription = channel.name,
                     modifier = Modifier
                         .size(dimensionResource(R.dimen.card_logo_size_mobile))
