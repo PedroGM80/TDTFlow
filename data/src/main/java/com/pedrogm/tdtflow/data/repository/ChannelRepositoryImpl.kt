@@ -1,16 +1,21 @@
 package com.pedrogm.tdtflow.data.repository
 
 import android.util.Log
-import com.pedrogm.tdtflow.data.remote.NetworkModule
+import com.pedrogm.tdtflow.data.remote.TdtChannelsService
 import com.pedrogm.tdtflow.data.remote.toChannel
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.repository.ChannelRepository
+import dagger.Reusable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class ChannelRepositoryImpl : ChannelRepository {
+@Reusable
+class ChannelRepositoryImpl @Inject constructor(
+    private val service: TdtChannelsService
+) : ChannelRepository {
 
     override fun getChannels(): Flow<List<Channel>> = flow {
         emit(loadChannels())
@@ -20,7 +25,7 @@ class ChannelRepositoryImpl : ChannelRepository {
         val fallback = fallbackChannels()
         try {
             Log.d("ChannelRepository", "Loading channels from JSON list...")
-            val response = NetworkModule.service.getChannels()
+            val response = service.getChannels()
             
             // Aplanamos la lista de ambitos -> canales
             val apiChannels = withContext(Dispatchers.Default) {
