@@ -60,6 +60,7 @@ media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "andr
 media3-session = { group = "androidx.media3", name = "media3-session", version.ref = "androidxMedia3" }
 
 # Coroutines
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
 
 # Ktor
