@@ -1,7 +1,7 @@
 package com.pedrogm.tdtflow.ui
 
-import com.pedrogm.tdtflow.data.model.Channel
-import com.pedrogm.tdtflow.data.model.ChannelCategory
+import com.pedrogm.tdtflow.domain.model.Channel
+import com.pedrogm.tdtflow.domain.model.ChannelCategory
 import com.pedrogm.tdtflow.util.Constants
 
 data class TdtUiState(

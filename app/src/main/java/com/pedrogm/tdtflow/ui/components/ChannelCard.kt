@@ -35,7 +35,7 @@ import coil.compose.AsyncImagePainter
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Music
 import com.pedrogm.tdtflow.R
-import com.pedrogm.tdtflow.data.model.Channel
+import com.pedrogm.tdtflow.domain.model.Channel
 
 @Composable
 fun ChannelCard(

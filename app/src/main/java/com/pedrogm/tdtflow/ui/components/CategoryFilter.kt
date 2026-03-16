@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.sp
 import com.composables.icons.lucide.Check
 import com.composables.icons.lucide.Lucide
 import com.pedrogm.tdtflow.R
-import com.pedrogm.tdtflow.data.model.ChannelCategory
+import com.pedrogm.tdtflow.domain.model.ChannelCategory
 
 @Composable
 fun CategoryFilter(
@@ -61,7 +61,7 @@ fun CategoryFilter(
                 onClick = { onCategorySelected(category) },
                 label = { 
                     Text(
-                        text = stringResource(category.stringResId),
+                        text = stringResource(category.toStringRes()),
                         fontSize = 12.sp
                     ) 
                 },

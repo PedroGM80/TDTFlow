@@ -38,7 +38,7 @@ import androidx.media3.ui.PlayerView
 import coil.compose.AsyncImage
 import com.composables.icons.lucide.*
 import com.pedrogm.tdtflow.R
-import com.pedrogm.tdtflow.data.model.Channel
+import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.player.PlayerState
 import com.pedrogm.tdtflow.ui.TdtUiState
 import com.pedrogm.tdtflow.ui.TdtViewModel

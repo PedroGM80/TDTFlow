@@ -24,7 +24,7 @@ import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import com.composables.icons.lucide.*
 import com.pedrogm.tdtflow.R
-import com.pedrogm.tdtflow.data.model.Channel
+import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.ui.components.toLucideIcon
 
 @OptIn(ExperimentalTvMaterial3Api::class)

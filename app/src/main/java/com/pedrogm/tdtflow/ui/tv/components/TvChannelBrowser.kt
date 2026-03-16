@@ -24,10 +24,11 @@ import com.composables.icons.lucide.LayoutGrid
 import com.composables.icons.lucide.Tv
 import androidx.compose.material3.Icon
 import com.pedrogm.tdtflow.R
-import com.pedrogm.tdtflow.data.model.ChannelCategory
+import com.pedrogm.tdtflow.domain.model.ChannelCategory
 import com.pedrogm.tdtflow.ui.TdtViewModel
 import com.pedrogm.tdtflow.ui.components.LoadingAnimation
 import com.pedrogm.tdtflow.ui.components.toLucideIcon
+import com.pedrogm.tdtflow.ui.components.toStringRes
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -85,7 +86,7 @@ internal fun TvChannelBrowser(viewModel: TdtViewModel) {
             }
             items(ChannelCategory.entries.toList()) { category ->
                 TvCategoryChip(
-                    label = stringResource(category.stringResId),
+                    label = stringResource(category.toStringRes()),
                     icon = category.toLucideIcon(),
                     isSelected = uiState.selectedCategory == category,
                     onClick = { viewModel.filterByCategory(category) }
