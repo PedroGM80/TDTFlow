@@ -8,7 +8,9 @@ import androidx.activity.viewModels
 import com.pedrogm.tdtflow.ui.TdtViewModel
 import com.pedrogm.tdtflow.ui.mobile.MobileScreen
 import com.pedrogm.tdtflow.ui.theme.TDTFlowTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val viewModel: TdtViewModel by viewModels()

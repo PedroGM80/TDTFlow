@@ -8,7 +8,9 @@ import androidx.activity.viewModels
 import com.pedrogm.tdtflow.ui.TdtViewModel
 import com.pedrogm.tdtflow.ui.theme.TDTFlowTheme
 import com.pedrogm.tdtflow.ui.tv.TvScreen
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class TvActivity : ComponentActivity() {
 
     private val viewModel: TdtViewModel by viewModels()
