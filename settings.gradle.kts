@@ -17,3 +17,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "TDTFlow"
 include(":app")
+include(":domain")
+include(":data")

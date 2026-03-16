@@ -4,9 +4,10 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.pedrogm.tdtflow.R
-import com.pedrogm.tdtflow.data.model.Channel
-import com.pedrogm.tdtflow.data.model.ChannelCategory
-import com.pedrogm.tdtflow.data.repository.ChannelRepository
+import com.pedrogm.tdtflow.domain.model.Channel
+import com.pedrogm.tdtflow.domain.model.ChannelCategory
+import com.pedrogm.tdtflow.data.repository.ChannelRepositoryImpl
+import com.pedrogm.tdtflow.domain.usecase.GetChannelsUseCase
 import com.pedrogm.tdtflow.player.TdtPlayer
 import com.pedrogm.tdtflow.util.Constants
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -14,43 +15,10 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 
-/**
- * ViewModel con pipeline de coroutines optimizado para rendimiento.
- *
- * Optimizaciones:
- *
- * 1. DEBOUNCE en búsqueda (300ms)
- *    Sin debounce, cada pulsación de tecla dispara: filtrado de lista,
- *    emisión de nuevo UiState, recomposición de Compose.
- *    Con debounce, sólo se ejecuta 300ms después de la última tecla.
- *
- * 2. distinctUntilChanged() en todos los flujos fuente
- *    Evita que emitan valores iguales al anterior. Ejemplo: el usuario
- *    pulsa "Todos" cuando ya está en "Todos" → sin distinctUntilChanged,
- *    eso recalcula filtros y recompone innecesariamente.
- *
- * 3. Cancelación de job en retry
- *    Sin control, pulsar "Reintentar" 5 veces lanza 5 coroutines
- *    concurrentes descargando el mismo M3U. Ahora se cancela la anterior.
- *
- * 4. Sin doble suscripción a _channels
- *    Antes, el combine de uiState incluía _channels directamente
- *    Y _filteredChannels (que internamente también observa _channels).
- *    Resultado: dos suscripciones al mismo flow. Ahora _filteredChannels
- *    es un StateFlow y uiState usa el resultado ya materializado.
- *
- * 5. Estado del reproductor como Flow
- *    TdtPlayer expone playerState y playerError como StateFlow.
- *    El ViewModel los integra en el pipeline reactivo en vez de
- *    depender de callbacks mutables.
- *
- * 6. flowOn(Default) en filtrado
- *    El filtrado de 200+ canales es CPU-bound. Se ejecuta en
- *    Dispatchers.Default para no bloquear Main.
- */
 class TdtViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository = ChannelRepository()
+    private val repository = ChannelRepositoryImpl()
+    private val getChannelsUseCase = GetChannelsUseCase(repository)
 
     // ── Flujos fuente ───────────────────────────────────────────────
 
@@ -188,7 +156,7 @@ class TdtViewModel(application: Application) : AndroidViewModel(application) {
      */
     private fun loadChannels() {
         loadJob?.cancel()
-        loadJob = repository.getChannelsFlow()
+        loadJob = getChannelsUseCase()
             .onStart {
                 _isLoading.value = true
                 _error.value = null
