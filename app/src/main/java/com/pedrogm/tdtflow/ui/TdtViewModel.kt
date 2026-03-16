@@ -6,19 +6,21 @@ import androidx.lifecycle.viewModelScope
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
-import com.pedrogm.tdtflow.data.repository.ChannelRepositoryImpl
 import com.pedrogm.tdtflow.domain.usecase.GetChannelsUseCase
 import com.pedrogm.tdtflow.player.TdtPlayer
 import com.pedrogm.tdtflow.util.Constants
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
+import javax.inject.Inject
 
-class TdtViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val repository = ChannelRepositoryImpl()
-    private val getChannelsUseCase = GetChannelsUseCase(repository)
+@HiltViewModel
+class TdtViewModel @Inject constructor(
+    application: Application,
+    private val getChannelsUseCase: GetChannelsUseCase
+) : AndroidViewModel(application) {
 
     // ── Flujos fuente ───────────────────────────────────────────────
 
