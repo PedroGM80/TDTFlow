@@ -45,93 +45,117 @@ fun CategoryFilter(
             .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Filtros de categoría con scroll horizontal
-        Row(
-            modifier = Modifier
-                .weight(1f)
-                .horizontalScroll(rememberScrollState())
-                .padding(start = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
+        CategoryFilterChips(
+            selectedCategory = selectedCategory,
+            onCategorySelected = onCategorySelected,
+            modifier = Modifier.weight(1f)
+        )
+
+        BrokenChannelsActions(
+            brokenChannelsCount = brokenChannelsCount,
+            showingBroken = showingBroken,
+            onToggleBroken = onToggleBroken,
+            onRevalidate = onRevalidate
+        )
+    }
+}
+
+@Composable
+private fun CategoryFilterChips(
+    selectedCategory: ChannelCategory?,
+    onCategorySelected: (ChannelCategory?) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .horizontalScroll(rememberScrollState())
+            .padding(start = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        FilterChip(
+            selected = selectedCategory == null,
+            onClick = { onCategorySelected(null) },
+            label = {
+                Text(
+                    text = stringResource(R.string.category_all),
+                    fontSize = 12.sp
+                )
+            },
+            leadingIcon = if (selectedCategory == null) {
+                {
+                    Icon(
+                        imageVector = Lucide.Check,
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp)
+                    )
+                }
+            } else null,
+            modifier = Modifier.height(32.dp)
+        )
+
+        ChannelCategory.entries.forEach { category ->
             FilterChip(
-                selected = selectedCategory == null,
-                onClick = { onCategorySelected(null) },
-                label = { 
+                selected = selectedCategory == category,
+                onClick = { onCategorySelected(category) },
+                label = {
                     Text(
-                        text = stringResource(R.string.category_all),
+                        text = stringResource(category.toStringRes()),
                         fontSize = 12.sp
-                    ) 
+                    )
                 },
-                leadingIcon = if (selectedCategory == null) {
-                    {
-                        Icon(
-                            imageVector = Lucide.Check,
-                            contentDescription = null,
-                            modifier = Modifier.size(14.dp)
-                        )
-                    }
-                } else null,
+                leadingIcon = {
+                    Icon(
+                        imageVector = category.toLucideIcon(),
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp)
+                    )
+                },
                 modifier = Modifier.height(32.dp)
             )
+        }
+    }
+}
 
-            ChannelCategory.entries.forEach { category ->
-                FilterChip(
-                    selected = selectedCategory == category,
-                    onClick = { onCategorySelected(category) },
-                    label = { 
-                        Text(
-                            text = stringResource(category.toStringRes()),
-                            fontSize = 12.sp
-                        ) 
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = category.toLucideIcon(),
-                            contentDescription = null,
-                            modifier = Modifier.size(14.dp)
-                        )
-                    },
-                    modifier = Modifier.height(32.dp)
+@Composable
+private fun BrokenChannelsActions(
+    brokenChannelsCount: Int,
+    showingBroken: Boolean,
+    onToggleBroken: (() -> Unit)?,
+    onRevalidate: (() -> Unit)?,
+    modifier: Modifier = Modifier
+) {
+    if (brokenChannelsCount > 0 && onToggleBroken != null) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier.padding(end = 4.dp)
+        ) {
+            IconButton(
+                onClick = onToggleBroken,
+                modifier = Modifier.size(36.dp)
+            ) {
+                Icon(
+                    imageVector = if (showingBroken) Lucide.Eye else Lucide.EyeOff,
+                    contentDescription = stringResource(R.string.show_broken_channels),
+                    modifier = Modifier.size(18.dp),
+                    tint = if (showingBroken) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    }
                 )
             }
-        }
 
-        // Iconos de canales ocultos (solo si hay canales rotos)
-        if (brokenChannelsCount > 0 && onToggleBroken != null) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(end = 4.dp)
-            ) {
-                // Icono ojo para mostrar/ocultar canales rotos
+            if (onRevalidate != null) {
                 IconButton(
-                    onClick = onToggleBroken,
+                    onClick = onRevalidate,
                     modifier = Modifier.size(36.dp)
                 ) {
                     Icon(
-                        imageVector = if (showingBroken) Lucide.Eye else Lucide.EyeOff,
-                        contentDescription = stringResource(R.string.show_broken_channels),
-                        modifier = Modifier.size(18.dp),
-                        tint = if (showingBroken) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        }
+                        imageVector = Lucide.RotateCcw,
+                        contentDescription = stringResource(R.string.revalidate_channels),
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                }
-                
-                // Icono revalidar
-                if (onRevalidate != null) {
-                    IconButton(
-                        onClick = onRevalidate,
-                        modifier = Modifier.size(36.dp)
-                    ) {
-                        Icon(
-                            imageVector = Lucide.RotateCcw,
-                            contentDescription = stringResource(R.string.revalidate_channels),
-                            modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
                 }
             }
         }
