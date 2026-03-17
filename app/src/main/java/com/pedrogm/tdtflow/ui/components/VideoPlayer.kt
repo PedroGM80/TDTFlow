@@ -29,6 +29,7 @@ import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
 import com.pedrogm.tdtflow.player.PlayerState
 import com.pedrogm.tdtflow.player.TdtPlayer
+import com.pedrogm.tdtflow.ui.theme.AppColors
 
 @androidx.annotation.OptIn(UnstableApi::class)
 @Composable
@@ -49,20 +50,20 @@ fun VideoPlayer(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.Black.copy(alpha = highAlpha))
+                .background(AppColors.Player.controlBar)
                 .padding(horizontal = dimensionResource(R.dimen.spacing_medium), vertical = dimensionResource(R.dimen.padding_medium)),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 imageVector = Lucide.Music,
                 contentDescription = null,
-                tint = if (playerState == PlayerState.PLAYING) colorResource(R.color.live_indicator) else Color.Gray,
+                tint = if (playerState == PlayerState.PLAYING) colorResource(R.color.live_indicator) else AppColors.Player.inactiveIcon,
                 modifier = Modifier.size(dimensionResource(R.dimen.icon_size_small))
             )
             Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_small)))
             Text(
                 text = channel.name,
-                color = Color.White,
+                color = AppColors.Player.foreground,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = dimensionResource(R.dimen.text_size_medium).value.sp,
                 modifier = Modifier.weight(1f)
@@ -73,7 +74,7 @@ fun VideoPlayer(
                 CircularProgressIndicator(
                     modifier = Modifier.size(dimensionResource(R.dimen.radius_extra_large)),
                     strokeWidth = dimensionResource(R.dimen.stroke_thin),
-                    color = Color.White
+                    color = AppColors.Player.foreground
                 )
                 Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_small)))
             }
@@ -83,7 +84,7 @@ fun VideoPlayer(
                     Icon(
                         Lucide.Maximize,
                         contentDescription = stringResource(R.string.fullscreen_description),
-                        tint = Color.White,
+                        tint = AppColors.Player.foreground,
                         modifier = Modifier.size(dimensionResource(R.dimen.radius_extra_large))
                     )
                 }
@@ -93,7 +94,7 @@ fun VideoPlayer(
                 Icon(
                     Lucide.X,
                     contentDescription = stringResource(R.string.close),
-                    tint = Color.White,
+                    tint = AppColors.Player.foreground,
                     modifier = Modifier.size(dimensionResource(R.dimen.radius_extra_large))
                 )
             }
@@ -119,7 +120,7 @@ fun VideoPlayer(
                 },
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black)
+                    .background(AppColors.Player.background)
             )
 
             // Overlay de buffering centrado
@@ -128,7 +129,7 @@ fun VideoPlayer(
                     modifier = Modifier
                         .align(Alignment.Center)
                         .size(dimensionResource(R.dimen.icon_size_extra_large)),
-                    color = Color.White.copy(alpha = bufferingAlpha)
+                    color = AppColors.Player.bufferingIndicator
                 )
             }
 
@@ -137,7 +138,7 @@ fun VideoPlayer(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.Black),
+                        .background(AppColors.Player.background),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -154,7 +155,7 @@ fun VideoPlayer(
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
                             text = stringResource(R.string.category_music),
-                            color = Color.Gray,
+                            color = AppColors.Player.inactiveIcon,
                             style = MaterialTheme.typography.labelLarge
                         )
                     }

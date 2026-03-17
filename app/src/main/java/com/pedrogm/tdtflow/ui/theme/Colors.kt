@@ -21,4 +21,13 @@ object AppColors {
         val selectedBackground = Color.White.copy(alpha = 0.25f)
         val unselectedBackground = Color.White.copy(alpha = 0.1f)
     }
+
+    // Player UI colors
+    object Player {
+        val background = Color.Black
+        val foreground = Color.White
+        val controlBar = Color.Black.copy(alpha = 0.8f)
+        val inactiveIcon = Color.Gray
+        val bufferingIndicator = Color.White.copy(alpha = 0.7f)
+    }
 }
