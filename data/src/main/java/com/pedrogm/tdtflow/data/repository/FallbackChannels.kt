@@ -40,7 +40,7 @@ internal fun fallbackChannels(): List<Channel> = createChannels {
     // RTVE
     channel("La 1", ztnr("1688877"), ChannelCategory.GENERAL, fbLogo("la1detve"))
     channel("La 2", ztnr("1688885"), ChannelCategory.GENERAL, fbLogo("la2detve"))
-    channel("24 Horas", ztnr("1694255"), ChannelCategory.NEWS, "https://raw.githubusercontent.com/iptv-org/logos/master/channels/es_24h.png")
+    channel("24 Horas", ztnr("1694255"), ChannelCategory.NEWS, "https://graph.facebook.com/24h_tve/picture?type=square&width=200")
     channel("Clan", dvr("clan"), ChannelCategory.KIDS, fbLogo("clantve"))
     channel("Teledeporte", dvr("tdp"), ChannelCategory.SPORTS, fbLogo("teledeporteRTVE"))
 
@@ -59,7 +59,7 @@ internal fun fallbackChannels(): List<Channel> = createChannels {
         "TV3 Cataluña",
         "https://directes-tv-cat.3catdirectes.cat/live-content/tv3-hls/master.m3u8",
         ChannelCategory.GENERAL,
-        "https://raw.githubusercontent.com/iptv-org/logos/master/channels/es_tv3.png"
+        "https://graph.facebook.com/tv3cat/picture?type=square&width=200"
     )
 
     // País Vasco
@@ -76,12 +76,12 @@ internal fun fallbackChannels(): List<Channel> = createChannels {
         "Aragón TV",
         "https://cartv.streaming.aranova.es/hls/live/aragontv_canal1.m3u8",
         ChannelCategory.GENERAL,
-        "https://raw.githubusercontent.com/iptv-org/logos/master/channels/es_aragontv.png"
+        "https://graph.facebook.com/aragontelevision/picture?type=square&width=200"
     )
 
     // RADIO / MÚSICA - Servidores estables 2025
     channel("LOS40", "https://playerservices.streamtheworld.com/api/livestream-redirect/LOS40.mp3", ChannelCategory.MUSIC, fbLogo("los40"))
     channel("Rock FM", "https://rockfm-cope-rrcast.flumotion.com/cope/net1.mp3", ChannelCategory.MUSIC, fbLogo("rockfm"))
     channel("Cadena SER", "https://playerservices.streamtheworld.com/api/livestream-redirect/CADENASER.mp3", ChannelCategory.MUSIC, fbLogo("cadenaser"))
-    channel("Kiss FM", "https://kissfm.kissfmradio.cires21.com/kissfm.mp3", ChannelCategory.MUSIC, "https://raw.githubusercontent.com/iptv-org/logos/master/channels/es_kissfm.png")
+    channel("Kiss FM", "https://kissfm.kissfmradio.cires21.com/kissfm.mp3", ChannelCategory.MUSIC, "https://graph.facebook.com/kissfmspain/picture?type=square&width=200")
 }
