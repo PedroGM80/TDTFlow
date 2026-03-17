@@ -43,6 +43,7 @@ import coil.compose.AsyncImage
 import com.composables.icons.lucide.*
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.domain.model.Channel
+import com.pedrogm.tdtflow.domain.model.ChannelCategory
 import com.pedrogm.tdtflow.player.PlayerState
 import com.pedrogm.tdtflow.ui.TdtUiState
 import com.pedrogm.tdtflow.ui.TdtViewModel
@@ -135,91 +136,20 @@ private fun LandscapeFullscreenPlayer(
             )
         }
 
-        AnimatedVisibility(
-            visible = showOverlay,
-            enter = fadeIn() + slideInVertically { -it },
-            exit = fadeOut() + slideOutVertically { -it },
-            modifier = Modifier.align(Alignment.TopCenter)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(AppColors.Overlay.gradientTop, Color.Transparent)
-                        )
-                    )
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-                    .statusBarsPadding(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Punto rojo de "en directo"
-                Box(
-                    modifier = Modifier
-                        .size(8.dp)
-                        .clip(CircleShape)
-                        .background(AppColors.liveIndicator)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = uiState.currentChannel?.name ?: "",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    modifier = Modifier.weight(1f)
-                )
-                IconButton(onClick = { viewModel.stopPlayback() }) {
-                    Icon(
-                        Lucide.X,
-                        contentDescription = stringResource(R.string.close),
-                        tint = Color.White
-                    )
-                }
-            }
-        }
+        TopLandscapeOverlay(
+            showOverlay = showOverlay,
+            currentChannelName = uiState.currentChannel?.name ?: "",
+            onClose = { viewModel.stopPlayback() }
+        )
 
-        AnimatedVisibility(
-            visible = showOverlay,
-            enter = fadeIn() + slideInVertically { it },
-            exit = fadeOut() + slideOutVertically { it },
-            modifier = Modifier.align(Alignment.BottomCenter)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(Color.Transparent, AppColors.Overlay.gradientBottom)
-                        )
-                    )
-                    .navigationBarsPadding()
-                    .padding(bottom = 8.dp)
-            ) {
-                CategoryFilter(
-                    selectedCategory = uiState.selectedCategory,
-                    onCategorySelected = { viewModel.filterByCategory(it) }
-                )
-
-                LazyRow(
-                    contentPadding = PaddingValues(horizontal = 12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    items(
-                        items = uiState.filteredChannels,
-                        key = { it.url }
-                    ) { channel ->
-                        LandscapeChannelChip(
-                            channel = channel,
-                            isSelected = channel == uiState.currentChannel,
-                            onClick = {
-                                viewModel.selectChannel(channel)
-                            }
-                        )
-                    }
-                }
-            }
-        }
+        BottomLandscapeOverlay(
+            showOverlay = showOverlay,
+            selectedCategory = uiState.selectedCategory,
+            filteredChannels = uiState.filteredChannels,
+            currentChannel = uiState.currentChannel,
+            onCategorySelected = { viewModel.filterByCategory(it) },
+            onChannelSelected = { viewModel.selectChannel(it) }
+        )
     }
 }
 
@@ -279,6 +209,112 @@ private fun LandscapeChannelChip(
                 textAlign = TextAlign.Center,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
             )
+        }
+    }
+}
+
+@Composable
+private fun BoxScope.TopLandscapeOverlay(
+    showOverlay: Boolean,
+    currentChannelName: String,
+    onClose: () -> Unit
+) {
+    if (showOverlay) {
+        AnimatedVisibility(
+            visible = true,
+            enter = fadeIn() + slideInVertically { -it },
+            exit = fadeOut() + slideOutVertically { -it },
+            modifier = Modifier.align(Alignment.TopCenter)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(AppColors.Overlay.gradientTop, Color.Transparent)
+                        )
+                    )
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .statusBarsPadding(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .clip(CircleShape)
+                        .background(AppColors.liveIndicator)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = currentChannelName,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    modifier = Modifier.weight(1f)
+                )
+                IconButton(onClick = onClose) {
+                    Icon(
+                        Lucide.X,
+                        contentDescription = stringResource(R.string.close),
+                        tint = Color.White
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun BoxScope.BottomLandscapeOverlay(
+    showOverlay: Boolean,
+    selectedCategory: ChannelCategory?,
+    filteredChannels: List<Channel>,
+    currentChannel: Channel?,
+    onCategorySelected: (ChannelCategory?) -> Unit,
+    onChannelSelected: (Channel) -> Unit
+) {
+    if (showOverlay) {
+        AnimatedVisibility(
+            visible = true,
+            enter = fadeIn() + slideInVertically { it },
+            exit = fadeOut() + slideOutVertically { it },
+            modifier = Modifier.align(Alignment.BottomCenter)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(Color.Transparent, AppColors.Overlay.gradientBottom)
+                        )
+                    )
+                    .navigationBarsPadding()
+                    .padding(bottom = 8.dp)
+            ) {
+                CategoryFilter(
+                    selectedCategory = selectedCategory,
+                    onCategorySelected = onCategorySelected
+                )
+
+                LazyRow(
+                    contentPadding = PaddingValues(horizontal = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(
+                        items = filteredChannels,
+                        key = { it.url }
+                    ) { channel ->
+                        LandscapeChannelChip(
+                            channel = channel,
+                            isSelected = channel == currentChannel,
+                            onClick = {
+                                onChannelSelected(channel)
+                            }
+                        )
+                    }
+                }
+            }
         }
     }
 }

@@ -16,7 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import coil.compose.SubcomposeAsyncImage
+import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
 
@@ -39,7 +39,7 @@ fun LogoImage(
     onError: ((Throwable) -> Unit)? = null
 ) {
     if (logo.isNotEmpty()) {
-        SubcomposeAsyncImage(
+        AsyncImage(
             model = logo,
             contentDescription = name,
             modifier = modifier
@@ -53,19 +53,7 @@ fun LogoImage(
                     onError?.invoke(state.result.throwable)
                 }
             }
-        ) {
-            when (painter.state) {
-                is AsyncImagePainter.State.Loading -> {
-                    LogoPlaceholder(category, iconSize)
-                }
-                is AsyncImagePainter.State.Error -> {
-                    LogoPlaceholder(category, iconSize)
-                }
-                else -> {
-                    SubcomposeAsyncImageContent()
-                }
-            }
-        }
+        )
     } else {
         LogoPlaceholder(
             category = category,

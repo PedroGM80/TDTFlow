@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.util.UnstableApi
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.data.BrokenChannelTracker
 import com.pedrogm.tdtflow.domain.model.Channel
@@ -163,6 +164,7 @@ class TdtViewModel(
         initialValue = TdtUiState()
     )
 
+    @OptIn(UnstableApi::class)
     var player: TdtPlayer? = null
         private set
 
