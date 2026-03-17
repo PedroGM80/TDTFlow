@@ -12,10 +12,12 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
@@ -56,13 +58,11 @@ fun MobileScreen(viewModel: TdtViewModel) {
     val isPlaying = uiState.currentChannel != null && viewModel.player != null
 
     if (isLandscape && isPlaying) {
-        // --- FULLSCREEN LANDSCAPE: video ocupa toda la pantalla ---
         LandscapeFullscreenPlayer(
             viewModel = viewModel,
             uiState = uiState
         )
     } else {
-        // --- PORTRAIT: layout normal con Scaffold ---
         PortraitLayout(
             viewModel = viewModel,
             uiState = uiState,
@@ -73,8 +73,6 @@ fun MobileScreen(viewModel: TdtViewModel) {
     }
 }
 
-// ── Fullscreen landscape con overlay ───────────────────────────────
-
 @androidx.annotation.OptIn(UnstableApi::class)
 @Composable
 private fun LandscapeFullscreenPlayer(
@@ -84,7 +82,6 @@ private fun LandscapeFullscreenPlayer(
     val view = LocalView.current
     var showOverlay by remember { mutableStateOf(false) }
 
-    // Immersive mode: ocultar barras del sistema
     DisposableEffect(Unit) {
         val window = (view.context as Activity).window
         val controller = WindowCompat.getInsetsController(window, view)
@@ -97,7 +94,6 @@ private fun LandscapeFullscreenPlayer(
         }
     }
 
-    // Auto-hide overlay despues de 4 segundos
     LaunchedEffect(showOverlay) {
         if (showOverlay) {
             delay(4000)
@@ -114,7 +110,6 @@ private fun LandscapeFullscreenPlayer(
                 indication = null
             ) { showOverlay = !showOverlay }
     ) {
-        // Video fullscreen
         AndroidView(
             factory = { context ->
                 PlayerView(context).apply {
@@ -128,7 +123,6 @@ private fun LandscapeFullscreenPlayer(
             modifier = Modifier.fillMaxSize()
         )
 
-        // Overlay de buffering
         val playerState by viewModel.player!!.playerState.collectAsStateWithLifecycle()
         if (playerState == PlayerState.BUFFERING) {
             CircularProgressIndicator(
@@ -139,7 +133,6 @@ private fun LandscapeFullscreenPlayer(
             )
         }
 
-        // --- Overlay superior: info del canal + cerrar ---
         AnimatedVisibility(
             visible = showOverlay,
             enter = fadeIn() + slideInVertically { -it },
@@ -158,11 +151,12 @@ private fun LandscapeFullscreenPlayer(
                     .statusBarsPadding(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Lucide.Radio,
-                    contentDescription = null,
-                    tint = Color(0xFF4CAF50),
-                    modifier = Modifier.size(16.dp)
+                // Punto rojo de "en directo"
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFE53935))
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
@@ -182,7 +176,6 @@ private fun LandscapeFullscreenPlayer(
             }
         }
 
-        // --- Overlay inferior: lista de canales horizontal ---
         AnimatedVisibility(
             visible = showOverlay,
             enter = fadeIn() + slideInVertically { it },
@@ -200,13 +193,11 @@ private fun LandscapeFullscreenPlayer(
                     .navigationBarsPadding()
                     .padding(bottom = 8.dp)
             ) {
-                // Filtro de categorias compacto
                 CategoryFilter(
                     selectedCategory = uiState.selectedCategory,
                     onCategorySelected = { viewModel.filterByCategory(it) }
                 )
 
-                // Lista horizontal de canales
                 LazyRow(
                     contentPadding = PaddingValues(horizontal = 12.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -221,7 +212,6 @@ private fun LandscapeFullscreenPlayer(
                             isSelected = channel == uiState.currentChannel,
                             onClick = {
                                 viewModel.selectChannel(channel)
-                                // No ocultar overlay al cambiar canal para que siga visible
                             }
                         )
                     }
@@ -238,7 +228,6 @@ private fun LandscapeChannelChip(
     onClick: () -> Unit
 ) {
     val bgColor = if (isSelected) Color.White.copy(alpha = 0.25f) else Color.White.copy(alpha = 0.1f)
-    val borderColor = if (isSelected) Color.White else Color.Transparent
 
     Surface(
         onClick = onClick,
@@ -252,19 +241,31 @@ private fun LandscapeChannelChip(
             modifier = Modifier.padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (channel.logo.isNotEmpty()) {
-                AsyncImage(
-                    model = channel.logo,
-                    contentDescription = channel.name,
-                    modifier = Modifier.size(40.dp)
-                )
-            } else {
-                Icon(
-                    imageVector = Lucide.Tv,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(40.dp)
-                )
+            Box {
+                if (channel.logo.isNotEmpty()) {
+                    AsyncImage(
+                        model = channel.logo,
+                        contentDescription = channel.name,
+                        modifier = Modifier.size(40.dp)
+                    )
+                } else {
+                    Icon(
+                        imageVector = Lucide.Tv,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(40.dp)
+                    )
+                }
+                // Punto rojo si está seleccionado
+                if (isSelected) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .size(8.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFE53935))
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(4.dp))
             Text(
@@ -276,19 +277,9 @@ private fun LandscapeChannelChip(
                 textAlign = TextAlign.Center,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
             )
-            if (isSelected) {
-                Text(
-                    text = stringResource(R.string.live_indicator),
-                    color = Color(0xFF4CAF50),
-                    fontSize = 9.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
         }
     }
 }
-
-// ── Portrait layout normal ─────────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -355,7 +346,11 @@ private fun PortraitLayout(
 
             CategoryFilter(
                 selectedCategory = uiState.selectedCategory,
-                onCategorySelected = { viewModel.filterByCategory(it) }
+                onCategorySelected = { viewModel.filterByCategory(it) },
+                brokenChannelsCount = uiState.brokenChannelsCount,
+                showingBroken = uiState.showBrokenChannels,
+                onToggleBroken = { viewModel.toggleShowBrokenChannels() },
+                onRevalidate = { viewModel.revalidateChannels() }
             )
 
             ChannelContent(
@@ -365,7 +360,6 @@ private fun PortraitLayout(
             )
         }
 
-        // Snackbar de error overlay
         if (uiState.error != null && uiState.channels.isNotEmpty()) {
             Snackbar(
                 modifier = Modifier.padding(dimensionResource(R.dimen.padding_large)),
@@ -412,7 +406,7 @@ private fun ChannelContent(
         else -> {
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.min_grid_cell_size)),
-                contentPadding = PaddingValues(dimensionResource(R.dimen.spacing_medium)),
+                contentPadding = PaddingValues(dimensionResource(R.dimen.spacing_small)),
                 horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small)),
                 verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small)),
                 modifier = modifier

@@ -48,8 +48,7 @@ internal fun TvChannelCard(
     ) {
         Column(
             modifier = Modifier
-                .width(dimensionResource(R.dimen.card_width_tv))
-                .padding(dimensionResource(R.dimen.padding_large)),
+                .width(dimensionResource(R.dimen.card_width_tv)),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (channel.logo.isNotEmpty()) {
