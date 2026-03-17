@@ -85,7 +85,7 @@ private fun CategoryFilterChips(
                 {
                     Icon(
                         imageVector = Lucide.Check,
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.check_icon_description),
                         modifier = Modifier.size(14.dp)
                     )
                 }
@@ -106,7 +106,7 @@ private fun CategoryFilterChips(
                 leadingIcon = {
                     Icon(
                         imageVector = category.toLucideIcon(),
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.category_icon_description, stringResource(category.toStringRes())),
                         modifier = Modifier.size(14.dp)
                     )
                 },

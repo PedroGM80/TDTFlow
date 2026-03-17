@@ -41,7 +41,7 @@ internal fun TvCategoryChip(
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = label,
                 tint = Color.White,
                 modifier = Modifier.size(dimensionResource(R.dimen.chip_padding_horizontal))
             )

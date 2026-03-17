@@ -14,10 +14,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
+import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
 
 /**
@@ -56,6 +58,7 @@ fun LogoImage(
         )
     } else {
         LogoPlaceholder(
+            name = name,
             category = category,
             iconSize = iconSize,
             modifier = modifier
@@ -68,6 +71,7 @@ fun LogoImage(
 
 @Composable
 private fun LogoPlaceholder(
+    name: String,
     category: ChannelCategory,
     iconSize: Dp = 32.dp,
     modifier: Modifier = Modifier
@@ -79,7 +83,7 @@ private fun LogoPlaceholder(
     ) {
         Icon(
             imageVector = category.toLucideIcon(),
-            contentDescription = null,
+            contentDescription = stringResource(R.string.channel_logo_placeholder, name),
             tint = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier.size(iconSize)
         )

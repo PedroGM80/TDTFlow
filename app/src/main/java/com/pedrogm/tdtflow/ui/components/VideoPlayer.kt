@@ -56,7 +56,7 @@ fun VideoPlayer(
         ) {
             Icon(
                 imageVector = Lucide.Music,
-                contentDescription = null,
+                contentDescription = stringResource(R.string.audio_only_channel),
                 tint = if (playerState == PlayerState.PLAYING) colorResource(R.color.live_indicator) else AppColors.Player.inactiveIcon,
                 modifier = Modifier.size(dimensionResource(R.dimen.icon_size_small))
             )

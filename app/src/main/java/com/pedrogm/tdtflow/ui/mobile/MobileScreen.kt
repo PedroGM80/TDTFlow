@@ -183,7 +183,7 @@ private fun LandscapeChannelChip(
                 } else {
                     Icon(
                         imageVector = Lucide.Tv,
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.tv_icon),
                         tint = Color.White,
                         modifier = Modifier.size(40.dp)
                     )
@@ -335,7 +335,7 @@ private fun PortraitLayout(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Lucide.Tv,
-                            contentDescription = null,
+                            contentDescription = stringResource(R.string.app_logo),
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(dimensionResource(R.dimen.icon_size_medium))
                         )

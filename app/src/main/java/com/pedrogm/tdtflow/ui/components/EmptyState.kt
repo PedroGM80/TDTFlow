@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.SearchX
 import com.pedrogm.tdtflow.R
@@ -17,7 +18,7 @@ fun EmptyState(message: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(
             imageVector = Lucide.SearchX,
-            contentDescription = null,
+            contentDescription = stringResource(R.string.empty_state_icon),
             tint = MaterialTheme.colorScheme.outline,
             modifier = Modifier.size(dimensionResource(R.dimen.icon_size_extra_large))
         )

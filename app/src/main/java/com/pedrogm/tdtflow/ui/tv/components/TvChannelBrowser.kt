@@ -48,7 +48,7 @@ internal fun TvChannelBrowser(viewModel: TdtViewModel) {
         ) {
             Icon(
                 imageVector = Lucide.Tv,
-                contentDescription = null,
+                contentDescription = stringResource(R.string.app_logo),
                 tint = colorResource(R.color.primary_dark),
                 modifier = Modifier.size(dimensionResource(R.dimen.icon_size_large))
             )

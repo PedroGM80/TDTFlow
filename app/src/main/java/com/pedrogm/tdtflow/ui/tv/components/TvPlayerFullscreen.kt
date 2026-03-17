@@ -56,7 +56,7 @@ internal fun TvPlayerFullscreen(viewModel: TdtViewModel, channelName: String) {
         ) {
             Icon(
                 imageVector = Lucide.Music,
-                contentDescription = null,
+                contentDescription = stringResource(R.string.music_icon),
                 tint = colorResource(R.color.live_indicator),
                 modifier = Modifier.size(dimensionResource(R.dimen.icon_size_small))
             )

@@ -76,7 +76,7 @@ internal fun TvChannelCard(
                 ) {
                     Icon(
                         imageVector = channel.category.toLucideIcon(),
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.channel_card_icon),
                         tint = Color.White,
                         modifier = Modifier.size(dimensionResource(R.dimen.radius_extra_large))
                     )

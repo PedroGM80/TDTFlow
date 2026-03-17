@@ -59,7 +59,7 @@ fun ErrorState(
         Button(onClick = onRetry) {
             Icon(
                 imageVector = Lucide.RefreshCw,
-                contentDescription = null,
+                contentDescription = stringResource(R.string.reload_description),
                 modifier = Modifier.size(dimensionResource(R.dimen.icon_size_small))
             )
             Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_small)))

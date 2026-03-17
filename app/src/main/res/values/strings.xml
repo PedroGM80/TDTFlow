@@ -33,4 +33,18 @@
     <string name="broken_channels_hidden">%1$d canales ocultos por no emitir</string>
     <string name="show_broken_channels">Mostrar todos</string>
     <string name="revalidate_channels">Revalidar canales</string>
+
+    <!-- Accesibilidad -->
+    <string name="category_icon_description">Icono de categoría %1$s</string>
+    <string name="check_icon_description">Seleccionado</string>
+    <string name="channel_logo_placeholder">Logo del canal %1$s</string>
+    <string name="audio_only_channel">Reproducción solo audio</string>
+    <string name="empty_state_icon">Sin resultados</string>
+    <string name="error_state_icon">Error</string>
+    <string name="channel_logo_description">Logo de %1$s</string>
+    <string name="app_logo">Logo de la aplicación</string>
+    <string name="tv_icon">Icono de televisión</string>
+    <string name="music_icon">Icono de música</string>
+    <string name="category_chip_icon">Icono de categoría</string>
+    <string name="channel_card_icon">Icono de canal</string>
 </resources>
