@@ -89,22 +89,13 @@ class TdtViewModel(
         brokenChannelTracker.brokenUrls,
         _showBrokenChannels
     ) { channels, category, query, brokenUrls, showBroken ->
-        channels
-            .asSequence()
-            // Filtro de seguridad: no mostrar canales sin URL
-            .filter { it.url.isNotBlank() }
-            // Filtrar canales rotos (a menos que showBroken esté activo)
-            .filter { showBroken || it.url !in brokenUrls }
-            .filter { 
-                if (category == null) {
-                    // En "Todos", ocultamos canales de música/radio por ser solo audio
-                    it.category != ChannelCategory.MUSIC
-                } else {
-                    it.category == category
-                }
-            }
-            .filter { query.isBlank() || it.name.contains(query, ignoreCase = true) }
-            .toList()
+        ChannelFilterLogic.applyFilters(
+            channels = channels,
+            category = category,
+            query = query,
+            brokenUrls = brokenUrls,
+            showBroken = showBroken
+        )
     }
         .flowOn(kotlinx.coroutines.Dispatchers.Default)
         .distinctUntilChanged()
