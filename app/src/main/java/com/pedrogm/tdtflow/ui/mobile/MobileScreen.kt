@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import com.pedrogm.tdtflow.util.TimeConstants
+import com.pedrogm.tdtflow.ui.theme.AppColors
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
@@ -130,7 +131,7 @@ private fun LandscapeFullscreenPlayer(
                 modifier = Modifier
                     .align(Alignment.Center)
                     .size(48.dp),
-                color = Color.White.copy(alpha = 0.7f)
+                color = AppColors.Overlay.buffering
             )
         }
 
@@ -145,7 +146,7 @@ private fun LandscapeFullscreenPlayer(
                     .fillMaxWidth()
                     .background(
                         Brush.verticalGradient(
-                            colors = listOf(Color.Black.copy(alpha = 0.8f), Color.Transparent)
+                            colors = listOf(AppColors.Overlay.gradientTop, Color.Transparent)
                         )
                     )
                     .padding(horizontal = 16.dp, vertical = 12.dp)
@@ -157,7 +158,7 @@ private fun LandscapeFullscreenPlayer(
                     modifier = Modifier
                         .size(8.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFFE53935))
+                        .background(AppColors.liveIndicator)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
@@ -188,7 +189,7 @@ private fun LandscapeFullscreenPlayer(
                     .fillMaxWidth()
                     .background(
                         Brush.verticalGradient(
-                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.85f))
+                            colors = listOf(Color.Transparent, AppColors.Overlay.gradientBottom)
                         )
                     )
                     .navigationBarsPadding()
@@ -228,7 +229,7 @@ private fun LandscapeChannelChip(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val bgColor = if (isSelected) Color.White.copy(alpha = 0.25f) else Color.White.copy(alpha = 0.1f)
+    val bgColor = if (isSelected) AppColors.ChipSelection.selectedBackground else AppColors.ChipSelection.unselectedBackground
 
     Surface(
         onClick = onClick,
@@ -264,7 +265,7 @@ private fun LandscapeChannelChip(
                             .align(Alignment.TopEnd)
                             .size(8.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFFE53935))
+                            .background(AppColors.liveIndicator)
                     )
                 }
             }
