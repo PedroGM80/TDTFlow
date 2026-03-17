@@ -18,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import com.pedrogm.tdtflow.util.TimeConstants
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
@@ -96,7 +97,7 @@ private fun LandscapeFullscreenPlayer(
 
     LaunchedEffect(showOverlay) {
         if (showOverlay) {
-            delay(4000)
+            delay(TimeConstants.OVERLAY_AUTO_HIDE_DELAY_MS)
             showOverlay = false
         }
     }

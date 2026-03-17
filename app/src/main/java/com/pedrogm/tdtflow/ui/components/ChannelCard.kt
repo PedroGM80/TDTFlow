@@ -7,8 +7,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -19,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
@@ -57,80 +60,94 @@ fun ChannelCard(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Logo sin padding, ocupa todo el ancho
-            if (channel.logo.isNotEmpty()) {
-                SubcomposeAsyncImage(
-                    model = channel.logo,
-                    contentDescription = channel.name,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(1f)
-                        .clip(RoundedCornerShape(
-                            topStart = dimensionResource(R.dimen.radius_medium),
-                            topEnd = dimensionResource(R.dimen.radius_medium),
-                            bottomStart = 0.dp,
-                            bottomEnd = 0.dp
-                        )),
-                    contentScale = ContentScale.Crop
-                ) {
-                    when (painter.state) {
-                        is AsyncImagePainter.State.Loading -> {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(1f)
-                                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = channel.category.toLucideIcon(),
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                                    modifier = Modifier.size(32.dp)
-                                )
+            // Logo con indicador de directo
+            Box {
+                if (channel.logo.isNotEmpty()) {
+                    SubcomposeAsyncImage(
+                        model = channel.logo,
+                        contentDescription = channel.name,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1f)
+                            .clip(RoundedCornerShape(
+                                topStart = dimensionResource(R.dimen.radius_medium),
+                                topEnd = dimensionResource(R.dimen.radius_medium),
+                                bottomStart = 0.dp,
+                                bottomEnd = 0.dp
+                            )),
+                        contentScale = ContentScale.Crop
+                    ) {
+                        when (painter.state) {
+                            is AsyncImagePainter.State.Loading -> {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(1f)
+                                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = channel.category.toLucideIcon(),
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                                        modifier = Modifier.size(32.dp)
+                                    )
+                                }
                             }
-                        }
-                        is AsyncImagePainter.State.Error -> {
-                            Log.e("ChannelCard", "Error loading logo for ${channel.name}: ${channel.logo}")
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(1f)
-                                    .background(MaterialTheme.colorScheme.primary),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = channel.category.toLucideIcon(),
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onPrimary,
-                                    modifier = Modifier.size(32.dp)
-                                )
+                            is AsyncImagePainter.State.Error -> {
+                                Log.e("ChannelCard", "Error loading logo for ${channel.name}: ${channel.logo}")
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(1f)
+                                        .background(MaterialTheme.colorScheme.primary),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = channel.category.toLucideIcon(),
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onPrimary,
+                                        modifier = Modifier.size(32.dp)
+                                    )
+                                }
                             }
-                        }
-                        else -> {
-                            SubcomposeAsyncImageContent()
+                            else -> {
+                                SubcomposeAsyncImageContent()
+                            }
                         }
                     }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1f)
+                            .clip(RoundedCornerShape(
+                                topStart = dimensionResource(R.dimen.radius_medium),
+                                topEnd = dimensionResource(R.dimen.radius_medium),
+                                bottomStart = 0.dp,
+                                bottomEnd = 0.dp
+                            ))
+                            .background(MaterialTheme.colorScheme.primary),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = channel.category.toLucideIcon(),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
                 }
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(1f)
-                        .clip(RoundedCornerShape(
-                            topStart = dimensionResource(R.dimen.radius_medium),
-                            topEnd = dimensionResource(R.dimen.radius_medium),
-                            bottomStart = 0.dp,
-                            bottomEnd = 0.dp
-                        ))
-                        .background(MaterialTheme.colorScheme.primary),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = channel.category.toLucideIcon(),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(32.dp)
+
+                // Punto rojo de "en directo" en la esquina superior derecha
+                if (isSelected) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .offset(x = (-4).dp, y = 4.dp)
+                            .size(10.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFE53935))
                     )
                 }
             }

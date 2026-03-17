@@ -2,6 +2,7 @@ package com.pedrogm.tdtflow.data
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.pedrogm.tdtflow.util.TimeConstants
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,13 +23,13 @@ class BrokenChannelTracker(context: Context) {
         private const val PREFS_NAME = "broken_channels_prefs"
         private const val KEY_BROKEN_URLS = "broken_channel_urls"
         private const val KEY_LAST_CLEARED = "last_cleared_timestamp"
-        
-        /** Timeout en ms para considerar un canal como roto (15 segundos) */
-        const val BUFFERING_TIMEOUT_MS = 15_000L
-        
-        /** Los canales rotos se limpian automáticamente después de 24 horas */
-        private const val AUTO_CLEAR_INTERVAL_MS = 24 * 60 * 60 * 1000L
+
+        // Use TimeConstants for timeout values
+        val BUFFERING_TIMEOUT_MS: Long
+            get() = TimeConstants.BUFFERING_TIMEOUT_MS
     }
+
+    private val autoClearIntervalMs = TimeConstants.AUTO_CLEAR_BROKEN_CHANNELS_MS
 
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
@@ -38,7 +39,7 @@ class BrokenChannelTracker(context: Context) {
     init {
         // Auto-limpiar si han pasado más de 24 horas desde la última limpieza
         val lastCleared = prefs.getLong(KEY_LAST_CLEARED, 0L)
-        if (System.currentTimeMillis() - lastCleared > AUTO_CLEAR_INTERVAL_MS) {
+        if (System.currentTimeMillis() - lastCleared > autoClearIntervalMs) {
             clearAll()
         }
     }

@@ -12,6 +12,7 @@ import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.datasource.DefaultHttpDataSource
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.data.BrokenChannelTracker
+import com.pedrogm.tdtflow.util.TimeConstants
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -47,8 +48,8 @@ class TdtPlayer(context: Context) {
         .setDataSourceFactory(
             DefaultHttpDataSource.Factory()
                 .setUserAgent("TDTFlow/1.0")
-                .setConnectTimeoutMs(10_000)
-                .setReadTimeoutMs(15_000)
+                .setConnectTimeoutMs(TimeConstants.PLAYER_CONNECT_TIMEOUT_MS)
+                .setReadTimeoutMs(TimeConstants.PLAYER_READ_TIMEOUT_MS)
                 .setAllowCrossProtocolRedirects(true)
         )
 

@@ -1,6 +1,7 @@
 package com.pedrogm.tdtflow.data.repository
 
 import android.util.Log
+import com.pedrogm.tdtflow.data.remote.AmbitConstants
 import com.pedrogm.tdtflow.data.remote.NetworkModule
 import com.pedrogm.tdtflow.data.remote.toChannel
 import com.pedrogm.tdtflow.domain.model.Channel
@@ -54,9 +55,9 @@ class ChannelRepositoryImpl : ChannelRepository {
             // Aplanamos las emisoras de Radio (solo Musicales para empezar)
             val radioChannels = withContext(Dispatchers.Default) {
                 spainRadio?.ambits
-                    ?.filter { ambit -> 
+                    ?.filter { ambit ->
                         // Solo cargamos Musicales (hay muchas emisoras locales que saturarían)
-                        ambit.name.equals("Musicales", ignoreCase = true)
+                        ambit.name.equals(AmbitConstants.MUSICALES, ignoreCase = true)
                     }
                     ?.flatMap { ambit ->
                         ambit.channels.mapNotNull { channel ->
