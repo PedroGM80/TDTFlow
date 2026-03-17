@@ -1,7 +1,15 @@
 package com.pedrogm.tdtflow
 
 import android.app.Application
-import dagger.hilt.android.HiltAndroidApp
 
-@HiltAndroidApp
-class TdtFlowApp : Application()
+class TdtFlowApp : Application() {
+    companion object {
+        lateinit var appContext: TdtFlowApp
+            private set
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        appContext = this
+    }
+}
