@@ -1,5 +1,6 @@
 package com.pedrogm.tdtflow
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,7 +12,7 @@ import com.pedrogm.tdtflow.ui.TdtViewModel
 import com.pedrogm.tdtflow.ui.mobile.MobileScreen
 import com.pedrogm.tdtflow.ui.theme.TDTFlowTheme
 
-private fun provideViewModelFactory(activity: MainActivity): ViewModelProvider.Factory {
+private fun provideViewModelFactory(activity: Activity): ViewModelProvider.Factory {
     return object : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
