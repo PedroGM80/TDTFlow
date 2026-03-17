@@ -37,7 +37,19 @@ private fun createChannels(block: ChannelBuilder.() -> Unit): List<Channel> =
     ChannelBuilder().apply(block).build()
 
 
-internal fun fallbackChannels(): List<Channel> = createChannels {
+/**
+ * Provides hardcoded fallback channels organized by type:
+ * - TV channels (RTVE, Regional)
+ * - Radio Musical (30+ stations)
+ * - Radio General (5 stations)
+ */
+internal fun fallbackChannels(): List<Channel> =
+    tvChannels() + radioMusicChannels() + radioGeneralChannels()
+
+/**
+ * TV channels: RTVE and autonomous communities
+ */
+private fun tvChannels(): List<Channel> = createChannels {
 
     // ═══════════════════════════════════════════════════════════════════
     // TELEVISIÓN
@@ -100,6 +112,12 @@ internal fun fallbackChannels(): List<Channel> = createChannels {
         ChannelCategory.REGIONAL,
         fbLogo("aragontelevision")
     )
+}
+
+/**
+ * Radio musical channels: 30+ stations from various networks
+ */
+private fun radioMusicChannels(): List<Channel> = createChannels {
 
     // ═══════════════════════════════════════════════════════════════════
     // RADIO MUSICAL - Fuente: TDTChannels radio.json
@@ -370,6 +388,12 @@ internal fun fallbackChannels(): List<Channel> = createChannels {
         ChannelCategory.MUSIC,
         fbLogo("digitalhits")
     )
+}
+
+/**
+ * Radio general channels: National news and general programming
+ */
+private fun radioGeneralChannels(): List<Channel> = createChannels {
 
     // ═══════════════════════════════════════════════════════════════════
     // RADIO GENERALISTA
