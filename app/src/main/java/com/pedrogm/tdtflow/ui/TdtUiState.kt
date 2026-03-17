@@ -12,5 +12,9 @@ data class TdtUiState(
     val searchQuery: String = Constants.EMPTY_STRING,
     val isLoading: Boolean = true,
     val isPlaying: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    /** Número de canales marcados como rotos (no emiten) */
+    val brokenChannelsCount: Int = 0,
+    /** Si es true, se muestran también los canales rotos en la lista */
+    val showBrokenChannels: Boolean = false
 )

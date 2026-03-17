@@ -11,6 +11,8 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.datasource.DefaultHttpDataSource
 import com.pedrogm.tdtflow.R
+import com.pedrogm.tdtflow.data.BrokenChannelTracker
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,9 +28,15 @@ import kotlinx.coroutines.flow.asStateFlow
  *   que el ViewModel y la UI lo observen reactivamente.
  * - Errores expuestos como [playerError] StateFlow en vez de callback,
  *   compatible con el pipeline de Flow del ViewModel.
+ * - Detección de canales muertos: si el buffering supera [BUFFERING_TIMEOUT_MS]
+ *   sin pasar a PLAYING, se emite [bufferingTimeout].
  */
 @UnstableApi
 class TdtPlayer(context: Context) {
+
+    companion object {
+        private const val TAG = "TdtPlayer"
+    }
 
     val exoPlayer: ExoPlayer = ExoPlayer.Builder(context)
         .build()
@@ -52,25 +60,53 @@ class TdtPlayer(context: Context) {
     private val _playerError = MutableStateFlow<String?>(null)
     val playerError: StateFlow<String?> = _playerError.asStateFlow()
 
+    /** Se emite true cuando el buffering excede el timeout (canal probablemente muerto) */
+    private val _bufferingTimeout = MutableStateFlow(false)
+    val bufferingTimeout: StateFlow<Boolean> = _bufferingTimeout.asStateFlow()
+
+    /** URL del stream actual para tracking */
+    private var currentStreamUrl: String? = null
+
+    /** Job del timeout de buffering, se cancela si el player pasa a PLAYING */
+    private var bufferingTimeoutJob: Job? = null
+    private val playerScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+
+    private val appContext = context.applicationContext
+
     init {
         exoPlayer.addListener(object : Player.Listener {
             override fun onPlaybackStateChanged(playbackState: Int) {
-                Log.d("TdtPlayer", "Playback state changed: $playbackState")
-                _playerState.value = when (playbackState) {
-                    Player.STATE_IDLE -> PlayerState.IDLE
-                    Player.STATE_BUFFERING -> PlayerState.BUFFERING
+                Log.d(TAG, "Playback state changed: $playbackState")
+                
+                when (playbackState) {
+                    Player.STATE_IDLE -> {
+                        cancelBufferingTimeout()
+                        _playerState.value = PlayerState.IDLE
+                    }
+                    Player.STATE_BUFFERING -> {
+                        _playerState.value = PlayerState.BUFFERING
+                        startBufferingTimeout()
+                    }
                     Player.STATE_READY -> {
-                        when {
+                        cancelBufferingTimeout()
+                        _bufferingTimeout.value = false
+                        _playerState.value = when {
                             exoPlayer.playWhenReady -> PlayerState.PLAYING
                             else -> PlayerState.PAUSED
                         }
                     }
-                    Player.STATE_ENDED -> PlayerState.ENDED
-                    else -> PlayerState.IDLE
+                    Player.STATE_ENDED -> {
+                        cancelBufferingTimeout()
+                        _playerState.value = PlayerState.ENDED
+                    }
                 }
             }
 
             override fun onIsPlayingChanged(isPlaying: Boolean) {
+                if (isPlaying) {
+                    cancelBufferingTimeout()
+                    _bufferingTimeout.value = false
+                }
                 _playerState.value = when {
                     isPlaying -> PlayerState.PLAYING
                     else -> PlayerState.PAUSED
@@ -78,11 +114,33 @@ class TdtPlayer(context: Context) {
             }
 
             override fun onPlayerError(error: PlaybackException) {
-                Log.e("TdtPlayer", "Playback error: ${error.errorCodeName} (${error.errorCode})", error)
-                _playerError.value = error.localizedMessage ?: context.getString(R.string.playback_error)
+                Log.e(TAG, "Playback error: ${error.errorCodeName} (${error.errorCode})", error)
+                cancelBufferingTimeout()
+                _playerError.value = error.localizedMessage ?: appContext.getString(R.string.playback_error)
                 _playerState.value = PlayerState.ERROR
             }
         })
+    }
+
+    /**
+     * Inicia el temporizador de timeout de buffering.
+     * Si pasan [BrokenChannelTracker.BUFFERING_TIMEOUT_MS] sin que el player
+     * pase a PLAYING, se emite [bufferingTimeout] = true.
+     */
+    private fun startBufferingTimeout() {
+        cancelBufferingTimeout()
+        bufferingTimeoutJob = playerScope.launch {
+            delay(BrokenChannelTracker.BUFFERING_TIMEOUT_MS)
+            Log.w(TAG, "Buffering timeout reached for: $currentStreamUrl")
+            _bufferingTimeout.value = true
+            _playerState.value = PlayerState.ERROR
+            _playerError.value = appContext.getString(R.string.channel_not_available)
+        }
+    }
+
+    private fun cancelBufferingTimeout() {
+        bufferingTimeoutJob?.cancel()
+        bufferingTimeoutJob = null
     }
 
     /**
@@ -91,8 +149,13 @@ class TdtPlayer(context: Context) {
      */
     @OptIn(UnstableApi::class)
     fun play(streamUrl: String) {
-        Log.d("TdtPlayer", "Playing: $streamUrl")
+        Log.d(TAG, "Playing: $streamUrl")
+        
+        // Reset estado
+        cancelBufferingTimeout()
         _playerError.value = null
+        _bufferingTimeout.value = false
+        currentStreamUrl = streamUrl
 
         val mediaSource = mediaSourceFactory.createMediaSource(MediaItem.fromUri(streamUrl))
 
@@ -100,12 +163,22 @@ class TdtPlayer(context: Context) {
         exoPlayer.prepare()
     }
 
+    /**
+     * Devuelve la URL del stream actual (para tracking de canales rotos).
+     */
+    fun getCurrentStreamUrl(): String? = currentStreamUrl
+
     fun stop() {
+        cancelBufferingTimeout()
         exoPlayer.stop()
+        currentStreamUrl = null
         _playerState.value = PlayerState.IDLE
+        _bufferingTimeout.value = false
     }
 
     fun release() {
+        cancelBufferingTimeout()
+        playerScope.cancel()
         exoPlayer.release()
         _playerState.value = PlayerState.IDLE
     }

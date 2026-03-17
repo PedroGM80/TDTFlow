@@ -1,9 +1,11 @@
 package com.pedrogm.tdtflow.ui
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.pedrogm.tdtflow.R
+import com.pedrogm.tdtflow.data.BrokenChannelTracker
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
 import com.pedrogm.tdtflow.domain.usecase.GetChannelsUseCase
@@ -19,6 +21,14 @@ class TdtViewModel(
     private val getChannelsUseCase: GetChannelsUseCase
 ) : AndroidViewModel(application) {
 
+    companion object {
+        private const val TAG = "TdtViewModel"
+    }
+
+    // ── Tracker de canales rotos ────────────────────────────────────
+    
+    val brokenChannelTracker = BrokenChannelTracker(application)
+
     // ── Flujos fuente ───────────────────────────────────────────────
 
     private val _channels = MutableStateFlow<List<Channel>>(emptyList())
@@ -32,6 +42,9 @@ class TdtViewModel(
     private val _isLoading = MutableStateFlow(true)
 
     private val _error = MutableStateFlow<String?>(null)
+
+    /** Si es true, se muestran también los canales marcados como rotos */
+    private val _showBrokenChannels = MutableStateFlow(false)
 
     /** Job de carga actual. Se cancela en retry() para evitar cargas paralelas. */
     private var loadJob: Job? = null
@@ -55,7 +68,7 @@ class TdtViewModel(
     // ── Flow derivado: canales filtrados ─────────────────────────────
 
     /**
-     * Combina canales, categoría y búsqueda debounced.
+     * Combina canales, categoría, búsqueda debounced y canales rotos.
      *
      * flowOn(Default): el filtrado es CPU-bound (iterar 200+ canales,
      * comparar strings). Default tiene tantos hilos como cores de CPU,
@@ -71,12 +84,16 @@ class TdtViewModel(
     private val _filteredChannels: StateFlow<List<Channel>> = combine(
         _channels,
         _selectedCategory,
-        debouncedQuery
-    ) { channels, category, query ->
+        debouncedQuery,
+        brokenChannelTracker.brokenUrls,
+        _showBrokenChannels
+    ) { channels, category, query, brokenUrls, showBroken ->
         channels
             .asSequence()
             // Filtro de seguridad: no mostrar canales sin URL
             .filter { it.url.isNotBlank() }
+            // Filtrar canales rotos (a menos que showBroken esté activo)
+            .filter { showBroken || it.url !in brokenUrls }
             .filter { 
                 if (category == null) {
                     // En "Todos", ocultamos canales de música/radio por ser solo audio
@@ -113,8 +130,18 @@ class TdtViewModel(
         _selectedCategory,
         _searchQuery, // raw query para el TextField (no debounced)
         _isLoading,
-    ) { filtered, current, category, query, loading ->
-        PartialState(filtered, current, category, query, loading)
+        brokenChannelTracker.brokenUrls,
+        _showBrokenChannels
+    ) { values ->
+        val filtered = values[0] as List<Channel>
+        val current = values[1] as Channel?
+        val category = values[2] as ChannelCategory?
+        val query = values[3] as String
+        val loading = values[4] as Boolean
+        val brokenUrls = values[5] as Set<String>
+        val showBroken = values[6] as Boolean
+        
+        PartialState(filtered, current, category, query, loading, brokenUrls.size, showBroken)
     }.combine(
         _error
     ) { partial, error ->
@@ -126,7 +153,9 @@ class TdtViewModel(
             searchQuery = partial.query,
             isLoading = partial.loading,
             isPlaying = partial.current != null,
-            error = error
+            error = error,
+            brokenChannelsCount = partial.brokenCount,
+            showBrokenChannels = partial.showBroken
         )
     }.stateIn(
         scope = viewModelScope,
@@ -140,6 +169,7 @@ class TdtViewModel(
     init {
         loadChannels()
         observePlayerErrors()
+        observeBufferingTimeout()
     }
 
     // ── Acciones ────────────────────────────────────────────────────
@@ -190,13 +220,47 @@ class TdtViewModel(
             .distinctUntilChanged()
             .onEach { errorMsg ->
                 _error.value = errorMsg
+                // Marcar canal como roto si hay error de reproducción
+                markCurrentChannelAsBroken()
             }
             .launchIn(viewModelScope)
+    }
+
+    /**
+     * Observa el timeout de buffering del player.
+     * Si se activa, marca el canal actual como roto.
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun observeBufferingTimeout() {
+        _currentChannel
+            .filterNotNull()
+            .flatMapLatest {
+                player?.bufferingTimeout ?: flowOf(false)
+            }
+            .filter { it } // Solo cuando es true
+            .distinctUntilChanged()
+            .onEach {
+                Log.d(TAG, "Buffering timeout detected, marking channel as broken")
+                markCurrentChannelAsBroken()
+            }
+            .launchIn(viewModelScope)
+    }
+
+    /**
+     * Marca el canal actual como roto.
+     */
+    private fun markCurrentChannelAsBroken() {
+        val url = player?.getCurrentStreamUrl() ?: return
+        Log.d(TAG, "Marking channel as broken: $url")
+        brokenChannelTracker.markAsBroken(url)
     }
 
     fun initPlayer() {
         if (player == null) {
             player = TdtPlayer(getApplication())
+            // Re-observar errores y timeout con el nuevo player
+            observePlayerErrors()
+            observeBufferingTimeout()
         }
     }
 
@@ -240,6 +304,28 @@ class TdtViewModel(
         loadChannels()
     }
 
+    /**
+     * Alterna la visibilidad de canales rotos.
+     */
+    fun toggleShowBrokenChannels() {
+        _showBrokenChannels.value = !_showBrokenChannels.value
+    }
+
+    /**
+     * Limpia la lista de canales rotos para revalidar.
+     */
+    fun revalidateChannels() {
+        brokenChannelTracker.clearAll()
+        _showBrokenChannels.value = false
+    }
+
+    /**
+     * Quita un canal específico de la lista de rotos (para reintentar).
+     */
+    fun retryBrokenChannel(channel: Channel) {
+        brokenChannelTracker.unmarkAsBroken(channel.url)
+    }
+
     override fun onCleared() {
         super.onCleared()
         loadJob?.cancel()
@@ -254,5 +340,7 @@ private data class PartialState(
     val current: Channel?,
     val category: ChannelCategory?,
     val query: String,
-    val loading: Boolean
+    val loading: Boolean,
+    val brokenCount: Int,
+    val showBroken: Boolean
 )
