@@ -27,4 +27,10 @@
     <string name="category_regional">Autonómicos</string>
     <string name="category_music">Música</string>
     <string name="category_other">Otros</string>
+
+    <!-- Canales rotos -->
+    <string name="channel_not_available">Canal no disponible</string>
+    <string name="broken_channels_hidden">%1$d canales ocultos por no emitir</string>
+    <string name="show_broken_channels">Mostrar todos</string>
+    <string name="revalidate_channels">Revalidar canales</string>
 </resources>
