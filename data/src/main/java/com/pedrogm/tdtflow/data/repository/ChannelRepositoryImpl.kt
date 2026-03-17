@@ -32,7 +32,16 @@ class ChannelRepositoryImpl : ChannelRepository {
             Log.d("ChannelRepository", "Mapped ${apiChannels.size} valid channels from JSON")
             
             // Combinamos: Fallback (favoritos asegurados) + API (resto)
-            val combined = (fallback + apiChannels).distinctBy { it.url }
+            // Cuando hay duplicados por nombre, usamos el logo del fallback si la API está vacía
+            val fallbackMap = fallback.associateBy { it.name }
+            val combined = (fallback + apiChannels).distinctBy { it.url }.map { channel ->
+                val fallbackChannel = fallbackMap[channel.name]
+                if (channel.logo.isEmpty() && fallbackChannel != null && fallbackChannel.logo.isNotEmpty()) {
+                    channel.copy(logo = fallbackChannel.logo)
+                } else {
+                    channel
+                }
+            }
             
             Log.d("ChannelRepository", "Total combined channels: ${combined.size}")
             combined
