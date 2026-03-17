@@ -141,25 +141,16 @@ fun VideoPlayer(
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        when {
-                            channel.logo.isNotEmpty() -> {
-                                AsyncImage(
-                                    model = channel.logo,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .size(120.dp)
-                                        .clip(RoundedCornerShape(16.dp))
-                                )
-                            }
-                            else -> {
-                                Icon(
-                                    imageVector = Lucide.Music,
-                                    contentDescription = null,
-                                    tint = colorResource(R.color.live_indicator),
-                                    modifier = Modifier.size(80.dp)
-                                )
-                            }
-                        }
+                        // Use LogoImage for consistent logo handling
+                        LogoImage(
+                            logo = channel.logo,
+                            name = channel.name,
+                            category = channel.category,
+                            modifier = Modifier
+                                .size(120.dp)
+                                .clip(RoundedCornerShape(16.dp)),
+                            iconSize = 80.dp
+                        )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
                             text = stringResource(R.string.category_music),

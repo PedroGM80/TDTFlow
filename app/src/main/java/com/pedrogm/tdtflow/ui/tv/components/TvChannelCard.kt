@@ -1,6 +1,5 @@
 package com.pedrogm.tdtflow.ui.tv.components
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -26,6 +24,7 @@ import com.composables.icons.lucide.*
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.ui.components.toLucideIcon
+import com.pedrogm.tdtflow.ui.components.LiveIndicator
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -99,11 +98,8 @@ internal fun TvChannelCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_tiny))
                 ) {
-                    Icon(
-                        imageVector = Lucide.Music,
-                        contentDescription = null,
-                        tint = colorResource(R.color.live_indicator),
-                        modifier = Modifier.size(dimensionResource(R.dimen.chip_padding_vertical))
+                    LiveIndicator(
+                        size = dimensionResource(R.dimen.chip_padding_vertical)
                     )
                     Text(
                         stringResource(R.string.live_indicator),
