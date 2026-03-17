@@ -4,7 +4,6 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.media3.common.util.UnstableApi
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.data.BrokenChannelTracker
 import com.pedrogm.tdtflow.domain.model.Channel
@@ -17,6 +16,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 
+@Suppress("UnsafeOptInUsageError")
 class TdtViewModel(
     application: Application,
     private val getChannelsUseCase: GetChannelsUseCase
@@ -155,7 +155,6 @@ class TdtViewModel(
         initialValue = TdtUiState()
     )
 
-    @OptIn(UnstableApi::class)
     var player: TdtPlayer? = null
         private set
 
