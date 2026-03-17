@@ -23,7 +23,18 @@
       "Bash(cd C:/Users/pedro/Downloads/tdtflow/tdtflow && timeout 180 ./gradlew compileDebugKotlin assembleDebug 2>&1 | tail -40)",
       "Bash(./gradlew assembleDebug 2>&1 | head -100)",
       "Bash(git add:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(./gradlew app:compileDebugKotlin 2>&1 | grep -A 10 \"error:\" | head -30)",
+      "Bash(./gradlew app:compileDebugKotlin --stacktrace 2>&1 | tail -80)",
+      "Bash(./gradlew app:compileDebugKotlin 2>&1 | tail -20)",
+      "Bash(grep:*)",
+      "Bash(./gradlew app:compileDebugKotlin 2>&1 | grep \"^e:\")",
+      "Bash(./gradlew app:compileDebugKotlin 2>&1 | tail -15)",
+      "Bash(./gradlew app:compileDebugKotlin 2>&1 | grep \"^e:\" | head -10)",
+      "Bash(./gradlew app:compileDebugKotlin 2>&1 | tail -5)",
+      "Bash(./gradlew app:compileDebugKotlin 2>&1 | tail -10)",
+      "Bash(git restore:*)",
+      "Bash(git commit:*)"
     ]
   }
 }
