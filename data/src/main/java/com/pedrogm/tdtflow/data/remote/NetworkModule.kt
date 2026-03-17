@@ -5,7 +5,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object NetworkModule {
-    private const val BASE_URL = "https://listadocanalestdt.firebaseio.com"
+    private const val BASE_URL = "https://www.tdtchannels.com/"
 
     private val gson = Gson()
 

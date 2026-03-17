@@ -6,4 +6,7 @@ interface TdtChannelsService {
 
     @GET("lists/tv.json")
     suspend fun getChannels(): TdtChannelsResponse
+
+    @GET("lists/radio.json")
+    suspend fun getRadioChannels(): TdtChannelsResponse
 }

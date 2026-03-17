@@ -6,6 +6,7 @@ import com.pedrogm.tdtflow.data.remote.toChannel
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.repository.ChannelRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
@@ -19,20 +20,56 @@ class ChannelRepositoryImpl : ChannelRepository {
     private suspend fun loadChannels(): List<Channel> = withContext(Dispatchers.IO) {
         val fallback = fallbackChannels()
         try {
-            Log.d("ChannelRepository", "Loading channels from JSON list...")
-            val response = NetworkModule.service.getChannels()
+            Log.d("ChannelRepository", "Loading channels from TDTChannels API...")
             
-            // Aplanamos la lista de ambitos -> canales
-            val apiChannels = withContext(Dispatchers.Default) {
-                response.ambits.flatMap { ambit ->
-                    ambit.channels.mapNotNull { it.toChannel() }
-                }
+            // Cargamos TV y Radio en paralelo
+            val tvDeferred = async { 
+                runCatching { NetworkModule.service.getChannels() }.getOrNull() 
+            }
+            val radioDeferred = async { 
+                runCatching { NetworkModule.service.getRadioChannels() }.getOrNull() 
             }
             
-            Log.d("ChannelRepository", "Mapped ${apiChannels.size} valid channels from JSON")
+            val tvResponse = tvDeferred.await()
+            val radioResponse = radioDeferred.await()
             
-            // Combinamos: Fallback (favoritos asegurados) + API (resto)
-            // Cuando hay duplicados por nombre, usamos el logo del fallback si la API está vacía
+            // Obtenemos España de cada respuesta
+            val spainTv = tvResponse?.countries?.firstOrNull { it.name == "Spain" }
+            val spainRadio = radioResponse?.countries?.firstOrNull { it.name == "Spain" }
+            
+            if (spainTv == null && spainRadio == null) {
+                Log.w("ChannelRepository", "Spain not found in responses, using fallback")
+                return@withContext fallback
+            }
+            
+            // Aplanamos los canales de TV
+            val tvChannels = withContext(Dispatchers.Default) {
+                spainTv?.ambits?.flatMap { ambit ->
+                    ambit.channels.mapNotNull { channel ->
+                        channel.toChannel(ambitName = ambit.name)
+                    }
+                } ?: emptyList()
+            }
+            
+            // Aplanamos las emisoras de Radio (solo Musicales para empezar)
+            val radioChannels = withContext(Dispatchers.Default) {
+                spainRadio?.ambits
+                    ?.filter { ambit -> 
+                        // Solo cargamos Musicales (hay muchas emisoras locales que saturarían)
+                        ambit.name.equals("Musicales", ignoreCase = true)
+                    }
+                    ?.flatMap { ambit ->
+                        ambit.channels.mapNotNull { channel ->
+                            channel.toChannel(ambitName = ambit.name)
+                        }
+                    } ?: emptyList()
+            }
+            
+            Log.d("ChannelRepository", "Mapped ${tvChannels.size} TV + ${radioChannels.size} radio channels")
+            
+            val apiChannels = tvChannels + radioChannels
+            
+            // Combinamos: Fallback + API, eliminando duplicados por URL
             val fallbackMap = fallback.associateBy { it.name }
             val combined = (fallback + apiChannels).distinctBy { it.url }.map { channel ->
                 val fallbackChannel = fallbackMap[channel.name]
@@ -46,7 +83,7 @@ class ChannelRepositoryImpl : ChannelRepository {
             Log.d("ChannelRepository", "Total combined channels: ${combined.size}")
             combined
         } catch (e: Exception) {
-            Log.e("ChannelRepository", "Error loading JSON channels: ${e.message}", e)
+            Log.e("ChannelRepository", "Error loading TDTChannels: ${e.message}", e)
             Log.d("ChannelRepository", "Using only ${fallback.size} fallback channels")
             fallback
         }
