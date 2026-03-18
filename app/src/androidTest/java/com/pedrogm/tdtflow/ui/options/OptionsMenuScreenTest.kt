@@ -18,15 +18,13 @@ class OptionsMenuScreenTest {
 
     private fun setContent(
         state: OptionsMenuState = OptionsMenuState(isOpen = true),
-        onEvent: (OptionsMenuEvent) -> Unit = {},
-        onDismiss: () -> Unit = {}
+        onEvent: (OptionsMenuEvent) -> Unit = {}
     ) {
         composeTestRule.setContent {
             TDTFlowTheme {
                 OptionsMenuContent(
                     uiState = state,
-                    onEvent = onEvent,
-                    onDismiss = onDismiss
+                    onEvent = onEvent
                 )
             }
         }
