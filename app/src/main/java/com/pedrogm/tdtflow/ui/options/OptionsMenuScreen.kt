@@ -1,0 +1,220 @@
+package com.pedrogm.tdtflow.ui.options
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.pedrogm.tdtflow.R
+import com.pedrogm.tdtflow.ui.theme.TDTFlowTheme
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun OptionsMenuScreen(
+    viewModel: OptionsMenuViewModel,
+    onDismiss: () -> Unit
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    if (uiState.isOpen) {
+        OptionsMenuContent(
+            uiState = uiState,
+            onEvent = viewModel::onEvent,
+            onDismiss = onDismiss
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun OptionsMenuContent(
+    uiState: OptionsMenuState,
+    onEvent: (OptionsMenuEvent) -> Unit,
+    onDismiss: () -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = {
+            onEvent(OptionsMenuEvent.Dismiss)
+            onDismiss()
+        },
+        modifier = Modifier.testTag("options_bottom_sheet")
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.options_title),
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            ThemeSection(
+                selectedTheme = uiState.selectedTheme,
+                onSelectTheme = { onEvent(OptionsMenuEvent.SelectTheme(it)) }
+            )
+
+            BrokenChannelsSection(
+                showBrokenChannels = uiState.showBrokenChannels,
+                onToggle = { onEvent(OptionsMenuEvent.ToggleShowBrokenChannels) }
+            )
+
+            LanguageSection(
+                selectedLanguage = uiState.language,
+                onSelectLanguage = { onEvent(OptionsMenuEvent.SelectLanguage(it)) }
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ThemeSection(
+    selectedTheme: AppTheme,
+    onSelectTheme: (AppTheme) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = stringResource(R.string.options_appearance),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        SingleChoiceSegmentedButtonRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("theme_segmented_button_row")
+        ) {
+            AppTheme.entries.forEachIndexed { index, theme ->
+                SegmentedButton(
+                    selected = selectedTheme == theme,
+                    onClick = { onSelectTheme(theme) },
+                    shape = SegmentedButtonDefaults.itemShape(
+                        index = index,
+                        count = AppTheme.entries.size
+                    ),
+                    modifier = Modifier.testTag("theme_button_${theme.name}")
+                ) {
+                    Text(text = theme.label())
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun BrokenChannelsSection(
+    showBrokenChannels: Boolean,
+    onToggle: () -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = stringResource(R.string.options_broken_channels),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.options_show_broken_channels),
+                style = MaterialTheme.typography.bodyLarge
+            )
+
+            Switch(
+                checked = showBrokenChannels,
+                onCheckedChange = { onToggle() },
+                modifier = Modifier.testTag("broken_channels_switch")
+            )
+        }
+    }
+}
+
+@Composable
+private fun LanguageSection(
+    selectedLanguage: AppLanguage,
+    onSelectLanguage: (AppLanguage) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = stringResource(R.string.options_language),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        Column(modifier = Modifier.selectableGroup()) {
+            AppLanguage.entries.forEach { language ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .selectable(
+                            selected = selectedLanguage == language,
+                            onClick = { onSelectLanguage(language) },
+                            role = Role.RadioButton
+                        )
+                        .padding(vertical = 8.dp)
+                        .testTag("language_option_${language.name}"),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    RadioButton(
+                        selected = selectedLanguage == language,
+                        onClick = null,
+                        modifier = Modifier.testTag("language_radio_${language.name}")
+                    )
+                    Text(
+                        text = language.label(),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AppTheme.label(): String = when (this) {
+    AppTheme.SYSTEM -> stringResource(R.string.options_theme_system)
+    AppTheme.LIGHT -> stringResource(R.string.options_theme_light)
+    AppTheme.DARK -> stringResource(R.string.options_theme_dark)
+}
+
+@Composable
+private fun AppLanguage.label(): String = when (this) {
+    AppLanguage.SYSTEM -> stringResource(R.string.options_language_system)
+    AppLanguage.ES -> stringResource(R.string.options_language_es)
+    AppLanguage.EN -> stringResource(R.string.options_language_en)
+    AppLanguage.CA -> stringResource(R.string.options_language_ca)
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun OptionsMenuContentPreview() {
+    TDTFlowTheme {
+        OptionsMenuContent(
+            uiState = OptionsMenuState(
+                isOpen = true,
+                selectedTheme = AppTheme.SYSTEM,
+                showBrokenChannels = false,
+                language = AppLanguage.ES
+            ),
+            onEvent = {},
+            onDismiss = {}
+        )
+    }
+}
