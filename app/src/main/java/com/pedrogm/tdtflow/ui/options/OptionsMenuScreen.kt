@@ -1,5 +1,6 @@
 package com.pedrogm.tdtflow.ui.options
 
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
@@ -14,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.ui.theme.TDTFlowTheme
@@ -22,7 +24,9 @@ import com.pedrogm.tdtflow.ui.theme.TDTFlowTheme
 @Composable
 fun OptionsMenuScreen(
     viewModel: OptionsMenuViewModel,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    showBrokenChannels: Boolean = false,
+    onToggleBroken: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -32,10 +36,25 @@ fun OptionsMenuScreen(
         }
     }
 
+    LaunchedEffect(uiState.language) {
+        val tag = when (uiState.language) {
+            AppLanguage.ES -> "es"
+            AppLanguage.EN -> "en"
+            AppLanguage.CA -> "ca"
+            AppLanguage.SYSTEM -> ""
+        }
+        AppCompatDelegate.setApplicationLocales(
+            if (tag.isEmpty()) LocaleListCompat.getEmptyLocaleList()
+            else LocaleListCompat.forLanguageTags(tag)
+        )
+    }
+
     if (uiState.isOpen) {
         OptionsMenuContent(
             uiState = uiState,
-            onEvent = viewModel::onEvent
+            onEvent = viewModel::onEvent,
+            showBrokenChannels = showBrokenChannels,
+            onToggleBroken = onToggleBroken
         )
     }
 }
@@ -44,7 +63,9 @@ fun OptionsMenuScreen(
 @Composable
 fun OptionsMenuContent(
     uiState: OptionsMenuState,
-    onEvent: (OptionsMenuEvent) -> Unit
+    onEvent: (OptionsMenuEvent) -> Unit,
+    showBrokenChannels: Boolean = uiState.showBrokenChannels,
+    onToggleBroken: () -> Unit = { onEvent(OptionsMenuEvent.ToggleShowBrokenChannels) }
 ) {
     ModalBottomSheet(
         onDismissRequest = { onEvent(OptionsMenuEvent.Dismiss) },
@@ -68,8 +89,8 @@ fun OptionsMenuContent(
             )
 
             BrokenChannelsSection(
-                showBrokenChannels = uiState.showBrokenChannels,
-                onToggle = { onEvent(OptionsMenuEvent.ToggleShowBrokenChannels) }
+                showBrokenChannels = showBrokenChannels,
+                onToggle = onToggleBroken
             )
 
             LanguageSection(

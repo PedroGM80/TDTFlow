@@ -7,6 +7,7 @@ ksp = "2.0.0-1.0.21"
 # AndroidX
 androidxCore = "1.18.0"
 androidxActivity = "1.13.0"
+androidxAppCompat = "1.7.0"
 androidxLifecycle = "2.10.0"
 androidxNavigation = "2.9.7"
 androidxComposeBom = "2026.03.00"
@@ -38,6 +39,7 @@ turbine = "1.2.0"
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCore" }
 androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "androidxActivity" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidxAppCompat" }
 
 # Lifecycle
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidxLifecycle" }
