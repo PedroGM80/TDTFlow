@@ -11,6 +11,7 @@ import com.pedrogm.tdtflow.domain.model.ChannelCategory
 import com.pedrogm.tdtflow.domain.usecase.GetChannelsUseCase
 import com.pedrogm.tdtflow.player.TdtPlayer
 import com.pedrogm.tdtflow.util.Constants
+import com.pedrogm.tdtflow.util.TimeConstants
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
@@ -63,7 +64,7 @@ class TdtViewModel(
      */
     @OptIn(FlowPreview::class)
     private val debouncedQuery: Flow<String> = _searchQuery
-        .debounce(300)
+        .debounce(TimeConstants.SEARCH_DEBOUNCE_MS)
         .distinctUntilChanged()
 
     // ── Flow derivado: canales filtrados ─────────────────────────────
@@ -101,7 +102,7 @@ class TdtViewModel(
         .distinctUntilChanged()
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
+            started = SharingStarted.WhileSubscribed(TimeConstants.FLOW_SUBSCRIPTION_TIMEOUT_MS),
             initialValue = emptyList()
         )
 
@@ -151,7 +152,7 @@ class TdtViewModel(
         )
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
+        started = SharingStarted.WhileSubscribed(TimeConstants.FLOW_SUBSCRIPTION_TIMEOUT_MS),
         initialValue = TdtUiState()
     )
 
@@ -160,8 +161,10 @@ class TdtViewModel(
 
     init {
         loadChannels()
-        observePlayerErrors()
-        observeBufferingTimeout()
+        // Player observers are started in initPlayer() once the player exists.
+        // Calling them here would create zombie subscriptions (player == null)
+        // that become a second active collector after initPlayer() runs, causing
+        // player errors to propagate twice and channels to be double-marked as broken.
     }
 
     // ── Acciones ────────────────────────────────────────────────────
@@ -300,7 +303,7 @@ class TdtViewModel(
      * Alterna la visibilidad de canales rotos.
      */
     fun toggleShowBrokenChannels() {
-        _showBrokenChannels.value = !_showBrokenChannels.value
+        _showBrokenChannels.update { !it }
     }
 
     /**

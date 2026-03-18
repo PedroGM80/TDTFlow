@@ -48,6 +48,7 @@ import com.pedrogm.tdtflow.player.PlayerState
 import com.pedrogm.tdtflow.ui.TdtUiState
 import com.pedrogm.tdtflow.ui.TdtViewModel
 import com.pedrogm.tdtflow.di.DIContainer
+import com.pedrogm.tdtflow.util.TimeConstants
 import com.pedrogm.tdtflow.ui.components.*
 import com.pedrogm.tdtflow.ui.favorites.FavoritesScreen
 import com.pedrogm.tdtflow.ui.favorites.FavoritesViewModel
@@ -359,7 +360,7 @@ private fun PortraitLayout(
     // Auto-dismiss player errors after 4 seconds
     LaunchedEffect(uiState.error) {
         if (uiState.error != null && uiState.channels.isNotEmpty()) {
-            delay(4_000)
+            delay(TimeConstants.OVERLAY_AUTO_HIDE_DELAY_MS)
             viewModel.dismissError()
         }
     }

@@ -29,9 +29,11 @@ class ChannelRepositoryImpl : ChannelRepository {
         try {
             Log.d(TAG, "Loading channels from TDTChannels API...")
 
-            // Fetch TV and Radio in parallel
-            val tvResponse = fetchTvChannels()
-            val radioResponse = fetchRadioChannels()
+            // Fetch TV and Radio in parallel — halves load time vs sequential
+            val tvDeferred = async { fetchTvChannels() }
+            val radioDeferred = async { fetchRadioChannels() }
+            val tvResponse = tvDeferred.await()
+            val radioResponse = radioDeferred.await()
 
             if (tvResponse == null && radioResponse == null) {
                 Log.w(TAG, "Spain not found in responses, using fallback")
