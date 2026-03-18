@@ -80,7 +80,9 @@ fun FavoritesScreen(
                     ChannelCard(
                         channel = channel,
                         isSelected = false,
-                        onClick = { onChannelClick(channel) }
+                        onClick = { onChannelClick(channel) },
+                        isFavorite = true,
+                        onToggleFavorite = { viewModel.removeFavorite(channel.url) }
                     )
                 }
             }

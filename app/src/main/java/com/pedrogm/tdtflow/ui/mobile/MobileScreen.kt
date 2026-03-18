@@ -18,7 +18,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import com.pedrogm.tdtflow.util.TimeConstants
 import com.pedrogm.tdtflow.ui.theme.AppColors
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -88,6 +87,7 @@ fun MobileScreen(
         )
         else -> PortraitLayout(
             viewModel = viewModel,
+            favoritesViewModel = favoritesViewModel,
             uiState = uiState,
             showSearch = showSearch,
             onToggleSearch = { showSearch = !showSearch },
@@ -99,7 +99,9 @@ fun MobileScreen(
 
     OptionsMenuScreen(
         viewModel = optionsViewModel,
-        onDismiss = {}
+        onDismiss = {},
+        showBrokenChannels = uiState.showBrokenChannels,
+        onToggleBroken = { viewModel.toggleShowBrokenChannels() }
     )
 }
 
@@ -350,6 +352,7 @@ private fun BoxScope.BottomLandscapeOverlay(
 @Composable
 private fun PortraitLayout(
     viewModel: TdtViewModel,
+    favoritesViewModel: FavoritesViewModel,
     uiState: TdtUiState,
     showSearch: Boolean,
     onToggleSearch: () -> Unit,
@@ -357,6 +360,7 @@ private fun PortraitLayout(
     onShowFavorites: () -> Unit,
     onShowOptions: () -> Unit
 ) {
+    val favoriteIds by favoritesViewModel.favoriteIds.collectAsStateWithLifecycle()
     // Auto-dismiss player errors after 4 seconds
     LaunchedEffect(uiState.error) {
         if (uiState.error != null && uiState.channels.isNotEmpty()) {
@@ -437,6 +441,8 @@ private fun PortraitLayout(
             ChannelContent(
                 uiState = uiState,
                 viewModel = viewModel,
+                favoriteIds = favoriteIds,
+                onToggleFavorite = { url -> favoritesViewModel.toggleFavorite(url) },
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -460,6 +466,8 @@ private fun PortraitLayout(
 private fun ChannelContent(
     uiState: TdtUiState,
     viewModel: TdtViewModel,
+    favoriteIds: Set<String> = emptySet(),
+    onToggleFavorite: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     when {
@@ -499,7 +507,9 @@ private fun ChannelContent(
                     ChannelCard(
                         channel = channel,
                         isSelected = channel == uiState.currentChannel,
-                        onClick = { viewModel.selectChannel(channel) }
+                        onClick = { viewModel.selectChannel(channel) },
+                        isFavorite = channel.url in favoriteIds,
+                        onToggleFavorite = { onToggleFavorite(channel.url) }
                     )
                 }
             }
