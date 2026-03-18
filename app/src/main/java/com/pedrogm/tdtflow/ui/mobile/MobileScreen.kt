@@ -47,33 +47,59 @@ import com.pedrogm.tdtflow.domain.model.ChannelCategory
 import com.pedrogm.tdtflow.player.PlayerState
 import com.pedrogm.tdtflow.ui.TdtUiState
 import com.pedrogm.tdtflow.ui.TdtViewModel
+import com.pedrogm.tdtflow.di.DIContainer
 import com.pedrogm.tdtflow.ui.components.*
+import com.pedrogm.tdtflow.ui.favorites.FavoritesScreen
+import com.pedrogm.tdtflow.ui.favorites.FavoritesViewModel
+import com.pedrogm.tdtflow.ui.options.OptionsMenuEvent
+import com.pedrogm.tdtflow.ui.options.OptionsMenuScreen
+import com.pedrogm.tdtflow.ui.options.OptionsMenuViewModel
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MobileScreen(viewModel: TdtViewModel) {
+fun MobileScreen(
+    viewModel: TdtViewModel,
+    favoritesViewModel: FavoritesViewModel = DIContainer.favorites.viewModel,
+    optionsViewModel: OptionsMenuViewModel = DIContainer.options.viewModel
+) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showSearch by remember { mutableStateOf(false) }
+    var showFavorites by remember { mutableStateOf(false) }
 
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     val isPlaying = uiState.currentChannel != null && viewModel.player != null
 
-    if (isLandscape && isPlaying) {
-        LandscapeFullscreenPlayer(
+    when {
+        showFavorites -> FavoritesScreen(
+            allChannels = uiState.channels,
+            viewModel = favoritesViewModel,
+            onChannelClick = { channel ->
+                viewModel.selectChannel(channel)
+                showFavorites = false
+            },
+            onBack = { showFavorites = false }
+        )
+        isLandscape && isPlaying -> LandscapeFullscreenPlayer(
             viewModel = viewModel,
             uiState = uiState
         )
-    } else {
-        PortraitLayout(
+        else -> PortraitLayout(
             viewModel = viewModel,
             uiState = uiState,
             showSearch = showSearch,
             onToggleSearch = { showSearch = !showSearch },
-            isPlaying = isPlaying
+            isPlaying = isPlaying,
+            onShowFavorites = { showFavorites = true },
+            onShowOptions = { optionsViewModel.onEvent(OptionsMenuEvent.Open) }
         )
     }
+
+    OptionsMenuScreen(
+        viewModel = optionsViewModel,
+        onDismiss = {}
+    )
 }
 
 @androidx.annotation.OptIn(UnstableApi::class)
@@ -326,8 +352,18 @@ private fun PortraitLayout(
     uiState: TdtUiState,
     showSearch: Boolean,
     onToggleSearch: () -> Unit,
-    isPlaying: Boolean
+    isPlaying: Boolean,
+    onShowFavorites: () -> Unit,
+    onShowOptions: () -> Unit
 ) {
+    // Auto-dismiss player errors after 4 seconds
+    LaunchedEffect(uiState.error) {
+        if (uiState.error != null && uiState.channels.isNotEmpty()) {
+            delay(4_000)
+            viewModel.dismissError()
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -344,6 +380,9 @@ private fun PortraitLayout(
                     }
                 },
                 actions = {
+                    IconButton(onClick = onShowFavorites) {
+                        Icon(Lucide.Heart, contentDescription = stringResource(R.string.favorites_title))
+                    }
                     IconButton(onClick = onToggleSearch) {
                         Icon(
                             imageVector = if (showSearch) Lucide.X else Lucide.Search,
@@ -352,6 +391,9 @@ private fun PortraitLayout(
                     }
                     IconButton(onClick = { viewModel.retry() }) {
                         Icon(Lucide.RefreshCw, contentDescription = stringResource(R.string.reload_description))
+                    }
+                    IconButton(onClick = onShowOptions) {
+                        Icon(Lucide.Settings, contentDescription = stringResource(R.string.options_title))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
