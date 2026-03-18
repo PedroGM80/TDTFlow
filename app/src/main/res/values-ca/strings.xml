@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TDTFlow</string>
+    <string name="search_placeholder">Cerca canal&#8230;</string>
+    <string name="search_description">Cerca</string>
+    <string name="clear_description">Esborra</string>
+    <string name="reload_description">Recarrega</string>
+    <string name="unknown_error">Error desconegut</string>
+    <string name="no_channels_found">No s\'han trobat canals</string>
+    <string name="close">Tanca</string>
+    <string name="fullscreen_description">Pantalla completa</string>
+    <string name="tuning_channels">Sintonitzant canals&#8230;</string>
+    <string name="loading_description">Carregant</string>
+    <string name="error_description">Error</string>
+    <string name="playback_error">Error de reproducció</string>
+    <string name="retry_button">Torna-ho a intentar</string>
+    <string name="error_loading_channels">Error en carregar canals: %1$s</string>
+    <string name="category_all">Tots</string>
+    <string name="live_indicator">EN DIRECTE</string>
+
+    <!-- Categories -->
+    <string name="category_general">Generals</string>
+    <string name="category_news">Notícies</string>
+    <string name="category_sports">Esports</string>
+    <string name="category_kids">Infantil</string>
+    <string name="category_entertainment">Entreteniment</string>
+    <string name="category_regional">Autonòmics</string>
+    <string name="category_music">Música</string>
+    <string name="category_other">Altres</string>
+
+    <!-- Canals trencats -->
+    <string name="channel_not_available">Canal no disponible</string>
+    <string name="broken_channels_hidden">%1$d canals ocults per no emetre</string>
+    <string name="show_broken_channels">Mostra tots</string>
+    <string name="revalidate_channels">Revalida canals</string>
+
+    <!-- Accessibilitat -->
+    <string name="category_icon_description">Icona de categoria %1$s</string>
+    <string name="check_icon_description">Seleccionat</string>
+    <string name="channel_logo_placeholder">Logotip del canal %1$s</string>
+    <string name="audio_only_channel">Reproducció només d\'àudio</string>
+    <string name="empty_state_icon">Sense resultats</string>
+    <string name="error_state_icon">Error</string>
+    <string name="channel_logo_description">Logotip de %1$s</string>
+    <string name="app_logo">Logotip de l\'aplicació</string>
+    <string name="tv_icon">Icona de televisió</string>
+    <string name="music_icon">Icona de música</string>
+    <string name="category_chip_icon">Icona de categoria</string>
+    <string name="channel_card_icon">Icona de canal</string>
+
+    <!-- Opcions -->
+    <string name="options_title">Opcions</string>
+    <string name="options_appearance">Aparença</string>
+    <string name="options_theme_system">Sistema</string>
+    <string name="options_theme_light">Clar</string>
+    <string name="options_theme_dark">Fosc</string>
+    <string name="options_broken_channels">Canals trencats</string>
+    <string name="options_show_broken_channels">Mostra canals trencats</string>
+    <string name="options_language">Idioma</string>
+    <string name="options_language_system">Sistema</string>
+    <string name="options_language_es">Español</string>
+    <string name="options_language_en">English</string>
+    <string name="options_language_ca">Català</string>
+
+    <!-- Preferits -->
+    <string name="favorites_title">Preferits</string>
+    <string name="no_favorites">Encara no tens canals preferits</string>
+    <string name="back_description">Enrere</string>
+    <string name="add_to_favorites">Afegeix als preferits</string>
+    <string name="remove_from_favorites">Treu dels preferits</string>
+</resources>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TDTFlow</string>
+    <string name="search_placeholder">Search channel&#8230;</string>
+    <string name="search_description">Search</string>
+    <string name="clear_description">Clear</string>
+    <string name="reload_description">Reload</string>
+    <string name="unknown_error">Unknown error</string>
+    <string name="no_channels_found">No channels found</string>
+    <string name="close">Close</string>
+    <string name="fullscreen_description">Full screen</string>
+    <string name="tuning_channels">Tuning channels&#8230;</string>
+    <string name="loading_description">Loading</string>
+    <string name="error_description">Error</string>
+    <string name="playback_error">Playback error</string>
+    <string name="retry_button">Retry</string>
+    <string name="error_loading_channels">Error loading channels: %1$s</string>
+    <string name="category_all">All</string>
+    <string name="live_indicator">LIVE</string>
+
+    <!-- Categories -->
+    <string name="category_general">General</string>
+    <string name="category_news">News</string>
+    <string name="category_sports">Sports</string>
+    <string name="category_kids">Kids</string>
+    <string name="category_entertainment">Entertainment</string>
+    <string name="category_regional">Regional</string>
+    <string name="category_music">Music</string>
+    <string name="category_other">Other</string>
+
+    <!-- Broken channels -->
+    <string name="channel_not_available">Channel not available</string>
+    <string name="broken_channels_hidden">%1$d channels hidden for not broadcasting</string>
+    <string name="show_broken_channels">Show all</string>
+    <string name="revalidate_channels">Revalidate channels</string>
+
+    <!-- Accessibility -->
+    <string name="category_icon_description">Category icon %1$s</string>
+    <string name="check_icon_description">Selected</string>
+    <string name="channel_logo_placeholder">Channel logo %1$s</string>
+    <string name="audio_only_channel">Audio only playback</string>
+    <string name="empty_state_icon">No results</string>
+    <string name="error_state_icon">Error</string>
+    <string name="channel_logo_description">Logo of %1$s</string>
+    <string name="app_logo">Application logo</string>
+    <string name="tv_icon">Television icon</string>
+    <string name="music_icon">Music icon</string>
+    <string name="category_chip_icon">Category icon</string>
+    <string name="channel_card_icon">Channel icon</string>
+
+    <!-- Options -->
+    <string name="options_title">Options</string>
+    <string name="options_appearance">Appearance</string>
+    <string name="options_theme_system">System</string>
+    <string name="options_theme_light">Light</string>
+    <string name="options_theme_dark">Dark</string>
+    <string name="options_broken_channels">Broken channels</string>
+    <string name="options_show_broken_channels">Show broken channels</string>
+    <string name="options_language">Language</string>
+    <string name="options_language_system">System</string>
+    <string name="options_language_es">Español</string>
+    <string name="options_language_en">English</string>
+    <string name="options_language_ca">Català</string>
+
+    <!-- Favorites -->
+    <string name="favorites_title">Favorites</string>
+    <string name="no_favorites">You have no favorite channels yet</string>
+    <string name="back_description">Back</string>
+    <string name="add_to_favorites">Add to favorites</string>
+    <string name="remove_from_favorites">Remove from favorites</string>
+</resources>
