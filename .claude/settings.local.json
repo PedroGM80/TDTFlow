@@ -34,7 +34,10 @@
       "Bash(./gradlew app:compileDebugKotlin 2>&1 | tail -5)",
       "Bash(./gradlew app:compileDebugKotlin 2>&1 | tail -10)",
       "Bash(git restore:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(xargs -0 grep -n \"\\\\b[0-9]\\\\+\\\\.sp\\\\b\")",
+      "Bash(xargs -0 grep -n \"fontSize\\\\s*=\")",
+      "Bash(cd:*)"
     ]
   }
 }

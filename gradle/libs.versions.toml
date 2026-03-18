@@ -1,17 +1,17 @@
 [versions]
 # Android & Kotlin
 androidGradlePlugin = "9.1.0"
-kotlin = "2.3.10"
+kotlin = "2.3.20"
 ksp = "2.0.0-1.0.21"
 
 # AndroidX
 androidxCore = "1.18.0"
 androidxActivity = "1.13.0"
-androidxAppCompat = "1.7.0"
+androidxAppCompat = "1.7.1"
 androidxLifecycle = "2.10.0"
 androidxNavigation = "2.9.7"
 androidxComposeBom = "2026.03.00"
-androidxMedia3 = "1.9.2"
+androidxMedia3 = "1.9.3"
 tvFoundation = "1.0.0-beta01"
 tvMaterial = "1.1.0-beta01"
 
@@ -24,7 +24,7 @@ ktor = "3.4.1"
 
 # Networking & Serialization
 coil = "2.7.0"
-retrofit = "2.11.0"
+retrofit = "3.0.0"
 
 # Lottie & Icons
 compottie = "2.1.0"
@@ -32,7 +32,7 @@ lucideIcons = "1.1.0"
 
 # Testing
 junit = "4.13.2"
-turbine = "1.2.0"
+turbine = "1.2.1"
 
 [libraries]
 # Core

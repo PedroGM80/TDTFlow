@@ -1,6 +1,7 @@
 package com.pedrogm.tdtflow.data
 
 import android.content.Context
+import androidx.core.content.edit
 
 /**
  * Persists user options (theme and language) in SharedPreferences.
@@ -14,14 +15,14 @@ class OptionsPreferences(context: Context) {
         prefs.getString(KEY_THEME, DEFAULT_THEME) ?: DEFAULT_THEME
 
     fun saveTheme(name: String) {
-        prefs.edit().putString(KEY_THEME, name).apply()
+        prefs.edit { putString(KEY_THEME, name) }
     }
 
     fun loadLanguage(): String =
         prefs.getString(KEY_LANGUAGE, DEFAULT_LANGUAGE) ?: DEFAULT_LANGUAGE
 
     fun saveLanguage(name: String) {
-        prefs.edit().putString(KEY_LANGUAGE, name).apply()
+        prefs.edit { putString(KEY_LANGUAGE, name)}
     }
 
     companion object {
