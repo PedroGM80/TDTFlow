@@ -1,13 +1,9 @@
 package com.pedrogm.tdtflow.ui.favorites
 
-import com.pedrogm.tdtflow.domain.repository.FavoritesRepository
 import com.pedrogm.tdtflow.domain.usecase.AddFavoriteUseCase
 import com.pedrogm.tdtflow.domain.usecase.GetFavoritesUseCase
 import com.pedrogm.tdtflow.domain.usecase.RemoveFavoriteUseCase
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import com.pedrogm.tdtflow.fakes.FakeFavoritesRepository
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -111,20 +107,5 @@ class FavoritesViewModelTest {
         viewModel.removeFavorite("rtve1.m3u8")
 
         assertFalse(viewModel.isFavorite("rtve1.m3u8"))
-    }
-}
-
-// ── Fake ────────────────────────────────────────────────────────────────────
-
-private class FakeFavoritesRepository : FavoritesRepository {
-    private val _favoriteIds = MutableStateFlow<Set<String>>(emptySet())
-    override val favoriteIds: StateFlow<Set<String>> = _favoriteIds.asStateFlow()
-
-    override fun add(channelUrl: String) {
-        _favoriteIds.update { it + channelUrl }
-    }
-
-    override fun remove(channelUrl: String) {
-        _favoriteIds.update { it - channelUrl }
     }
 }
