@@ -12,12 +12,12 @@ import com.pedrogm.tdtflow.domain.usecase.GetChannelsUseCase
 import com.pedrogm.tdtflow.player.TdtPlayer
 import com.pedrogm.tdtflow.util.Constants
 import com.pedrogm.tdtflow.util.TimeConstants
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 
-@Suppress("UnsafeOptInUsageError")
 class TdtViewModel(
     application: Application,
     private val getChannelsUseCase: GetChannelsUseCase
@@ -28,21 +28,16 @@ class TdtViewModel(
     }
 
     // ── Tracker de canales rotos ────────────────────────────────────
-    
+
     val brokenChannelTracker = BrokenChannelTracker(application)
 
     // ── Flujos fuente ───────────────────────────────────────────────
 
     private val _channels = MutableStateFlow<List<Channel>>(emptyList())
-
     private val _selectedCategory = MutableStateFlow<ChannelCategory?>(null)
-
     private val _searchQuery = MutableStateFlow(Constants.EMPTY_STRING)
-
     private val _currentChannel = MutableStateFlow<Channel?>(null)
-
     private val _isLoading = MutableStateFlow(true)
-
     private val _error = MutableStateFlow<String?>(null)
 
     /** Si es true, se muestran también los canales marcados como rotos */
@@ -54,13 +49,9 @@ class TdtViewModel(
     // ── Flow derivado: búsqueda con debounce ────────────────────────
 
     /**
-     * La búsqueda pasa por debounce antes de llegar al filtro.
-     *
-     * Sin debounce, escribir "Antena 3" dispara 8 recomposiciones
-     * (una por tecla). Con 300ms de debounce, sólo 1-2.
-     *
-     * distinctUntilChanged() evita recalcular si el texto debounced
-     * es igual al anterior (ej: usuario escribe y borra rápido).
+     * Sin debounce, escribir "Antena 3" dispara 8 recomposiciones (una por tecla).
+     * Con 300ms de debounce, sólo 1-2.
+     * distinctUntilChanged() evita recalcular si el texto es igual al anterior.
      */
     @OptIn(FlowPreview::class)
     private val debouncedQuery: Flow<String> = _searchQuery
@@ -70,18 +61,9 @@ class TdtViewModel(
     // ── Flow derivado: canales filtrados ─────────────────────────────
 
     /**
-     * Combina canales, categoría, búsqueda debounced y canales rotos.
-     *
-     * flowOn(Default): el filtrado es CPU-bound (iterar 200+ canales,
-     * comparar strings). Default tiene tantos hilos como cores de CPU,
-     * ideal para este tipo de trabajo. Main se queda libre para la UI.
-     *
-     * distinctUntilChanged(): si los filtros producen la misma lista
-     * (ej: cambiar query de "la " a "la" filtra los mismos canales),
-     * no se emite ni se recompone.
-     *
-     * stateIn: materializa el Flow para que uiState no se suscriba
-     * dos veces a _channels (una directa + una indirecta via filtro).
+     * flowOn(Default): el filtrado es CPU-bound. Main se queda libre para la UI.
+     * distinctUntilChanged(): si los filtros producen la misma lista, no recompone.
+     * stateIn: evita doble suscripción a _channels desde uiState.
      */
     private val _filteredChannels: StateFlow<List<Channel>> = combine(
         _channels,
@@ -98,7 +80,7 @@ class TdtViewModel(
             showBroken = showBroken
         )
     }
-        .flowOn(kotlinx.coroutines.Dispatchers.Default)
+        .flowOn(Dispatchers.Default)
         .distinctUntilChanged()
         .stateIn(
             scope = viewModelScope,
@@ -109,37 +91,32 @@ class TdtViewModel(
     // ── Estado UI combinado ─────────────────────────────────────────
 
     /**
-     * Punto único de observación para la UI.
-     *
-     * Usa _filteredChannels (StateFlow materializado) en vez de
-     * recombinar _channels + filtros → evita doble suscripción.
-     *
-     * WhileSubscribed(5_000): cancela upstream 5s después de que
-     * la UI desaparezca. Los 5s cubren rotaciones de pantalla.
+     * Primer combine (≤5 flujos, tipado): produce PartialState.
+     * Segundo combine agrega _error, brokenUrls y _showBrokenChannels.
+     * Evita el combine de 7 flujos con Array<Any?> y casts inseguros.
      */
-    val uiState: StateFlow<TdtUiState> = combine(
+    private val _partialUiState: StateFlow<PartialState> = combine(
         _filteredChannels,
         _currentChannel,
         _selectedCategory,
-        _searchQuery, // raw query para el TextField (no debounced)
-        _isLoading,
+        _searchQuery,
+        _isLoading
+    ) { filtered, current, category, query, loading ->
+        PartialState(filtered, current, category, query, loading)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(TimeConstants.FLOW_SUBSCRIPTION_TIMEOUT_MS),
+        initialValue = PartialState(emptyList(), null, null, Constants.EMPTY_STRING, true)
+    )
+
+    val uiState: StateFlow<TdtUiState> = combine(
+        _partialUiState,
+        _error,
         brokenChannelTracker.brokenUrls,
         _showBrokenChannels
-    ) { values ->
-        val filtered = values[0] as List<Channel>
-        val current = values[1] as Channel?
-        val category = values[2] as ChannelCategory?
-        val query = values[3] as String
-        val loading = values[4] as Boolean
-        val brokenUrls = values[5] as Set<String>
-        val showBroken = values[6] as Boolean
-        
-        PartialState(filtered, current, category, query, loading, brokenUrls.size, showBroken)
-    }.combine(
-        _error
-    ) { partial, error ->
+    ) { partial, error, brokenUrls, showBroken ->
         TdtUiState(
-            channels = _channels.value, // lectura directa, no suscripción
+            channels = _channels.value,
             filteredChannels = partial.filtered,
             currentChannel = partial.current,
             selectedCategory = partial.category,
@@ -147,8 +124,8 @@ class TdtViewModel(
             isLoading = partial.loading,
             isPlaying = partial.current != null,
             error = error,
-            brokenChannelsCount = partial.brokenCount,
-            showBrokenChannels = partial.showBroken
+            brokenChannelsCount = brokenUrls.size,
+            showBrokenChannels = showBroken
         )
     }.stateIn(
         scope = viewModelScope,
@@ -161,22 +138,13 @@ class TdtViewModel(
 
     init {
         loadChannels()
-        // Player observers are started in initPlayer() once the player exists.
-        // Calling them here would create zombie subscriptions (player == null)
-        // that become a second active collector after initPlayer() runs, causing
-        // player errors to propagate twice and channels to be double-marked as broken.
     }
 
     // ── Acciones ────────────────────────────────────────────────────
 
     /**
-     * Carga canales cancelando cualquier carga anterior.
-     *
-     * loadJob?.cancel(): si el usuario pulsa retry mientras una descarga
-     * está en curso, cancela la anterior para no tener dos coroutines
-     * compitiendo por actualizar _channels.
-     *
-     * El Flow del repository ya separa IO (red) y Default (parseo).
+     * loadJob?.cancel(): si el usuario pulsa retry mientras una descarga está en curso,
+     * cancela la anterior para no tener dos coroutines compitiendo por _channels.
      */
     private fun loadChannels() {
         loadJob?.cancel()
@@ -202,37 +170,31 @@ class TdtViewModel(
 
     /**
      * Propaga errores del player al flow de error global.
-     * Se lanza una sola vez; cuando se crea el player, se reconecta.
+     * flatMapLatest garantiza que sólo se observa el canal activo.
      */
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun observePlayerErrors() {
         _currentChannel
             .filterNotNull()
-            .flatMapLatest {
-                player?.playerError ?: flowOf(null)
-            }
+            .flatMapLatest { player?.playerError ?: flowOf(null) }
             .filterNotNull()
             .distinctUntilChanged()
             .onEach { errorMsg ->
                 _error.value = errorMsg
-                // Marcar canal como roto si hay error de reproducción
                 markCurrentChannelAsBroken()
             }
             .launchIn(viewModelScope)
     }
 
     /**
-     * Observa el timeout de buffering del player.
-     * Si se activa, marca el canal actual como roto.
+     * Si se activa el timeout de buffering, marca el canal actual como roto.
      */
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun observeBufferingTimeout() {
         _currentChannel
             .filterNotNull()
-            .flatMapLatest {
-                player?.bufferingTimeout ?: flowOf(false)
-            }
-            .filter { it } // Solo cuando es true
+            .flatMapLatest { player?.bufferingTimeout ?: flowOf(false) }
+            .filter { it }
             .distinctUntilChanged()
             .onEach {
                 Log.d(TAG, "Buffering timeout detected, marking channel as broken")
@@ -241,9 +203,6 @@ class TdtViewModel(
             .launchIn(viewModelScope)
     }
 
-    /**
-     * Marca el canal actual como roto.
-     */
     private fun markCurrentChannelAsBroken() {
         val url = player?.getCurrentStreamUrl() ?: return
         Log.d(TAG, "Marking channel as broken: $url")
@@ -253,7 +212,6 @@ class TdtViewModel(
     fun initPlayer() {
         if (player == null) {
             player = TdtPlayer(getApplication())
-            // Re-observar errores y timeout con el nuevo player
             observePlayerErrors()
             observeBufferingTimeout()
         }
@@ -266,18 +224,10 @@ class TdtViewModel(
         _error.value = null
     }
 
-    /**
-     * Cambiar categoría. distinctUntilChanged() en _filteredChannels
-     * garantiza que si el resultado no cambia, no hay recomposición.
-     */
     fun filterByCategory(category: ChannelCategory?) {
         _selectedCategory.value = category
     }
 
-    /**
-     * Búsqueda. El texto va a _searchQuery (raw, para el TextField)
-     * y pasa por debounce(300) antes de llegar al filtro.
-     */
     fun search(query: String) {
         _searchQuery.value = query
     }
@@ -299,24 +249,15 @@ class TdtViewModel(
         loadChannels()
     }
 
-    /**
-     * Alterna la visibilidad de canales rotos.
-     */
     fun toggleShowBrokenChannels() {
         _showBrokenChannels.update { !it }
     }
 
-    /**
-     * Limpia la lista de canales rotos para revalidar.
-     */
     fun revalidateChannels() {
         brokenChannelTracker.clearAll()
         _showBrokenChannels.value = false
     }
 
-    /**
-     * Quita un canal específico de la lista de rotos (para reintentar).
-     */
     fun retryBrokenChannel(channel: Channel) {
         brokenChannelTracker.unmarkAsBroken(channel.url)
     }
@@ -328,14 +269,12 @@ class TdtViewModel(
     }
 }
 
-// ── Private data class for internal state combination ──────────────────
+// ── Estado parcial para el combine intermedio ───────────────────────────
 
 private data class PartialState(
     val filtered: List<Channel>,
     val current: Channel?,
     val category: ChannelCategory?,
     val query: String,
-    val loading: Boolean,
-    val brokenCount: Int,
-    val showBroken: Boolean
+    val loading: Boolean
 )
