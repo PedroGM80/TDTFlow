@@ -26,10 +26,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.composables.icons.lucide.Heart
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Music
@@ -78,7 +77,7 @@ fun ChannelCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(dimensionResource(R.dimen.radius_small))),
-                iconSize = 32.dp
+                iconSize = dimensionResource(R.dimen.icon_size_card_logo)
             )
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_small)))
@@ -91,13 +90,13 @@ fun ChannelCard(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
-                fontSize = 11.sp,
+                fontSize = dimensionResource(R.dimen.text_size_channel_name).value.sp,
                 color = if (isSelected) {
                     MaterialTheme.colorScheme.onPrimaryContainer
                 } else {
                     MaterialTheme.colorScheme.onSurface
                 },
-                modifier = Modifier.padding(horizontal = 2.dp)
+                modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_extra_small))
             )
 
             // Live indicator when selected
@@ -126,7 +125,7 @@ fun ChannelCard(
             onClick = onToggleFavorite,
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .size(32.dp)
+                .size(dimensionResource(R.dimen.icon_size_card_logo))
         ) {
             Icon(
                 imageVector = Lucide.Heart,
@@ -136,7 +135,7 @@ fun ChannelCard(
                     stringResource(R.string.add_to_favorites)
                 },
                 tint = if (isFavorite) Color.Red else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(dimensionResource(R.dimen.icon_size_favorite))
             )
         }
     }

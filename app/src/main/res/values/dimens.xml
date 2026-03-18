@@ -1,53 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Padding & Margins -->
-    <dimen name="padding_small">4.dp</dimen>
-    <dimen name="padding_medium">8.dp</dimen>
-    <dimen name="padding_large">16.dp</dimen>
-    <dimen name="padding_extra_large">24.dp</dimen>
-    <dimen name="padding_tv">48.dp</dimen>
+    <dimen name="padding_extra_small">2dp</dimen>
+    <dimen name="padding_small">4dp</dimen>
+    <dimen name="padding_medium">8dp</dimen>
+    <dimen name="padding_large">16dp</dimen>
+    <dimen name="padding_extra_large">24dp</dimen>
+    <dimen name="padding_tv">48dp</dimen>
 
     <!-- Spacing -->
-    <dimen name="spacing_tiny">4.dp</dimen>
-    <dimen name="spacing_small">8.dp</dimen>
-    <dimen name="spacing_medium">12.dp</dimen>
-    <dimen name="spacing_large">16.dp</dimen>
+    <dimen name="spacing_tiny">4dp</dimen>
+    <dimen name="spacing_small">8dp</dimen>
+    <dimen name="spacing_medium">12dp</dimen>
+    <dimen name="spacing_large">16dp</dimen>
 
     <!-- Icon Sizes -->
-    <dimen name="icon_size_small">14.dp</dimen>
-    <dimen name="icon_size_medium">24.dp</dimen>
-    <dimen name="icon_size_large">36.dp</dimen>
-    <dimen name="icon_size_extra_large">48.dp</dimen>
+    <dimen name="icon_size_small">14dp</dimen>
+    <dimen name="icon_size_medium">24dp</dimen>
+    <dimen name="icon_size_large">36dp</dimen>
+    <dimen name="icon_size_extra_large">48dp</dimen>
+    <dimen name="icon_size_card_logo">32dp</dimen>
+    <dimen name="icon_size_favorite">16dp</dimen>
 
     <!-- Card & Component Dimensions -->
-    <dimen name="card_width_tv">170.dp</dimen>
-    <dimen name="card_logo_size_tv">60.dp</dimen>
-    <dimen name="card_logo_size_mobile">52.dp</dimen>
-    <dimen name="loading_animation_size">120.dp</dimen>
-    <dimen name="error_animation_size">100.dp</dimen>
+    <dimen name="card_width_tv">170dp</dimen>
+    <dimen name="card_logo_size_tv">60dp</dimen>
+    <dimen name="card_logo_size_mobile">52dp</dimen>
+    <dimen name="loading_animation_size">120dp</dimen>
+    <dimen name="error_animation_size">100dp</dimen>
 
     <!-- Text Sizes -->
-    <dimen name="text_size_tiny">10.sp</dimen>
-    <dimen name="text_size_small">12.sp</dimen>
-    <dimen name="text_size_medium_small">14.sp</dimen>
-    <dimen name="text_size_medium">15.sp</dimen>
-    <dimen name="text_size_large">20.sp</dimen>
-    <dimen name="text_size_header_tv">34.sp</dimen>
+    <dimen name="text_size_tiny">10sp</dimen>
+    <dimen name="text_size_small">12sp</dimen>
+    <dimen name="text_size_medium_small">14sp</dimen>
+    <dimen name="text_size_medium">15sp</dimen>
+    <dimen name="text_size_large">20sp</dimen>
+    <dimen name="text_size_header_tv">34sp</dimen>
+    <dimen name="text_size_channel_name">11sp</dimen>
 
     <!-- Corner Radii -->
-    <dimen name="radius_extra_small">6.dp</dimen>
-    <dimen name="radius_small">8.dp</dimen>
-    <dimen name="radius_medium">12.dp</dimen>
-    <dimen name="radius_large">14.dp</dimen>
-    <dimen name="radius_extra_large">20.dp</dimen>
+    <dimen name="radius_extra_small">6dp</dimen>
+    <dimen name="radius_small">8dp</dimen>
+    <dimen name="radius_medium">12dp</dimen>
+    <dimen name="radius_large">14dp</dimen>
+    <dimen name="radius_extra_large">20dp</dimen>
 
     <!-- Elevation -->
-    <dimen name="elevation_low">1.dp</dimen>
-    <dimen name="elevation_high">8.dp</dimen>
+    <dimen name="elevation_low">1dp</dimen>
+    <dimen name="elevation_high">8dp</dimen>
 
     <!-- Misc -->
-    <dimen name="stroke_thin">2.dp</dimen>
-    <dimen name="min_grid_cell_size">100.dp</dimen>
-    <dimen name="chip_padding_horizontal">18.dp</dimen>
-    <dimen name="chip_padding_vertical">10.dp</dimen>
+    <dimen name="stroke_thin">2dp</dimen>
+    <dimen name="min_grid_cell_size">100dp</dimen>
+    <dimen name="chip_padding_horizontal">18dp</dimen>
+    <dimen name="chip_padding_vertical">10dp</dimen>
 </resources>
