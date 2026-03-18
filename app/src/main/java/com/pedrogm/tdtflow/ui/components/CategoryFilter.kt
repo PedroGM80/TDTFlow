@@ -21,9 +21,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.composables.icons.lucide.Check
 import com.composables.icons.lucide.Eye
@@ -46,7 +46,7 @@ fun CategoryFilter(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = dimensionResource(R.dimen.spacing_tiny)),
         verticalAlignment = Alignment.CenterVertically
     ) {
         CategoryFilterChips(
@@ -73,8 +73,8 @@ private fun CategoryFilterChips(
     Row(
         modifier = modifier
             .horizontalScroll(rememberScrollState())
-            .padding(start = 12.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+            .padding(start = dimensionResource(R.dimen.spacing_medium)),
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small))
     ) {
         FilterChip(
             selected = selectedCategory == null,
@@ -82,7 +82,7 @@ private fun CategoryFilterChips(
             label = {
                 Text(
                     text = stringResource(R.string.category_all),
-                    fontSize = 12.sp
+                    fontSize = dimensionResource(R.dimen.text_size_small).value.sp
                 )
             },
             leadingIcon = if (selectedCategory == null) {
@@ -90,11 +90,11 @@ private fun CategoryFilterChips(
                     Icon(
                         imageVector = Lucide.Check,
                         contentDescription = stringResource(R.string.check_icon_description),
-                        modifier = Modifier.size(14.dp)
+                        modifier = Modifier.size(dimensionResource(R.dimen.icon_size_small))
                     )
                 }
             } else null,
-            modifier = Modifier.height(32.dp)
+            modifier = Modifier.height(dimensionResource(R.dimen.chip_height))
         )
 
         ChannelCategory.entries.forEach { category ->
@@ -104,17 +104,17 @@ private fun CategoryFilterChips(
                 label = {
                     Text(
                         text = stringResource(category.toStringRes()),
-                        fontSize = 12.sp
+                        fontSize = dimensionResource(R.dimen.text_size_small).value.sp
                     )
                 },
                 leadingIcon = {
                     Icon(
                         imageVector = category.toLucideIcon(),
                         contentDescription = stringResource(R.string.category_icon_description, stringResource(category.toStringRes())),
-                        modifier = Modifier.size(14.dp)
+                        modifier = Modifier.size(dimensionResource(R.dimen.icon_size_small))
                     )
                 },
-                modifier = Modifier.height(32.dp)
+                modifier = Modifier.height(dimensionResource(R.dimen.chip_height))
             )
         }
     }
@@ -131,17 +131,17 @@ private fun BrokenChannelsActions(
     if (brokenChannelsCount > 0 && onToggleBroken != null) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = modifier.padding(end = 4.dp)
+            modifier = modifier.padding(end = dimensionResource(R.dimen.spacing_tiny))
         ) {
             Box {
                 IconButton(
                     onClick = onToggleBroken,
-                    modifier = Modifier.size(36.dp)
+                    modifier = Modifier.size(dimensionResource(R.dimen.icon_size_large))
                 ) {
                     Icon(
                         imageVector = if (showingBroken) Lucide.Eye else Lucide.EyeOff,
                         contentDescription = stringResource(R.string.show_broken_channels),
-                        modifier = Modifier.size(18.dp),
+                        modifier = Modifier.size(dimensionResource(R.dimen.icon_size_action)),
                         tint = if (showingBroken) MaterialTheme.colorScheme.primary
                         else MaterialTheme.colorScheme.error
                     )
@@ -150,7 +150,7 @@ private fun BrokenChannelsActions(
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .size(14.dp)
+                            .size(dimensionResource(R.dimen.icon_size_small))
                             .background(
                                 color = MaterialTheme.colorScheme.error,
                                 shape = CircleShape
@@ -160,7 +160,7 @@ private fun BrokenChannelsActions(
                         Text(
                             text = if (brokenChannelsCount > 9) "9+" else brokenChannelsCount.toString(),
                             color = MaterialTheme.colorScheme.onError,
-                            fontSize = 7.sp,
+                            fontSize = dimensionResource(R.dimen.text_size_badge).value.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -170,12 +170,12 @@ private fun BrokenChannelsActions(
             if (onRevalidate != null) {
                 IconButton(
                     onClick = onRevalidate,
-                    modifier = Modifier.size(36.dp)
+                    modifier = Modifier.size(dimensionResource(R.dimen.icon_size_large))
                 ) {
                     Icon(
                         imageVector = Lucide.RotateCcw,
                         contentDescription = stringResource(R.string.revalidate_channels),
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.size(dimensionResource(R.dimen.icon_size_favorite)),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }

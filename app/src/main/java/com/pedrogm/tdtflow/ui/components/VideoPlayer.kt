@@ -15,7 +15,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -148,11 +147,11 @@ fun VideoPlayer(
                             name = channel.name,
                             category = channel.category,
                             modifier = Modifier
-                                .size(120.dp)
-                                .clip(RoundedCornerShape(16.dp)),
-                            iconSize = 80.dp
+                                .size(dimensionResource(R.dimen.loading_animation_size))
+                                .clip(RoundedCornerShape(dimensionResource(R.dimen.radius_music_card))),
+                            iconSize = dimensionResource(R.dimen.icon_size_music_logo)
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_large)))
                         Text(
                             text = stringResource(R.string.category_music),
                             color = AppColors.Player.inactiveIcon,

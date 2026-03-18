@@ -14,10 +14,10 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.dimensionResource
 import androidx.core.os.LocaleListCompat
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pedrogm.tdtflow.R
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pedrogm.tdtflow.ui.theme.TDTFlowTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -74,9 +74,9 @@ fun OptionsMenuContent(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .padding(bottom = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+                .padding(horizontal = dimensionResource(R.dimen.padding_extra_large))
+                .padding(bottom = dimensionResource(R.dimen.spacing_bottom_sheet)),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_extra_large))
         ) {
             Text(
                 text = stringResource(R.string.options_title),
@@ -107,7 +107,7 @@ private fun ThemeSection(
     selectedTheme: AppTheme,
     onSelectTheme: (AppTheme) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small))) {
         Text(
             text = stringResource(R.string.options_appearance),
             style = MaterialTheme.typography.titleSmall,
@@ -141,7 +141,7 @@ private fun BrokenChannelsSection(
     showBrokenChannels: Boolean,
     onToggle: () -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small))) {
         Text(
             text = stringResource(R.string.options_broken_channels),
             style = MaterialTheme.typography.titleSmall,
@@ -172,7 +172,7 @@ private fun LanguageSection(
     selectedLanguage: AppLanguage,
     onSelectLanguage: (AppLanguage) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small))) {
         Text(
             text = stringResource(R.string.options_language),
             style = MaterialTheme.typography.titleSmall,
@@ -189,10 +189,10 @@ private fun LanguageSection(
                             onClick = { onSelectLanguage(language) },
                             role = Role.RadioButton
                         )
-                        .padding(vertical = 8.dp)
+                        .padding(vertical = dimensionResource(R.dimen.spacing_small))
                         .testTag("language_option_${language.name}"),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium))
                 ) {
                     RadioButton(
                         selected = selectedLanguage == language,

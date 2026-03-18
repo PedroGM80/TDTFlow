@@ -28,7 +28,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.WindowCompat
@@ -160,7 +159,7 @@ private fun LandscapeFullscreenPlayer(
             CircularProgressIndicator(
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .size(48.dp),
+                    .size(dimensionResource(R.dimen.icon_size_extra_large)),
                 color = AppColors.Overlay.buffering
             )
         }
@@ -195,11 +194,11 @@ private fun LandscapeChannelChip(
         shape = MaterialTheme.shapes.medium,
         color = bgColor,
         border = if (isSelected) ButtonDefaults.outlinedButtonBorder(enabled = true) else null,
-        tonalElevation = 0.dp,
-        modifier = Modifier.width(100.dp)
+        tonalElevation = dimensionResource(R.dimen.elevation_none),
+        modifier = Modifier.width(dimensionResource(R.dimen.min_grid_cell_size))
     ) {
         Column(
-            modifier = Modifier.padding(8.dp),
+            modifier = Modifier.padding(dimensionResource(R.dimen.spacing_small)),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box {
@@ -207,32 +206,31 @@ private fun LandscapeChannelChip(
                     AsyncImage(
                         model = channel.logo,
                         contentDescription = channel.name,
-                        modifier = Modifier.size(40.dp)
+                        modifier = Modifier.size(dimensionResource(R.dimen.icon_size_channel_chip))
                     )
                 } else {
                     Icon(
                         imageVector = Lucide.Tv,
                         contentDescription = stringResource(R.string.tv_icon),
                         tint = Color.White,
-                        modifier = Modifier.size(40.dp)
+                        modifier = Modifier.size(dimensionResource(R.dimen.icon_size_channel_chip))
                     )
                 }
-                // Punto rojo si está seleccionado
                 if (isSelected) {
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .size(8.dp)
+                            .size(dimensionResource(R.dimen.size_live_indicator))
                             .clip(CircleShape)
                             .background(AppColors.liveIndicator)
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_tiny)))
             Text(
                 text = channel.name,
                 color = Color.White,
-                fontSize = 11.sp,
+                fontSize = dimensionResource(R.dimen.text_size_channel_name).value.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
@@ -263,22 +261,25 @@ private fun BoxScope.TopLandscapeOverlay(
                             colors = listOf(AppColors.Overlay.gradientTop, Color.Transparent)
                         )
                     )
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .padding(
+                        horizontal = dimensionResource(R.dimen.spacing_large),
+                        vertical = dimensionResource(R.dimen.spacing_medium)
+                    )
                     .statusBarsPadding(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
                     modifier = Modifier
-                        .size(8.dp)
+                        .size(dimensionResource(R.dimen.size_live_indicator))
                         .clip(CircleShape)
                         .background(AppColors.liveIndicator)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_small)))
                 Text(
                     text = currentChannelName,
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
+                    fontSize = dimensionResource(R.dimen.text_size_large).value.sp,
                     modifier = Modifier.weight(1f)
                 )
                 IconButton(onClick = onClose) {
@@ -318,7 +319,7 @@ private fun BoxScope.BottomLandscapeOverlay(
                         )
                     )
                     .navigationBarsPadding()
-                    .padding(bottom = 8.dp)
+                    .padding(bottom = dimensionResource(R.dimen.spacing_small))
             ) {
                 CategoryFilter(
                     selectedCategory = selectedCategory,
@@ -326,8 +327,8 @@ private fun BoxScope.BottomLandscapeOverlay(
                 )
 
                 LazyRow(
-                    contentPadding = PaddingValues(horizontal = 12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(horizontal = dimensionResource(R.dimen.spacing_medium)),
+                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     items(
