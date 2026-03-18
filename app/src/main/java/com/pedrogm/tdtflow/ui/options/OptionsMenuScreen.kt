@@ -26,11 +26,16 @@ fun OptionsMenuScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(uiState.isOpen) {
+        if (!uiState.isOpen) {
+            onDismiss()
+        }
+    }
+
     if (uiState.isOpen) {
         OptionsMenuContent(
             uiState = uiState,
-            onEvent = viewModel::onEvent,
-            onDismiss = onDismiss
+            onEvent = viewModel::onEvent
         )
     }
 }
@@ -39,14 +44,10 @@ fun OptionsMenuScreen(
 @Composable
 fun OptionsMenuContent(
     uiState: OptionsMenuState,
-    onEvent: (OptionsMenuEvent) -> Unit,
-    onDismiss: () -> Unit
+    onEvent: (OptionsMenuEvent) -> Unit
 ) {
     ModalBottomSheet(
-        onDismissRequest = {
-            onEvent(OptionsMenuEvent.Dismiss)
-            onDismiss()
-        },
+        onDismissRequest = { onEvent(OptionsMenuEvent.Dismiss) },
         modifier = Modifier.testTag("options_bottom_sheet")
     ) {
         Column(
@@ -107,7 +108,7 @@ private fun ThemeSection(
                     ),
                     modifier = Modifier.testTag("theme_button_${theme.name}")
                 ) {
-                    Text(text = theme.label())
+                    Text(text = stringResource(theme.labelRes))
                 }
             }
         }
@@ -178,28 +179,13 @@ private fun LanguageSection(
                         modifier = Modifier.testTag("language_radio_${language.name}")
                     )
                     Text(
-                        text = language.label(),
+                        text = stringResource(language.labelRes),
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
             }
         }
     }
-}
-
-@Composable
-private fun AppTheme.label(): String = when (this) {
-    AppTheme.SYSTEM -> stringResource(R.string.options_theme_system)
-    AppTheme.LIGHT -> stringResource(R.string.options_theme_light)
-    AppTheme.DARK -> stringResource(R.string.options_theme_dark)
-}
-
-@Composable
-private fun AppLanguage.label(): String = when (this) {
-    AppLanguage.SYSTEM -> stringResource(R.string.options_language_system)
-    AppLanguage.ES -> stringResource(R.string.options_language_es)
-    AppLanguage.EN -> stringResource(R.string.options_language_en)
-    AppLanguage.CA -> stringResource(R.string.options_language_ca)
 }
 
 @Preview(showBackground = true)
@@ -213,8 +199,7 @@ private fun OptionsMenuContentPreview() {
                 showBrokenChannels = false,
                 language = AppLanguage.ES
             ),
-            onEvent = {},
-            onDismiss = {}
+            onEvent = {}
         )
     }
 }
