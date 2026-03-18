@@ -28,4 +28,7 @@ dependencies {
 
     // Android
     implementation(libs.androidx.core.ktx)
+
+    // Testing
+    testImplementation(libs.junit)
 }
