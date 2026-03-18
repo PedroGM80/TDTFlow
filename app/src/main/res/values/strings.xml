@@ -47,4 +47,25 @@
     <string name="music_icon">Icono de música</string>
     <string name="category_chip_icon">Icono de categoría</string>
     <string name="channel_card_icon">Icono de canal</string>
+
+    <!-- Opciones -->
+    <string name="options_title">Opciones</string>
+    <string name="options_appearance">Apariencia</string>
+    <string name="options_theme_system">Sistema</string>
+    <string name="options_theme_light">Claro</string>
+    <string name="options_theme_dark">Oscuro</string>
+    <string name="options_broken_channels">Canales rotos</string>
+    <string name="options_show_broken_channels">Mostrar canales rotos</string>
+    <string name="options_language">Idioma</string>
+    <string name="options_language_system">Sistema</string>
+    <string name="options_language_es">Español</string>
+    <string name="options_language_en">English</string>
+    <string name="options_language_ca">Català</string>
+
+    <!-- Favoritos -->
+    <string name="favorites_title">Favoritos</string>
+    <string name="no_favorites">Aún no tienes canales favoritos</string>
+    <string name="back_description">Volver</string>
+    <string name="add_to_favorites">Añadir a favoritos</string>
+    <string name="remove_from_favorites">Quitar de favoritos</string>
 </resources>
