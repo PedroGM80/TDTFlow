@@ -1,7 +1,15 @@
 package com.pedrogm.tdtflow.ui.components
 
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.composables.icons.lucide.*
+import com.composables.icons.lucide.Baby
+import com.composables.icons.lucide.Clapperboard
+import com.composables.icons.lucide.LayoutGrid
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.Music
+import com.composables.icons.lucide.Newspaper
+import com.composables.icons.lucide.Trophy
+import com.composables.icons.lucide.Tv
+import com.composables.icons.lucide.TvMinimalPlay
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
 
@@ -12,7 +20,7 @@ fun ChannelCategory.toLucideIcon(): ImageVector = when (this) {
     ChannelCategory.SPORTS -> Lucide.Trophy
     ChannelCategory.KIDS -> Lucide.Baby
     ChannelCategory.ENTERTAINMENT -> Lucide.Clapperboard
-    ChannelCategory.REGIONAL -> Lucide.Tv2
+    ChannelCategory.REGIONAL -> Lucide.TvMinimalPlay
     ChannelCategory.MUSIC -> Lucide.Music
     ChannelCategory.OTHER -> Lucide.LayoutGrid
 }
