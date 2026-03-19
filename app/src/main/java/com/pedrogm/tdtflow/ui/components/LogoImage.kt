@@ -10,6 +10,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,7 +44,9 @@ fun LogoImage(
     cornerRadius: Dp = 12.dp,
     onError: ((Throwable) -> Unit)? = null
 ) {
-    if (logo.isNotEmpty()) {
+    var loadFailed by remember(logo) { mutableStateOf(false) }
+
+    if (logo.isNotEmpty() && !loadFailed) {
         AsyncImage(
             model = logo,
             contentDescription = name,
@@ -52,6 +58,7 @@ fun LogoImage(
             onState = { state ->
                 if (state is AsyncImagePainter.State.Error) {
                     Log.e("LogoImage", "Error loading logo for $name: $logo", state.result.throwable)
+                    loadFailed = true
                     onError?.invoke(state.result.throwable)
                 }
             }
