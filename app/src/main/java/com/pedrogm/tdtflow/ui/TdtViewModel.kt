@@ -1,15 +1,14 @@
 package com.pedrogm.tdtflow.ui
 
-import android.app.Application
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
-import com.pedrogm.tdtflow.R
-import com.pedrogm.tdtflow.data.BrokenChannelTracker
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
+import com.pedrogm.tdtflow.domain.tracker.BrokenChannelTracker
 import com.pedrogm.tdtflow.domain.usecase.GetChannelsUseCase
+import com.pedrogm.tdtflow.player.PlayerState
 import com.pedrogm.tdtflow.player.TdtPlayer
 import com.pedrogm.tdtflow.util.Constants
 import com.pedrogm.tdtflow.util.TimeConstants
@@ -39,17 +38,15 @@ import kotlinx.coroutines.flow.update
 
 @UnstableApi
 class TdtViewModel(
-    application: Application,
-    private val getChannelsUseCase: GetChannelsUseCase
-) : AndroidViewModel(application) {
+    private val getChannelsUseCase: GetChannelsUseCase,
+    private val brokenChannelTracker: BrokenChannelTracker,
+    private val loadError: (Throwable) -> String,
+    private val playerFactory: () -> TdtPlayer
+) : ViewModel() {
 
     companion object {
         private const val TAG = "TdtViewModel"
     }
-
-    // ── Tracker de canales rotos ────────────────────────────────────
-
-    private val brokenChannelTracker = BrokenChannelTracker(application)
 
     // ── Flujos fuente ───────────────────────────────────────────────
 
@@ -59,20 +56,13 @@ class TdtViewModel(
     private val _currentChannel = MutableStateFlow<Channel?>(null)
     private val _isLoading = MutableStateFlow(true)
     private val _error = MutableStateFlow<String?>(null)
-
-    /** Si es true, se muestran también los canales marcados como rotos */
     private val _showBrokenChannels = MutableStateFlow(false)
+    private val _playerState = MutableStateFlow(PlayerState.IDLE)
 
-    /** Job de carga actual. Se cancela en retry() para evitar cargas paralelas. */
     private var loadJob: Job? = null
 
     // ── Flow derivado: búsqueda con debounce ────────────────────────
 
-    /**
-     * Sin debounce, escribir "Antena 3" dispara 8 recomposiciones (una por tecla).
-     * Con 300ms de debounce, sólo 1-2.
-     * distinctUntilChanged() evita recalcular si el texto es igual al anterior.
-     */
     @OptIn(FlowPreview::class)
     private val debouncedQuery: Flow<String> = _searchQuery
         .debounce(TimeConstants.SEARCH_DEBOUNCE_MS)
@@ -80,11 +70,6 @@ class TdtViewModel(
 
     // ── Flow derivado: canales filtrados ─────────────────────────────
 
-    /**
-     * flowOn(Default): el filtrado es CPU-bound. Main se queda libre para la UI.
-     * distinctUntilChanged(): si los filtros producen la misma lista, no recompone.
-     * stateIn: evita doble suscripción a _channels desde uiState.
-     */
     private val _filteredChannels: StateFlow<List<Channel>> = combine(
         _channels,
         _selectedCategory,
@@ -110,11 +95,6 @@ class TdtViewModel(
 
     // ── Estado UI combinado ─────────────────────────────────────────
 
-    /**
-     * Primer combine (≤5 flujos, tipado): produce PartialState.
-     * Segundo combine agrega _error, brokenUrls y _showBrokenChannels.
-     * Evita el combine de 7 flujos con Array<Any?> y casts inseguros.
-     */
     private val _partialUiState: StateFlow<PartialState> = combine(
         _filteredChannels,
         _currentChannel,
@@ -133,8 +113,9 @@ class TdtViewModel(
         _partialUiState,
         _error,
         brokenChannelTracker.brokenUrls,
-        _showBrokenChannels
-    ) { partial, error, brokenUrls, showBroken ->
+        _showBrokenChannels,
+        _playerState
+    ) { partial, error, brokenUrls, showBroken, playerState ->
         TdtUiState(
             channels = _channels.value,
             filteredChannels = partial.filtered,
@@ -145,7 +126,8 @@ class TdtViewModel(
             isPlaying = partial.current != null,
             error = error,
             brokenChannelsCount = brokenUrls.size,
-            showBrokenChannels = showBroken
+            showBrokenChannels = showBroken,
+            playerState = playerState
         )
     }.stateIn(
         scope = viewModelScope,
@@ -179,10 +161,6 @@ class TdtViewModel(
 
     // ── Acciones ────────────────────────────────────────────────────
 
-    /**
-     * loadJob?.cancel(): si el usuario pulsa retry mientras una descarga está en curso,
-     * cancela la anterior para no tener dos coroutines compitiendo por _channels.
-     */
     private fun loadChannels() {
         loadJob?.cancel()
         loadJob = getChannelsUseCase()
@@ -191,10 +169,7 @@ class TdtViewModel(
                 _error.value = null
             }
             .catch { e ->
-                _error.value = getApplication<Application>().getString(
-                    R.string.error_loading_channels,
-                    e.localizedMessage ?: "Unknown"
-                )
+                _error.value = loadError(e)
             }
             .onCompletion {
                 _isLoading.value = false
@@ -205,10 +180,6 @@ class TdtViewModel(
             .launchIn(viewModelScope)
     }
 
-    /**
-     * Propaga errores del player al flow de error global.
-     * flatMapLatest garantiza que sólo se observa el canal activo.
-     */
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun observePlayerErrors() {
         _currentChannel
@@ -223,9 +194,6 @@ class TdtViewModel(
             .launchIn(viewModelScope)
     }
 
-    /**
-     * Si se activa el timeout de buffering, marca el canal actual como roto.
-     */
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun observeBufferingTimeout() {
         _currentChannel
@@ -248,7 +216,10 @@ class TdtViewModel(
 
     private fun initPlayer() {
         if (player == null) {
-            player = TdtPlayer(getApplication())
+            player = playerFactory()
+            player!!.playerState
+                .onEach { _playerState.value = it }
+                .launchIn(viewModelScope)
             observePlayerErrors()
             observeBufferingTimeout()
         }
@@ -272,6 +243,7 @@ class TdtViewModel(
     private fun stopPlayback() {
         player?.stop()
         _currentChannel.value = null
+        _playerState.value = PlayerState.IDLE
     }
 
     private fun pausePlayer() {

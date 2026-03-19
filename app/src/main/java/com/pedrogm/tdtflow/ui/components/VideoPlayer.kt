@@ -1,15 +1,27 @@
 package com.pedrogm.tdtflow.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.integerResource
@@ -17,12 +29,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
-import coil.compose.AsyncImage
-import com.composables.icons.lucide.*
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.Maximize
+import com.composables.icons.lucide.Music
+import com.composables.icons.lucide.X
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
@@ -34,15 +47,14 @@ import com.pedrogm.tdtflow.ui.theme.AppColors
 @Composable
 fun VideoPlayer(
     player: TdtPlayer,
+    playerState: PlayerState,
     channel: Channel,
     onClose: () -> Unit,
     onFullscreen: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
-    // Observa el estado del player reactivamente con lifecycle
-    val playerState by player.playerState.collectAsStateWithLifecycle()
-    val highAlpha = integerResource(R.integer.alpha_high_percent) / 100f
-    val bufferingAlpha = integerResource(R.integer.alpha_buffering_percent) / 100f
+    integerResource(R.integer.alpha_high_percent) / 100f
+    integerResource(R.integer.alpha_buffering_percent) / 100f
 
     Column(modifier = modifier) {
         // Barra superior

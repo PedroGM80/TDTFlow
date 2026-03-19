@@ -2,6 +2,7 @@ package com.pedrogm.tdtflow.ui
 
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
+import com.pedrogm.tdtflow.player.PlayerState
 import com.pedrogm.tdtflow.util.Constants
 
 data class TdtUiState(
@@ -13,8 +14,7 @@ data class TdtUiState(
     val isLoading: Boolean = true,
     val isPlaying: Boolean = false,
     val error: String? = null,
-    /** Número de canales marcados como rotos (no emiten) */
     val brokenChannelsCount: Int = 0,
-    /** Si es true, se muestran también los canales rotos en la lista */
-    val showBrokenChannels: Boolean = false
+    val showBrokenChannels: Boolean = false,
+    val playerState: PlayerState = PlayerState.IDLE
 )

@@ -11,7 +11,6 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.datasource.DefaultHttpDataSource
 import com.pedrogm.tdtflow.R
-import com.pedrogm.tdtflow.data.BrokenChannelTracker
 import com.pedrogm.tdtflow.util.TimeConstants
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,7 +28,7 @@ import kotlinx.coroutines.flow.asStateFlow
  *   que el ViewModel y la UI lo observen reactivamente.
  * - Errores expuestos como [playerError] StateFlow en vez de callback,
  *   compatible con el pipeline de Flow del ViewModel.
- * - Detección de canales muertos: si el buffering supera [BUFFERING_TIMEOUT_MS]
+ * - Detección de canales muertos: si el buffering supera [TimeConstants.BUFFERING_TIMEOUT_MS]
  *   sin pasar a PLAYING, se emite [bufferingTimeout].
  */
 @UnstableApi
@@ -125,13 +124,13 @@ class TdtPlayer(context: Context) {
 
     /**
      * Inicia el temporizador de timeout de buffering.
-     * Si pasan [BrokenChannelTracker.BUFFERING_TIMEOUT_MS] sin que el player
+     * Si pasan [TimeConstants.BUFFERING_TIMEOUT_MS] sin que el player
      * pase a PLAYING, se emite [bufferingTimeout] = true.
      */
     private fun startBufferingTimeout() {
         cancelBufferingTimeout()
         bufferingTimeoutJob = playerScope.launch {
-            delay(BrokenChannelTracker.BUFFERING_TIMEOUT_MS)
+            delay(TimeConstants.BUFFERING_TIMEOUT_MS)
             Log.w(TAG, "Buffering timeout reached for: $currentStreamUrl")
             _bufferingTimeout.value = true
             _playerState.value = PlayerState.ERROR

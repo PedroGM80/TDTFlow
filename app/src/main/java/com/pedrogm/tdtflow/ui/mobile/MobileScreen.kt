@@ -2,23 +2,58 @@ package com.pedrogm.tdtflow.ui.mobile
 
 import android.app.Activity
 import android.content.res.Configuration
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import com.pedrogm.tdtflow.ui.theme.AppColors
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
@@ -38,23 +73,35 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import coil.compose.AsyncImage
-import com.composables.icons.lucide.*
+import com.composables.icons.lucide.Heart
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.RefreshCw
+import com.composables.icons.lucide.Search
+import com.composables.icons.lucide.Settings
+import com.composables.icons.lucide.Tv
+import com.composables.icons.lucide.X
 import com.pedrogm.tdtflow.R
+import com.pedrogm.tdtflow.di.DIContainer
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
 import com.pedrogm.tdtflow.player.PlayerState
-import com.pedrogm.tdtflow.ui.TdtUiState
 import com.pedrogm.tdtflow.ui.TdtIntent
+import com.pedrogm.tdtflow.ui.TdtUiState
 import com.pedrogm.tdtflow.ui.TdtViewModel
-import com.pedrogm.tdtflow.di.DIContainer
-import com.pedrogm.tdtflow.util.TimeConstants
-import com.pedrogm.tdtflow.ui.components.*
-import com.pedrogm.tdtflow.ui.favorites.FavoritesScreen
-import com.pedrogm.tdtflow.ui.favorites.FavoritesViewModel
+import com.pedrogm.tdtflow.ui.components.CategoryFilter
+import com.pedrogm.tdtflow.ui.components.ChannelCard
+import com.pedrogm.tdtflow.ui.components.EmptyState
+import com.pedrogm.tdtflow.ui.components.ErrorState
+import com.pedrogm.tdtflow.ui.components.LoadingAnimation
+import com.pedrogm.tdtflow.ui.components.SearchBar
+import com.pedrogm.tdtflow.ui.components.VideoPlayer
 import com.pedrogm.tdtflow.ui.favorites.FavoritesIntent
+import com.pedrogm.tdtflow.ui.favorites.FavoritesViewModel
 import com.pedrogm.tdtflow.ui.options.OptionsMenuIntent
 import com.pedrogm.tdtflow.ui.options.OptionsMenuScreen
 import com.pedrogm.tdtflow.ui.options.OptionsMenuViewModel
+import com.pedrogm.tdtflow.ui.theme.AppColors
+import com.pedrogm.tdtflow.util.TimeConstants
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,26 +109,17 @@ import kotlinx.coroutines.delay
 fun MobileScreen(
     viewModel: TdtViewModel,
     favoritesViewModel: FavoritesViewModel = DIContainer.favorites.viewModel,
-    optionsViewModel: OptionsMenuViewModel = DIContainer.options.viewModel
+    optionsViewModel: OptionsMenuViewModel = DIContainer.options.viewModel,
+    onNavigateToFavorites: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showSearch by remember { mutableStateOf(false) }
-    var showFavorites by remember { mutableStateOf(false) }
 
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-    val isPlaying = uiState.currentChannel != null && viewModel.player != null
+    val isPlaying = uiState.isPlaying
 
     when {
-        showFavorites -> FavoritesScreen(
-            allChannels = uiState.channels,
-            viewModel = favoritesViewModel,
-            onChannelClick = { channel ->
-                viewModel.onIntent(TdtIntent.SelectChannel(channel))
-                showFavorites = false
-            },
-            onBack = { showFavorites = false }
-        )
         isLandscape && isPlaying -> LandscapeFullscreenPlayer(
             viewModel = viewModel,
             uiState = uiState
@@ -93,7 +131,7 @@ fun MobileScreen(
             showSearch = showSearch,
             onToggleSearch = { showSearch = !showSearch },
             isPlaying = isPlaying,
-            onShowFavorites = { showFavorites = true },
+            onShowFavorites = onNavigateToFavorites,
             onShowOptions = { optionsViewModel.onIntent(OptionsMenuIntent.Open) }
         )
     }
@@ -156,7 +194,7 @@ private fun LandscapeFullscreenPlayer(
             modifier = Modifier.fillMaxSize()
         )
 
-        val playerState by viewModel.player!!.playerState.collectAsStateWithLifecycle()
+        val playerState = uiState.playerState
         if (playerState == PlayerState.BUFFERING) {
             CircularProgressIndicator(
                 modifier = Modifier
@@ -419,6 +457,7 @@ private fun PortraitLayout(
             if (isPlaying) {
                 VideoPlayer(
                     player = viewModel.player!!,
+                    playerState = uiState.playerState,
                     channel = uiState.currentChannel!!,
                     onClose = { viewModel.onIntent(TdtIntent.StopPlayback) },
                     modifier = Modifier.fillMaxWidth()
@@ -484,7 +523,7 @@ private fun ChannelContent(
         uiState.error != null && uiState.channels.isEmpty() -> {
             Box(modifier = modifier, contentAlignment = Alignment.Center) {
                 ErrorState(
-                    message = uiState.error ?: stringResource(R.string.unknown_error),
+                    message = uiState.error,
                     onRetry = { viewModel.onIntent(TdtIntent.Retry) }
                 )
             }

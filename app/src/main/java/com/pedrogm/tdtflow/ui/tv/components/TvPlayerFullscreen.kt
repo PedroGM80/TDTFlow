@@ -1,7 +1,13 @@
 package com.pedrogm.tdtflow.ui.tv.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -18,15 +24,18 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.PlayerView
-import com.composables.icons.lucide.*
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.Music
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.ui.TdtViewModel
+
+private const val TOTAL_OPACITY = 100f
 
 @androidx.annotation.OptIn(UnstableApi::class)
 @Composable
 internal fun TvPlayerFullscreen(viewModel: TdtViewModel, channelName: String) {
-    val mediumAlpha = integerResource(R.integer.alpha_medium_percent) / 100f
-    val overlayAlpha = integerResource(R.integer.alpha_overlay_percent) / 100f
+    val mediumAlpha = integerResource(R.integer.alpha_medium_percent) / TOTAL_OPACITY
+    val overlayAlpha = integerResource(R.integer.alpha_overlay_percent) / TOTAL_OPACITY
 
     Box(
         modifier = Modifier

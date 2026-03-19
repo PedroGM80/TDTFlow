@@ -7,7 +7,7 @@ import androidx.core.content.edit
  * Persists user options (theme and language) in SharedPreferences.
  * Used by OptionsMenuViewModel to survive process death.
  */
-class OptionsPreferences(context: Context) {
+class OptionsPreferences(context: Context) : IOptionsPreferences {
 
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 

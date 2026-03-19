@@ -8,13 +8,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.media3.common.util.UnstableApi
 import com.pedrogm.tdtflow.di.DIContainer
+import com.pedrogm.tdtflow.navigation.AppNavGraph
 import com.pedrogm.tdtflow.ui.TdtIntent
 import com.pedrogm.tdtflow.ui.TdtViewModel
-import com.pedrogm.tdtflow.ui.mobile.MobileScreen
 import com.pedrogm.tdtflow.ui.options.AppTheme
 import com.pedrogm.tdtflow.ui.theme.TDTFlowTheme
 
+@androidx.annotation.OptIn(UnstableApi::class)
 class MainActivity : AppCompatActivity() {
 
     private val viewModel: TdtViewModel by viewModels { DIContainer.provideViewModelFactory(this) }
@@ -30,7 +32,7 @@ class MainActivity : AppCompatActivity() {
                 AppTheme.SYSTEM -> isSystemInDarkTheme()
             }
             TDTFlowTheme(darkTheme = darkTheme) {
-                MobileScreen(viewModel = viewModel)
+                AppNavGraph(viewModel = viewModel)
             }
         }
     }

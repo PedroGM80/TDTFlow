@@ -1,14 +1,15 @@
 package com.pedrogm.tdtflow.ui.options
 
 import androidx.lifecycle.ViewModel
-import com.pedrogm.tdtflow.data.OptionsPreferences
+import com.pedrogm.tdtflow.data.IOptionsPreferences
+import com.pedrogm.tdtflow.data.NoOpOptionsPreferences
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 class OptionsMenuViewModel(
-    private val prefs: OptionsPreferences? = null
+    private val prefs: IOptionsPreferences = NoOpOptionsPreferences()
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
@@ -29,7 +30,7 @@ class OptionsMenuViewModel(
 
             is OptionsMenuIntent.SelectTheme -> {
                 _uiState.update { it.copy(selectedTheme = intent.theme) }
-                prefs?.saveTheme(intent.theme.name)
+                prefs.saveTheme(intent.theme.name)
             }
 
             is OptionsMenuIntent.ToggleShowBrokenChannels ->
@@ -37,18 +38,14 @@ class OptionsMenuViewModel(
 
             is OptionsMenuIntent.SelectLanguage -> {
                 _uiState.update { it.copy(language = intent.language) }
-                prefs?.saveLanguage(intent.language.name)
+                prefs.saveLanguage(intent.language.name)
             }
         }
     }
 
     private fun loadTheme(): AppTheme =
-        prefs?.loadTheme()
-            ?.let { runCatching { AppTheme.valueOf(it) }.getOrDefault(AppTheme.SYSTEM) }
-            ?: AppTheme.SYSTEM
+        runCatching { AppTheme.valueOf(prefs.loadTheme()) }.getOrDefault(AppTheme.SYSTEM)
 
     private fun loadLanguage(): AppLanguage =
-        prefs?.loadLanguage()
-            ?.let { runCatching { AppLanguage.valueOf(it) }.getOrDefault(AppLanguage.SYSTEM) }
-            ?: AppLanguage.SYSTEM
+        runCatching { AppLanguage.valueOf(prefs.loadLanguage()) }.getOrDefault(AppLanguage.SYSTEM)
 }
