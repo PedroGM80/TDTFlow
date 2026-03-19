@@ -33,9 +33,6 @@ class OptionsMenuViewModel(
                 prefs.saveTheme(intent.theme.name)
             }
 
-            is OptionsMenuIntent.ToggleShowBrokenChannels ->
-                _uiState.update { it.copy(showBrokenChannels = !it.showBrokenChannels) }
-
             is OptionsMenuIntent.SelectLanguage -> {
                 _uiState.update { it.copy(language = intent.language) }
                 prefs.saveLanguage(intent.language.name)

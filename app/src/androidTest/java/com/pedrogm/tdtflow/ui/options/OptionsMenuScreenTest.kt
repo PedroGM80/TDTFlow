@@ -8,6 +8,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.pedrogm.tdtflow.ui.theme.TDTFlowTheme
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -18,13 +19,17 @@ class OptionsMenuScreenTest {
 
     private fun setContent(
         state: OptionsMenuState = OptionsMenuState(isOpen = true),
-        onEvent: (OptionsMenuEvent) -> Unit = {}
+        onIntent: (OptionsMenuIntent) -> Unit = {},
+        showBrokenChannels: Boolean = false,
+        onToggleBroken: () -> Unit = {}
     ) {
         composeTestRule.setContent {
             TDTFlowTheme {
                 OptionsMenuContent(
                     uiState = state,
-                    onEvent = onEvent
+                    onIntent = onIntent,
+                    showBrokenChannels = showBrokenChannels,
+                    onToggleBroken = onToggleBroken
                 )
             }
         }
@@ -51,32 +56,32 @@ class OptionsMenuScreenTest {
     }
 
     @Test
-    fun tappingThemeButton_firesSelectThemeEvent() {
-        val events = mutableListOf<OptionsMenuEvent>()
-        setContent(onEvent = { events.add(it) })
+    fun tappingThemeButton_firesSelectThemeIntent() {
+        val intents = mutableListOf<OptionsMenuIntent>()
+        setContent(onIntent = { intents.add(it) })
 
         composeTestRule
             .onNodeWithTag("theme_button_DARK")
             .performClick()
 
         assertEquals(
-            OptionsMenuEvent.SelectTheme(AppTheme.DARK),
-            events.last()
+            OptionsMenuIntent.SelectTheme(AppTheme.DARK),
+            intents.last()
         )
     }
 
     @Test
-    fun tappingThemeButtonLight_firesSelectThemeEvent() {
-        val events = mutableListOf<OptionsMenuEvent>()
-        setContent(onEvent = { events.add(it) })
+    fun tappingThemeButtonLight_firesSelectThemeIntent() {
+        val intents = mutableListOf<OptionsMenuIntent>()
+        setContent(onIntent = { intents.add(it) })
 
         composeTestRule
             .onNodeWithTag("theme_button_LIGHT")
             .performClick()
 
         assertEquals(
-            OptionsMenuEvent.SelectTheme(AppTheme.LIGHT),
-            events.last()
+            OptionsMenuIntent.SelectTheme(AppTheme.LIGHT),
+            intents.last()
         )
     }
 
@@ -91,7 +96,7 @@ class OptionsMenuScreenTest {
 
     @Test
     fun brokenChannelsSwitch_isOff_byDefault() {
-        setContent(state = OptionsMenuState(isOpen = true, showBrokenChannels = false))
+        setContent(showBrokenChannels = false)
 
         composeTestRule
             .onNodeWithTag("broken_channels_switch")
@@ -100,7 +105,7 @@ class OptionsMenuScreenTest {
 
     @Test
     fun brokenChannelsSwitch_isOn_whenEnabled() {
-        setContent(state = OptionsMenuState(isOpen = true, showBrokenChannels = true))
+        setContent(showBrokenChannels = true)
 
         composeTestRule
             .onNodeWithTag("broken_channels_switch")
@@ -108,18 +113,15 @@ class OptionsMenuScreenTest {
     }
 
     @Test
-    fun tappingBrokenChannelsSwitch_firesToggleEvent() {
-        val events = mutableListOf<OptionsMenuEvent>()
-        setContent(onEvent = { events.add(it) })
+    fun tappingBrokenChannelsSwitch_invokesToggleCallback() {
+        var toggled = false
+        setContent(onToggleBroken = { toggled = true })
 
         composeTestRule
             .onNodeWithTag("broken_channels_switch")
             .performClick()
 
-        assertEquals(
-            OptionsMenuEvent.ToggleShowBrokenChannels,
-            events.last()
-        )
+        assertTrue(toggled)
     }
 
     @Test
@@ -134,32 +136,32 @@ class OptionsMenuScreenTest {
     }
 
     @Test
-    fun tappingLanguageOption_firesSelectLanguageEvent() {
-        val events = mutableListOf<OptionsMenuEvent>()
-        setContent(onEvent = { events.add(it) })
+    fun tappingLanguageOption_firesSelectLanguageIntent() {
+        val intents = mutableListOf<OptionsMenuIntent>()
+        setContent(onIntent = { intents.add(it) })
 
         composeTestRule
             .onNodeWithTag("language_option_ES")
             .performClick()
 
         assertEquals(
-            OptionsMenuEvent.SelectLanguage(AppLanguage.ES),
-            events.last()
+            OptionsMenuIntent.SelectLanguage(AppLanguage.ES),
+            intents.last()
         )
     }
 
     @Test
-    fun tappingLanguageOptionEN_firesSelectLanguageEvent() {
-        val events = mutableListOf<OptionsMenuEvent>()
-        setContent(onEvent = { events.add(it) })
+    fun tappingLanguageOptionEN_firesSelectLanguageIntent() {
+        val intents = mutableListOf<OptionsMenuIntent>()
+        setContent(onIntent = { intents.add(it) })
 
         composeTestRule
             .onNodeWithTag("language_option_EN")
             .performClick()
 
         assertEquals(
-            OptionsMenuEvent.SelectLanguage(AppLanguage.EN),
-            events.last()
+            OptionsMenuIntent.SelectLanguage(AppLanguage.EN),
+            intents.last()
         )
     }
 }

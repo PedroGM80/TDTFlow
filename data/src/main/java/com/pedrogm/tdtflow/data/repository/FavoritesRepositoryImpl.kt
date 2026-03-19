@@ -1,15 +1,16 @@
 package com.pedrogm.tdtflow.data.repository
 
 import android.content.Context
+import androidx.core.content.edit
 import com.pedrogm.tdtflow.domain.repository.FavoritesRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class FavoritesRepositoryImpl(context: Context? = null) : FavoritesRepository {
+class FavoritesRepositoryImpl(context: Context) : FavoritesRepository {
 
-    private val prefs = context?.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     private val _favoriteIds = MutableStateFlow<Set<String>>(load())
     override val favoriteIds: StateFlow<Set<String>> = _favoriteIds.asStateFlow()
@@ -25,10 +26,10 @@ class FavoritesRepositoryImpl(context: Context? = null) : FavoritesRepository {
     }
 
     private fun load(): Set<String> =
-        prefs?.getStringSet(KEY_URLS, emptySet()) ?: emptySet()
+        prefs.getStringSet(KEY_URLS, emptySet()) ?: emptySet()
 
     private fun save(urls: Set<String>) {
-        prefs?.edit()?.putStringSet(KEY_URLS, urls)?.apply()
+        prefs.edit { putStringSet(KEY_URLS, urls) }
     }
 
     companion object {

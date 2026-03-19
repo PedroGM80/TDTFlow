@@ -64,8 +64,8 @@ fun OptionsMenuScreen(
 fun OptionsMenuContent(
     uiState: OptionsMenuState,
     onIntent: (OptionsMenuIntent) -> Unit,
-    showBrokenChannels: Boolean = uiState.showBrokenChannels,
-    onToggleBroken: () -> Unit = { onIntent(OptionsMenuIntent.ToggleShowBrokenChannels) }
+    showBrokenChannels: Boolean = false,
+    onToggleBroken: () -> Unit = {}
 ) {
     ModalBottomSheet(
         onDismissRequest = { onIntent(OptionsMenuIntent.Dismiss) },
@@ -217,7 +217,6 @@ private fun OptionsMenuContentPreview() {
             uiState = OptionsMenuState(
                 isOpen = true,
                 selectedTheme = AppTheme.SYSTEM,
-                showBrokenChannels = false,
                 language = AppLanguage.ES
             ),
             onIntent = {}

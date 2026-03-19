@@ -4,6 +4,5 @@ sealed class OptionsMenuIntent {
     data object Open : OptionsMenuIntent()
     data object Dismiss : OptionsMenuIntent()
     data class SelectTheme(val theme: AppTheme) : OptionsMenuIntent()
-    data object ToggleShowBrokenChannels : OptionsMenuIntent()
     data class SelectLanguage(val language: AppLanguage) : OptionsMenuIntent()
 }

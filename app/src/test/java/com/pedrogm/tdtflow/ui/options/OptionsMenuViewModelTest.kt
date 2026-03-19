@@ -37,7 +37,6 @@ class OptionsMenuViewModelTest {
             val state = awaitItem()
             assertFalse(state.isOpen)
             assertEquals(AppTheme.SYSTEM, state.selectedTheme)
-            assertFalse(state.showBrokenChannels)
             assertEquals(AppLanguage.SYSTEM, state.language)
         }
     }
@@ -107,32 +106,6 @@ class OptionsMenuViewModelTest {
     }
 
     @Test
-    fun `ToggleShowBrokenChannels flips from false to true`() = runTest {
-        viewModel.uiState.test {
-            awaitItem() // initial (false)
-
-            viewModel.onIntent(OptionsMenuIntent.ToggleShowBrokenChannels)
-
-            val state = awaitItem()
-            assertTrue(state.showBrokenChannels)
-        }
-    }
-
-    @Test
-    fun `ToggleShowBrokenChannels flips from true to false`() = runTest {
-        viewModel.uiState.test {
-            awaitItem() // initial
-
-            viewModel.onIntent(OptionsMenuIntent.ToggleShowBrokenChannels)
-            awaitItem() // true
-
-            viewModel.onIntent(OptionsMenuIntent.ToggleShowBrokenChannels)
-            val state = awaitItem()
-            assertFalse(state.showBrokenChannels)
-        }
-    }
-
-    @Test
     fun `SelectLanguage ES updates language`() = runTest {
         viewModel.uiState.test {
             awaitItem() // initial
@@ -179,15 +152,11 @@ class OptionsMenuViewModelTest {
             viewModel.onIntent(OptionsMenuIntent.SelectTheme(AppTheme.DARK))
             awaitItem()
 
-            viewModel.onIntent(OptionsMenuIntent.ToggleShowBrokenChannels)
-            awaitItem()
-
             viewModel.onIntent(OptionsMenuIntent.SelectLanguage(AppLanguage.CA))
             val state = awaitItem()
 
             assertTrue(state.isOpen)
             assertEquals(AppTheme.DARK, state.selectedTheme)
-            assertTrue(state.showBrokenChannels)
             assertEquals(AppLanguage.CA, state.language)
         }
     }

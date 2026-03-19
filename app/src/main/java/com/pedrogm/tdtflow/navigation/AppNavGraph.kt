@@ -1,5 +1,10 @@
 package com.pedrogm.tdtflow.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -27,7 +32,14 @@ fun AppNavGraph(
 ) {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = ROUTE_CHANNELS) {
+    NavHost(
+        navController = navController,
+        startDestination = ROUTE_CHANNELS,
+        enterTransition = { fadeIn(tween(300)) },
+        exitTransition = { fadeOut(tween(200)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = { fadeOut(tween(200)) }
+    ) {
         composable(ROUTE_CHANNELS) {
             MobileScreen(
                 viewModel = viewModel,
@@ -36,7 +48,13 @@ fun AppNavGraph(
                 onNavigateToFavorites = { navController.navigate(ROUTE_FAVORITES) }
             )
         }
-        composable(ROUTE_FAVORITES) {
+        composable(
+            route = ROUTE_FAVORITES,
+            enterTransition = { slideInHorizontally(tween(300)) { it } + fadeIn(tween(300)) },
+            exitTransition = { slideOutHorizontally(tween(250)) { it } + fadeOut(tween(250)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { slideOutHorizontally(tween(250)) { it } + fadeOut(tween(250)) }
+        ) {
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             FavoritesScreen(
                 allChannels = uiState.channels,
