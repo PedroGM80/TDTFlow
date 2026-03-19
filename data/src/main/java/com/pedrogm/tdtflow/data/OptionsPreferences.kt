@@ -11,17 +11,17 @@ class OptionsPreferences(context: Context) : IOptionsPreferences {
 
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
-    fun loadTheme(): String =
+    override fun loadTheme(): String =
         prefs.getString(KEY_THEME, DEFAULT_THEME) ?: DEFAULT_THEME
 
-    fun saveTheme(name: String) {
+    override fun saveTheme(name: String) {
         prefs.edit { putString(KEY_THEME, name) }
     }
 
-    fun loadLanguage(): String =
+    override fun loadLanguage(): String =
         prefs.getString(KEY_LANGUAGE, DEFAULT_LANGUAGE) ?: DEFAULT_LANGUAGE
 
-    fun saveLanguage(name: String) {
+    override fun saveLanguage(name: String) {
         prefs.edit { putString(KEY_LANGUAGE, name)}
     }
 
