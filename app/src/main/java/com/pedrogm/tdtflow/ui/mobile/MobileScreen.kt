@@ -44,13 +44,15 @@ import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
 import com.pedrogm.tdtflow.player.PlayerState
 import com.pedrogm.tdtflow.ui.TdtUiState
+import com.pedrogm.tdtflow.ui.TdtIntent
 import com.pedrogm.tdtflow.ui.TdtViewModel
 import com.pedrogm.tdtflow.di.DIContainer
 import com.pedrogm.tdtflow.util.TimeConstants
 import com.pedrogm.tdtflow.ui.components.*
 import com.pedrogm.tdtflow.ui.favorites.FavoritesScreen
 import com.pedrogm.tdtflow.ui.favorites.FavoritesViewModel
-import com.pedrogm.tdtflow.ui.options.OptionsMenuEvent
+import com.pedrogm.tdtflow.ui.favorites.FavoritesIntent
+import com.pedrogm.tdtflow.ui.options.OptionsMenuIntent
 import com.pedrogm.tdtflow.ui.options.OptionsMenuScreen
 import com.pedrogm.tdtflow.ui.options.OptionsMenuViewModel
 import kotlinx.coroutines.delay
@@ -75,7 +77,7 @@ fun MobileScreen(
             allChannels = uiState.channels,
             viewModel = favoritesViewModel,
             onChannelClick = { channel ->
-                viewModel.selectChannel(channel)
+                viewModel.onIntent(TdtIntent.SelectChannel(channel))
                 showFavorites = false
             },
             onBack = { showFavorites = false }
@@ -92,7 +94,7 @@ fun MobileScreen(
             onToggleSearch = { showSearch = !showSearch },
             isPlaying = isPlaying,
             onShowFavorites = { showFavorites = true },
-            onShowOptions = { optionsViewModel.onEvent(OptionsMenuEvent.Open) }
+            onShowOptions = { optionsViewModel.onIntent(OptionsMenuIntent.Open) }
         )
     }
 
@@ -100,7 +102,7 @@ fun MobileScreen(
         viewModel = optionsViewModel,
         onDismiss = {},
         showBrokenChannels = uiState.showBrokenChannels,
-        onToggleBroken = { viewModel.toggleShowBrokenChannels() }
+        onToggleBroken = { viewModel.onIntent(TdtIntent.ToggleShowBrokenChannels) }
     )
 }
 
@@ -167,7 +169,7 @@ private fun LandscapeFullscreenPlayer(
         TopLandscapeOverlay(
             showOverlay = showOverlay,
             currentChannelName = uiState.currentChannel?.name ?: "",
-            onClose = { viewModel.stopPlayback() }
+            onClose = { viewModel.onIntent(TdtIntent.StopPlayback) }
         )
 
         BottomLandscapeOverlay(
@@ -175,8 +177,8 @@ private fun LandscapeFullscreenPlayer(
             selectedCategory = uiState.selectedCategory,
             filteredChannels = uiState.filteredChannels,
             currentChannel = uiState.currentChannel,
-            onCategorySelected = { viewModel.filterByCategory(it) },
-            onChannelSelected = { viewModel.selectChannel(it) }
+            onCategorySelected = { viewModel.onIntent(TdtIntent.FilterByCategory(it)) },
+            onChannelSelected = { viewModel.onIntent(TdtIntent.SelectChannel(it)) }
         )
     }
 }
@@ -361,12 +363,13 @@ private fun PortraitLayout(
     onShowFavorites: () -> Unit,
     onShowOptions: () -> Unit
 ) {
-    val favoriteIds by favoritesViewModel.favoriteIds.collectAsStateWithLifecycle()
+    val favoritesState by favoritesViewModel.uiState.collectAsStateWithLifecycle()
+    val favoriteIds = favoritesState.favoriteIds
     // Auto-dismiss player errors after 4 seconds
     LaunchedEffect(uiState.error) {
         if (uiState.error != null && uiState.channels.isNotEmpty()) {
             delay(TimeConstants.OVERLAY_AUTO_HIDE_DELAY_MS)
-            viewModel.dismissError()
+            viewModel.onIntent(TdtIntent.DismissError)
         }
     }
 
@@ -395,7 +398,7 @@ private fun PortraitLayout(
                             contentDescription = stringResource(R.string.search_description)
                         )
                     }
-                    IconButton(onClick = { viewModel.retry() }) {
+                    IconButton(onClick = { viewModel.onIntent(TdtIntent.Retry) }) {
                         Icon(Lucide.RefreshCw, contentDescription = stringResource(R.string.reload_description))
                     }
                     IconButton(onClick = onShowOptions) {
@@ -417,7 +420,7 @@ private fun PortraitLayout(
                 VideoPlayer(
                     player = viewModel.player!!,
                     channel = uiState.currentChannel!!,
-                    onClose = { viewModel.stopPlayback() },
+                    onClose = { viewModel.onIntent(TdtIntent.StopPlayback) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -426,24 +429,24 @@ private fun PortraitLayout(
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_small)))
                 SearchBar(
                     query = uiState.searchQuery,
-                    onQueryChange = { viewModel.search(it) }
+                    onQueryChange = { viewModel.onIntent(TdtIntent.Search(it)) }
                 )
             }
 
             CategoryFilter(
                 selectedCategory = uiState.selectedCategory,
-                onCategorySelected = { viewModel.filterByCategory(it) },
+                onCategorySelected = { viewModel.onIntent(TdtIntent.FilterByCategory(it)) },
                 brokenChannelsCount = uiState.brokenChannelsCount,
                 showingBroken = uiState.showBrokenChannels,
-                onToggleBroken = { viewModel.toggleShowBrokenChannels() },
-                onRevalidate = { viewModel.revalidateChannels() }
+                onToggleBroken = { viewModel.onIntent(TdtIntent.ToggleShowBrokenChannels) },
+                onRevalidate = { viewModel.onIntent(TdtIntent.RevalidateChannels) }
             )
 
             ChannelContent(
                 uiState = uiState,
                 viewModel = viewModel,
                 favoriteIds = favoriteIds,
-                onToggleFavorite = { url -> favoritesViewModel.toggleFavorite(url) },
+                onToggleFavorite = { url -> favoritesViewModel.onIntent(FavoritesIntent.ToggleFavorite(url)) },
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -452,7 +455,7 @@ private fun PortraitLayout(
             Snackbar(
                 modifier = Modifier.padding(dimensionResource(R.dimen.padding_large)),
                 action = {
-                    TextButton(onClick = { viewModel.dismissError() }) {
+                    TextButton(onClick = { viewModel.onIntent(TdtIntent.DismissError) }) {
                         Text(stringResource(R.string.close))
                     }
                 }
@@ -482,7 +485,7 @@ private fun ChannelContent(
             Box(modifier = modifier, contentAlignment = Alignment.Center) {
                 ErrorState(
                     message = uiState.error ?: stringResource(R.string.unknown_error),
-                    onRetry = { viewModel.retry() }
+                    onRetry = { viewModel.onIntent(TdtIntent.Retry) }
                 )
             }
         }
@@ -508,7 +511,7 @@ private fun ChannelContent(
                     ChannelCard(
                         channel = channel,
                         isSelected = channel == uiState.currentChannel,
-                        onClick = { viewModel.selectChannel(channel) },
+                        onClick = { viewModel.onIntent(TdtIntent.SelectChannel(channel)) },
                         isFavorite = channel.url in favoriteIds,
                         onToggleFavorite = { onToggleFavorite(channel.url) }
                     )

@@ -9,6 +9,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pedrogm.tdtflow.di.DIContainer
+import com.pedrogm.tdtflow.ui.TdtIntent
 import com.pedrogm.tdtflow.ui.TdtViewModel
 import com.pedrogm.tdtflow.ui.mobile.MobileScreen
 import com.pedrogm.tdtflow.ui.options.AppTheme
@@ -36,6 +37,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        viewModel.pausePlayer()
+        viewModel.onIntent(TdtIntent.PausePlayer)
     }
 }

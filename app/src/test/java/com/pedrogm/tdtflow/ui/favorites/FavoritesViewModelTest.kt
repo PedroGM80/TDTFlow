@@ -27,71 +27,71 @@ class FavoritesViewModelTest {
 
     @Test
     fun `initial state has no favorites`() {
-        assertTrue(viewModel.favoriteIds.value.isEmpty())
+        assertTrue(viewModel.uiState.value.favoriteIds.isEmpty())
     }
 
     @Test
-    fun `addFavorite adds url to favorites`() {
-        viewModel.addFavorite("rtve1.m3u8")
+    fun `AddFavorite intent adds url to favorites`() {
+        viewModel.onIntent(FavoritesIntent.AddFavorite("rtve1.m3u8"))
 
-        assertTrue("rtve1.m3u8" in viewModel.favoriteIds.value)
+        assertTrue("rtve1.m3u8" in viewModel.uiState.value.favoriteIds)
     }
 
     @Test
-    fun `addFavorite multiple urls accumulates all`() {
-        viewModel.addFavorite("rtve1.m3u8")
-        viewModel.addFavorite("antena3.m3u8")
+    fun `AddFavorite multiple urls accumulates all`() {
+        viewModel.onIntent(FavoritesIntent.AddFavorite("rtve1.m3u8"))
+        viewModel.onIntent(FavoritesIntent.AddFavorite("antena3.m3u8"))
 
-        assertEquals(setOf("rtve1.m3u8", "antena3.m3u8"), viewModel.favoriteIds.value)
+        assertEquals(setOf("rtve1.m3u8", "antena3.m3u8"), viewModel.uiState.value.favoriteIds)
     }
 
     @Test
-    fun `addFavorite same url twice does not duplicate`() {
-        viewModel.addFavorite("rtve1.m3u8")
-        viewModel.addFavorite("rtve1.m3u8")
+    fun `AddFavorite same url twice does not duplicate`() {
+        viewModel.onIntent(FavoritesIntent.AddFavorite("rtve1.m3u8"))
+        viewModel.onIntent(FavoritesIntent.AddFavorite("rtve1.m3u8"))
 
-        assertEquals(1, viewModel.favoriteIds.value.size)
+        assertEquals(1, viewModel.uiState.value.favoriteIds.size)
     }
 
     @Test
-    fun `removeFavorite removes url from favorites`() {
-        viewModel.addFavorite("rtve1.m3u8")
-        viewModel.addFavorite("antena3.m3u8")
+    fun `RemoveFavorite intent removes url from favorites`() {
+        viewModel.onIntent(FavoritesIntent.AddFavorite("rtve1.m3u8"))
+        viewModel.onIntent(FavoritesIntent.AddFavorite("antena3.m3u8"))
 
-        viewModel.removeFavorite("rtve1.m3u8")
+        viewModel.onIntent(FavoritesIntent.RemoveFavorite("rtve1.m3u8"))
 
-        assertFalse("rtve1.m3u8" in viewModel.favoriteIds.value)
-        assertTrue("antena3.m3u8" in viewModel.favoriteIds.value)
+        assertFalse("rtve1.m3u8" in viewModel.uiState.value.favoriteIds)
+        assertTrue("antena3.m3u8" in viewModel.uiState.value.favoriteIds)
     }
 
     @Test
-    fun `removeFavorite on absent url is a no-op`() {
-        viewModel.addFavorite("rtve1.m3u8")
+    fun `RemoveFavorite on absent url is a no-op`() {
+        viewModel.onIntent(FavoritesIntent.AddFavorite("rtve1.m3u8"))
 
-        viewModel.removeFavorite("unknown.m3u8")
+        viewModel.onIntent(FavoritesIntent.RemoveFavorite("unknown.m3u8"))
 
-        assertEquals(setOf("rtve1.m3u8"), viewModel.favoriteIds.value)
+        assertEquals(setOf("rtve1.m3u8"), viewModel.uiState.value.favoriteIds)
     }
 
     @Test
-    fun `toggleFavorite adds when not present`() {
-        viewModel.toggleFavorite("rtve1.m3u8")
+    fun `ToggleFavorite adds when not present`() {
+        viewModel.onIntent(FavoritesIntent.ToggleFavorite("rtve1.m3u8"))
 
-        assertTrue("rtve1.m3u8" in viewModel.favoriteIds.value)
+        assertTrue("rtve1.m3u8" in viewModel.uiState.value.favoriteIds)
     }
 
     @Test
-    fun `toggleFavorite removes when already present`() {
-        viewModel.addFavorite("rtve1.m3u8")
+    fun `ToggleFavorite removes when already present`() {
+        viewModel.onIntent(FavoritesIntent.AddFavorite("rtve1.m3u8"))
 
-        viewModel.toggleFavorite("rtve1.m3u8")
+        viewModel.onIntent(FavoritesIntent.ToggleFavorite("rtve1.m3u8"))
 
-        assertFalse("rtve1.m3u8" in viewModel.favoriteIds.value)
+        assertFalse("rtve1.m3u8" in viewModel.uiState.value.favoriteIds)
     }
 
     @Test
     fun `isFavorite returns true for added url`() {
-        viewModel.addFavorite("rtve1.m3u8")
+        viewModel.onIntent(FavoritesIntent.AddFavorite("rtve1.m3u8"))
 
         assertTrue(viewModel.isFavorite("rtve1.m3u8"))
     }
@@ -103,8 +103,8 @@ class FavoritesViewModelTest {
 
     @Test
     fun `isFavorite returns false after removal`() {
-        viewModel.addFavorite("rtve1.m3u8")
-        viewModel.removeFavorite("rtve1.m3u8")
+        viewModel.onIntent(FavoritesIntent.AddFavorite("rtve1.m3u8"))
+        viewModel.onIntent(FavoritesIntent.RemoveFavorite("rtve1.m3u8"))
 
         assertFalse(viewModel.isFavorite("rtve1.m3u8"))
     }

@@ -47,7 +47,7 @@ class OptionsMenuViewModelTest {
         viewModel.uiState.test {
             awaitItem() // initial state
 
-            viewModel.onEvent(OptionsMenuEvent.Open)
+            viewModel.onIntent(OptionsMenuIntent.Open)
 
             val state = awaitItem()
             assertTrue(state.isOpen)
@@ -59,10 +59,10 @@ class OptionsMenuViewModelTest {
         viewModel.uiState.test {
             awaitItem() // initial
 
-            viewModel.onEvent(OptionsMenuEvent.Open)
+            viewModel.onIntent(OptionsMenuIntent.Open)
             awaitItem() // open
 
-            viewModel.onEvent(OptionsMenuEvent.Dismiss)
+            viewModel.onIntent(OptionsMenuIntent.Dismiss)
             val state = awaitItem()
             assertFalse(state.isOpen)
         }
@@ -73,7 +73,7 @@ class OptionsMenuViewModelTest {
         viewModel.uiState.test {
             awaitItem() // initial
 
-            viewModel.onEvent(OptionsMenuEvent.SelectTheme(AppTheme.DARK))
+            viewModel.onIntent(OptionsMenuIntent.SelectTheme(AppTheme.DARK))
 
             val state = awaitItem()
             assertEquals(AppTheme.DARK, state.selectedTheme)
@@ -85,7 +85,7 @@ class OptionsMenuViewModelTest {
         viewModel.uiState.test {
             awaitItem() // initial
 
-            viewModel.onEvent(OptionsMenuEvent.SelectTheme(AppTheme.LIGHT))
+            viewModel.onIntent(OptionsMenuIntent.SelectTheme(AppTheme.LIGHT))
 
             val state = awaitItem()
             assertEquals(AppTheme.LIGHT, state.selectedTheme)
@@ -97,10 +97,10 @@ class OptionsMenuViewModelTest {
         viewModel.uiState.test {
             awaitItem() // initial
 
-            viewModel.onEvent(OptionsMenuEvent.SelectTheme(AppTheme.DARK))
+            viewModel.onIntent(OptionsMenuIntent.SelectTheme(AppTheme.DARK))
             awaitItem()
 
-            viewModel.onEvent(OptionsMenuEvent.SelectTheme(AppTheme.SYSTEM))
+            viewModel.onIntent(OptionsMenuIntent.SelectTheme(AppTheme.SYSTEM))
             val state = awaitItem()
             assertEquals(AppTheme.SYSTEM, state.selectedTheme)
         }
@@ -111,7 +111,7 @@ class OptionsMenuViewModelTest {
         viewModel.uiState.test {
             awaitItem() // initial (false)
 
-            viewModel.onEvent(OptionsMenuEvent.ToggleShowBrokenChannels)
+            viewModel.onIntent(OptionsMenuIntent.ToggleShowBrokenChannels)
 
             val state = awaitItem()
             assertTrue(state.showBrokenChannels)
@@ -123,10 +123,10 @@ class OptionsMenuViewModelTest {
         viewModel.uiState.test {
             awaitItem() // initial
 
-            viewModel.onEvent(OptionsMenuEvent.ToggleShowBrokenChannels)
+            viewModel.onIntent(OptionsMenuIntent.ToggleShowBrokenChannels)
             awaitItem() // true
 
-            viewModel.onEvent(OptionsMenuEvent.ToggleShowBrokenChannels)
+            viewModel.onIntent(OptionsMenuIntent.ToggleShowBrokenChannels)
             val state = awaitItem()
             assertFalse(state.showBrokenChannels)
         }
@@ -137,7 +137,7 @@ class OptionsMenuViewModelTest {
         viewModel.uiState.test {
             awaitItem() // initial
 
-            viewModel.onEvent(OptionsMenuEvent.SelectLanguage(AppLanguage.ES))
+            viewModel.onIntent(OptionsMenuIntent.SelectLanguage(AppLanguage.ES))
 
             val state = awaitItem()
             assertEquals(AppLanguage.ES, state.language)
@@ -149,7 +149,7 @@ class OptionsMenuViewModelTest {
         viewModel.uiState.test {
             awaitItem() // initial
 
-            viewModel.onEvent(OptionsMenuEvent.SelectLanguage(AppLanguage.EN))
+            viewModel.onIntent(OptionsMenuIntent.SelectLanguage(AppLanguage.EN))
 
             val state = awaitItem()
             assertEquals(AppLanguage.EN, state.language)
@@ -161,7 +161,7 @@ class OptionsMenuViewModelTest {
         viewModel.uiState.test {
             awaitItem() // initial
 
-            viewModel.onEvent(OptionsMenuEvent.SelectLanguage(AppLanguage.CA))
+            viewModel.onIntent(OptionsMenuIntent.SelectLanguage(AppLanguage.CA))
 
             val state = awaitItem()
             assertEquals(AppLanguage.CA, state.language)
@@ -173,16 +173,16 @@ class OptionsMenuViewModelTest {
         viewModel.uiState.test {
             awaitItem() // initial
 
-            viewModel.onEvent(OptionsMenuEvent.Open)
+            viewModel.onIntent(OptionsMenuIntent.Open)
             awaitItem()
 
-            viewModel.onEvent(OptionsMenuEvent.SelectTheme(AppTheme.DARK))
+            viewModel.onIntent(OptionsMenuIntent.SelectTheme(AppTheme.DARK))
             awaitItem()
 
-            viewModel.onEvent(OptionsMenuEvent.ToggleShowBrokenChannels)
+            viewModel.onIntent(OptionsMenuIntent.ToggleShowBrokenChannels)
             awaitItem()
 
-            viewModel.onEvent(OptionsMenuEvent.SelectLanguage(AppLanguage.CA))
+            viewModel.onIntent(OptionsMenuIntent.SelectLanguage(AppLanguage.CA))
             val state = awaitItem()
 
             assertTrue(state.isOpen)

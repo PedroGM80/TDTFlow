@@ -25,6 +25,7 @@ import com.composables.icons.lucide.Tv
 import androidx.compose.material3.Icon
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
+import com.pedrogm.tdtflow.ui.TdtIntent
 import com.pedrogm.tdtflow.ui.TdtViewModel
 import com.pedrogm.tdtflow.ui.components.LoadingAnimation
 import com.pedrogm.tdtflow.ui.components.toLucideIcon
@@ -81,7 +82,7 @@ internal fun TvChannelBrowser(viewModel: TdtViewModel) {
                     label = stringResource(R.string.category_all),
                     icon = Lucide.LayoutGrid,
                     isSelected = uiState.selectedCategory == null,
-                    onClick = { viewModel.filterByCategory(null) }
+                    onClick = { viewModel.onIntent(TdtIntent.FilterByCategory(null)) }
                 )
             }
             items(ChannelCategory.entries.toList()) { category ->
@@ -89,7 +90,7 @@ internal fun TvChannelBrowser(viewModel: TdtViewModel) {
                     label = stringResource(category.toStringRes()),
                     icon = category.toLucideIcon(),
                     isSelected = uiState.selectedCategory == category,
-                    onClick = { viewModel.filterByCategory(category) }
+                    onClick = { viewModel.onIntent(TdtIntent.FilterByCategory(category)) }
                 )
             }
         }
@@ -105,7 +106,7 @@ internal fun TvChannelBrowser(viewModel: TdtViewModel) {
                 TvChannelCard(
                     channel = channel,
                     isSelected = channel == uiState.currentChannel,
-                    onClick = { viewModel.selectChannel(channel) }
+                    onClick = { viewModel.onIntent(TdtIntent.SelectChannel(channel)) }
                 )
             }
         }

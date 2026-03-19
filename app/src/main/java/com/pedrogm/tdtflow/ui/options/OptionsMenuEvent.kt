@@ -1,9 +1,9 @@
 package com.pedrogm.tdtflow.ui.options
 
-sealed class OptionsMenuEvent {
-    data object Open : OptionsMenuEvent()
-    data object Dismiss : OptionsMenuEvent()
-    data class SelectTheme(val theme: AppTheme) : OptionsMenuEvent()
-    data object ToggleShowBrokenChannels : OptionsMenuEvent()
-    data class SelectLanguage(val language: AppLanguage) : OptionsMenuEvent()
+sealed class OptionsMenuIntent {
+    data object Open : OptionsMenuIntent()
+    data object Dismiss : OptionsMenuIntent()
+    data class SelectTheme(val theme: AppTheme) : OptionsMenuIntent()
+    data object ToggleShowBrokenChannels : OptionsMenuIntent()
+    data class SelectLanguage(val language: AppLanguage) : OptionsMenuIntent()
 }

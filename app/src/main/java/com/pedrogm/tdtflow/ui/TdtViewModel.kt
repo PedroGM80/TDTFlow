@@ -140,6 +140,23 @@ class TdtViewModel(
         loadChannels()
     }
 
+    // ── Punto de entrada MVI ────────────────────────────────────────
+
+    fun onIntent(intent: TdtIntent) {
+        when (intent) {
+            is TdtIntent.SelectChannel -> selectChannel(intent.channel)
+            is TdtIntent.FilterByCategory -> filterByCategory(intent.category)
+            is TdtIntent.Search -> search(intent.query)
+            is TdtIntent.StopPlayback -> stopPlayback()
+            is TdtIntent.DismissError -> dismissError()
+            is TdtIntent.Retry -> retry()
+            is TdtIntent.ToggleShowBrokenChannels -> toggleShowBrokenChannels()
+            is TdtIntent.RevalidateChannels -> revalidateChannels()
+            is TdtIntent.RetryBrokenChannel -> retryBrokenChannel(intent.channel)
+            is TdtIntent.PausePlayer -> pausePlayer()
+        }
+    }
+
     // ── Acciones ────────────────────────────────────────────────────
 
     /**
@@ -217,48 +234,48 @@ class TdtViewModel(
         }
     }
 
-    fun selectChannel(channel: Channel) {
+    private fun selectChannel(channel: Channel) {
         initPlayer()
         player?.play(channel.url)
         _currentChannel.value = channel
         _error.value = null
     }
 
-    fun filterByCategory(category: ChannelCategory?) {
+    private fun filterByCategory(category: ChannelCategory?) {
         _selectedCategory.value = category
     }
 
-    fun search(query: String) {
+    private fun search(query: String) {
         _searchQuery.value = query
     }
 
-    fun stopPlayback() {
+    private fun stopPlayback() {
         player?.stop()
         _currentChannel.value = null
     }
 
-    fun pausePlayer() {
+    private fun pausePlayer() {
         player?.exoPlayer?.pause()
     }
 
-    fun dismissError() {
+    private fun dismissError() {
         _error.value = null
     }
 
-    fun retry() {
+    private fun retry() {
         loadChannels()
     }
 
-    fun toggleShowBrokenChannels() {
+    private fun toggleShowBrokenChannels() {
         _showBrokenChannels.update { !it }
     }
 
-    fun revalidateChannels() {
+    private fun revalidateChannels() {
         brokenChannelTracker.clearAll()
         _showBrokenChannels.value = false
     }
 
-    fun retryBrokenChannel(channel: Channel) {
+    private fun retryBrokenChannel(channel: Channel) {
         brokenChannelTracker.unmarkAsBroken(channel.url)
     }
 

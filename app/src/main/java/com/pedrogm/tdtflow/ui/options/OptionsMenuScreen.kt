@@ -52,7 +52,7 @@ fun OptionsMenuScreen(
     if (uiState.isOpen) {
         OptionsMenuContent(
             uiState = uiState,
-            onEvent = viewModel::onEvent,
+            onIntent = viewModel::onIntent,
             showBrokenChannels = showBrokenChannels,
             onToggleBroken = onToggleBroken
         )
@@ -63,12 +63,12 @@ fun OptionsMenuScreen(
 @Composable
 fun OptionsMenuContent(
     uiState: OptionsMenuState,
-    onEvent: (OptionsMenuEvent) -> Unit,
+    onIntent: (OptionsMenuIntent) -> Unit,
     showBrokenChannels: Boolean = uiState.showBrokenChannels,
-    onToggleBroken: () -> Unit = { onEvent(OptionsMenuEvent.ToggleShowBrokenChannels) }
+    onToggleBroken: () -> Unit = { onIntent(OptionsMenuIntent.ToggleShowBrokenChannels) }
 ) {
     ModalBottomSheet(
-        onDismissRequest = { onEvent(OptionsMenuEvent.Dismiss) },
+        onDismissRequest = { onIntent(OptionsMenuIntent.Dismiss) },
         modifier = Modifier.testTag("options_bottom_sheet")
     ) {
         Column(
@@ -85,7 +85,7 @@ fun OptionsMenuContent(
 
             ThemeSection(
                 selectedTheme = uiState.selectedTheme,
-                onSelectTheme = { onEvent(OptionsMenuEvent.SelectTheme(it)) }
+                onSelectTheme = { onIntent(OptionsMenuIntent.SelectTheme(it)) }
             )
 
             BrokenChannelsSection(
@@ -95,7 +95,7 @@ fun OptionsMenuContent(
 
             LanguageSection(
                 selectedLanguage = uiState.language,
-                onSelectLanguage = { onEvent(OptionsMenuEvent.SelectLanguage(it)) }
+                onSelectLanguage = { onIntent(OptionsMenuIntent.SelectLanguage(it)) }
             )
         }
     }
@@ -220,7 +220,7 @@ private fun OptionsMenuContentPreview() {
                 showBrokenChannels = false,
                 language = AppLanguage.ES
             ),
-            onEvent = {}
+            onIntent = {}
         )
     }
 }

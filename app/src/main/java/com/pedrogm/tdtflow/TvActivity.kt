@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import com.pedrogm.tdtflow.di.DIContainer
+import com.pedrogm.tdtflow.ui.TdtIntent
 import com.pedrogm.tdtflow.ui.TdtViewModel
 import com.pedrogm.tdtflow.ui.theme.TDTFlowTheme
 import com.pedrogm.tdtflow.ui.tv.TvScreen
@@ -25,7 +26,7 @@ class TvActivity : ComponentActivity() {
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (keyCode == KeyEvent.KEYCODE_BACK && viewModel.uiState.value.isPlaying) {
-            viewModel.stopPlayback()
+            viewModel.onIntent(TdtIntent.StopPlayback)
             return true
         }
         return super.onKeyDown(keyCode, event)
@@ -33,6 +34,6 @@ class TvActivity : ComponentActivity() {
 
     override fun onStop() {
         super.onStop()
-        viewModel.pausePlayer()
+        viewModel.onIntent(TdtIntent.PausePlayer)
     }
 }

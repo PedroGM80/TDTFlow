@@ -23,25 +23,25 @@ class OptionsMenuViewModel(
     )
     val uiState: StateFlow<OptionsMenuState> = _uiState.asStateFlow()
 
-    fun onEvent(event: OptionsMenuEvent) {
-        when (event) {
-            is OptionsMenuEvent.Open ->
+    fun onIntent(intent: OptionsMenuIntent) {
+        when (intent) {
+            is OptionsMenuIntent.Open ->
                 _uiState.update { it.copy(isOpen = true) }
 
-            is OptionsMenuEvent.Dismiss ->
+            is OptionsMenuIntent.Dismiss ->
                 _uiState.update { it.copy(isOpen = false) }
 
-            is OptionsMenuEvent.SelectTheme -> {
-                _uiState.update { it.copy(selectedTheme = event.theme) }
-                prefs?.saveTheme(event.theme.name)
+            is OptionsMenuIntent.SelectTheme -> {
+                _uiState.update { it.copy(selectedTheme = intent.theme) }
+                prefs?.saveTheme(intent.theme.name)
             }
 
-            is OptionsMenuEvent.ToggleShowBrokenChannels ->
+            is OptionsMenuIntent.ToggleShowBrokenChannels ->
                 _uiState.update { it.copy(showBrokenChannels = !it.showBrokenChannels) }
 
-            is OptionsMenuEvent.SelectLanguage -> {
-                _uiState.update { it.copy(language = event.language) }
-                prefs?.saveLanguage(event.language.name)
+            is OptionsMenuIntent.SelectLanguage -> {
+                _uiState.update { it.copy(language = intent.language) }
+                prefs?.saveLanguage(intent.language.name)
             }
         }
     }

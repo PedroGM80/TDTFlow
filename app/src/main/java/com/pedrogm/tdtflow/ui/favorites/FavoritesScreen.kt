@@ -36,8 +36,8 @@ fun FavoritesScreen(
     onChannelClick: (Channel) -> Unit,
     onBack: () -> Unit
 ) {
-    val favoriteIds by viewModel.favoriteIds.collectAsStateWithLifecycle()
-    val favoriteChannels = allChannels.filter { it.url in favoriteIds }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val favoriteChannels = allChannels.filter { it.url in uiState.favoriteIds }
 
     Scaffold(
         topBar = {
@@ -82,7 +82,7 @@ fun FavoritesScreen(
                         isSelected = false,
                         onClick = { onChannelClick(channel) },
                         isFavorite = true,
-                        onToggleFavorite = { viewModel.removeFavorite(channel.url) }
+                        onToggleFavorite = { viewModel.onIntent(FavoritesIntent.RemoveFavorite(channel.url)) }
                     )
                 }
             }
