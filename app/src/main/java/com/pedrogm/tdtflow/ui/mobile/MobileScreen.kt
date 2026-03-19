@@ -92,7 +92,7 @@ import com.pedrogm.tdtflow.ui.components.CategoryFilter
 import com.pedrogm.tdtflow.ui.components.ChannelCard
 import com.pedrogm.tdtflow.ui.components.EmptyState
 import com.pedrogm.tdtflow.ui.components.ErrorState
-import com.pedrogm.tdtflow.ui.components.LoadingAnimation
+import com.pedrogm.tdtflow.ui.components.ChannelGridSkeleton
 import com.pedrogm.tdtflow.ui.components.SearchBar
 import com.pedrogm.tdtflow.ui.components.VideoPlayer
 import com.pedrogm.tdtflow.ui.favorites.FavoritesIntent
@@ -515,9 +515,7 @@ private fun ChannelContent(
 ) {
     when {
         uiState.isLoading -> {
-            Box(modifier = modifier, contentAlignment = Alignment.Center) {
-                LoadingAnimation()
-            }
+            ChannelGridSkeleton(modifier = modifier)
         }
 
         uiState.error != null && uiState.channels.isEmpty() -> {

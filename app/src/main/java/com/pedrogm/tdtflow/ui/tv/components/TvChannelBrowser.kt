@@ -27,7 +27,7 @@ import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
 import com.pedrogm.tdtflow.ui.TdtIntent
 import com.pedrogm.tdtflow.ui.TdtViewModel
-import com.pedrogm.tdtflow.ui.components.LoadingAnimation
+import com.pedrogm.tdtflow.ui.components.ChannelGridSkeleton
 import com.pedrogm.tdtflow.ui.components.toLucideIcon
 import com.pedrogm.tdtflow.ui.components.toStringRes
 
@@ -63,12 +63,7 @@ internal fun TvChannelBrowser(viewModel: TdtViewModel) {
         }
 
         if (uiState.isLoading) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                LoadingAnimation(message = stringResource(R.string.tuning_channels))
-            }
+            ChannelGridSkeleton(modifier = Modifier.fillMaxSize())
             return@Column
         }
 
