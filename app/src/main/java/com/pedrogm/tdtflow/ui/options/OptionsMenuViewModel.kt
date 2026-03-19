@@ -13,12 +13,8 @@ class OptionsMenuViewModel(
 
     private val _uiState = MutableStateFlow(
         OptionsMenuState(
-            selectedTheme = prefs?.loadTheme()
-                ?.let { runCatching { AppTheme.valueOf(it) }.getOrDefault(AppTheme.SYSTEM) }
-                ?: AppTheme.SYSTEM,
-            language = prefs?.loadLanguage()
-                ?.let { runCatching { AppLanguage.valueOf(it) }.getOrDefault(AppLanguage.SYSTEM) }
-                ?: AppLanguage.SYSTEM
+            selectedTheme = loadTheme(),
+            language = loadLanguage()
         )
     )
     val uiState: StateFlow<OptionsMenuState> = _uiState.asStateFlow()
@@ -45,4 +41,14 @@ class OptionsMenuViewModel(
             }
         }
     }
+
+    private fun loadTheme(): AppTheme =
+        prefs?.loadTheme()
+            ?.let { runCatching { AppTheme.valueOf(it) }.getOrDefault(AppTheme.SYSTEM) }
+            ?: AppTheme.SYSTEM
+
+    private fun loadLanguage(): AppLanguage =
+        prefs?.loadLanguage()
+            ?.let { runCatching { AppLanguage.valueOf(it) }.getOrDefault(AppLanguage.SYSTEM) }
+            ?: AppLanguage.SYSTEM
 }

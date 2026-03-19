@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.util.UnstableApi
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.data.BrokenChannelTracker
 import com.pedrogm.tdtflow.domain.model.Channel
@@ -16,8 +17,27 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 
+@UnstableApi
 class TdtViewModel(
     application: Application,
     private val getChannelsUseCase: GetChannelsUseCase
@@ -29,7 +49,7 @@ class TdtViewModel(
 
     // ── Tracker de canales rotos ────────────────────────────────────
 
-    val brokenChannelTracker = BrokenChannelTracker(application)
+    private val brokenChannelTracker = BrokenChannelTracker(application)
 
     // ── Flujos fuente ───────────────────────────────────────────────
 
@@ -226,7 +246,7 @@ class TdtViewModel(
         brokenChannelTracker.markAsBroken(url)
     }
 
-    fun initPlayer() {
+    private fun initPlayer() {
         if (player == null) {
             player = TdtPlayer(getApplication())
             observePlayerErrors()

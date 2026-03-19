@@ -39,5 +39,4 @@ class FavoritesViewModel(
         }
     }
 
-    fun isFavorite(channelUrl: String): Boolean = channelUrl in uiState.value.favoriteIds
 }

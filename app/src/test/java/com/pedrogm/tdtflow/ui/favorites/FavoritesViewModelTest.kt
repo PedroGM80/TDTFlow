@@ -90,22 +90,22 @@ class FavoritesViewModelTest {
     }
 
     @Test
-    fun `isFavorite returns true for added url`() {
+    fun `added url appears in state favoriteIds`() {
         viewModel.onIntent(FavoritesIntent.AddFavorite("rtve1.m3u8"))
 
-        assertTrue(viewModel.isFavorite("rtve1.m3u8"))
+        assertTrue("rtve1.m3u8" in viewModel.uiState.value.favoriteIds)
     }
 
     @Test
-    fun `isFavorite returns false for absent url`() {
-        assertFalse(viewModel.isFavorite("rtve1.m3u8"))
+    fun `absent url is not in state favoriteIds`() {
+        assertFalse("rtve1.m3u8" in viewModel.uiState.value.favoriteIds)
     }
 
     @Test
-    fun `isFavorite returns false after removal`() {
+    fun `removed url is no longer in state favoriteIds`() {
         viewModel.onIntent(FavoritesIntent.AddFavorite("rtve1.m3u8"))
         viewModel.onIntent(FavoritesIntent.RemoveFavorite("rtve1.m3u8"))
 
-        assertFalse(viewModel.isFavorite("rtve1.m3u8"))
+        assertFalse("rtve1.m3u8" in viewModel.uiState.value.favoriteIds)
     }
 }
