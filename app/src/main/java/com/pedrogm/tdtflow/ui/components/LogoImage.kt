@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
+import androidx.compose.ui.platform.LocalContext
+import coil.request.ImageRequest
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
 
@@ -30,9 +32,9 @@ import com.pedrogm.tdtflow.domain.model.ChannelCategory
  * Composable para cargar logos de canales con fallback a icono de categoría.
  *
  * Maneja tres estados:
- * - Logo válido: muestra la imagen
+ * - Logo válido: muestra la imagen con crossfade
  * - Logo vacío: muestra icono de categoría en fondo primario
- * - Error al cargar: muestra icono de categoría en fondo primario con log
+ * - Error al cargar: muestra icono de categoría en fondo primario
  */
 @Composable
 fun LogoImage(
@@ -48,7 +50,10 @@ fun LogoImage(
 
     if (logo.isNotEmpty() && !loadFailed) {
         AsyncImage(
-            model = logo,
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(logo)
+                .crossfade(true)
+                .build(),
             contentDescription = name,
             modifier = modifier
                 .fillMaxWidth()
@@ -57,7 +62,7 @@ fun LogoImage(
             contentScale = ContentScale.Crop,
             onState = { state ->
                 if (state is AsyncImagePainter.State.Error) {
-                    Log.e("LogoImage", "Error loading logo for $name: $logo", state.result.throwable)
+                    Log.w("LogoImage", "Logo unavailable for $name ($logo): ${state.result.throwable.message}")
                     loadFailed = true
                     onError?.invoke(state.result.throwable)
                 }
