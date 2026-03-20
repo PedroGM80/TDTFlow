@@ -3,17 +3,27 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
+val androidCompileSdk: String by project
+val androidMinSdk: String by project
+val jvmVersion: String by project
+
 android {
     namespace = "com.pedrogm.tdtflow.data"
-    compileSdk = 36
+    compileSdk = androidCompileSdk.toInt()
 
     defaultConfig {
-        minSdk = 24
+        minSdk = androidMinSdk.toInt()
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.toVersion(jvmVersion)
+        targetCompatibility = JavaVersion.toVersion(jvmVersion)
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget(jvmVersion))
     }
 }
 

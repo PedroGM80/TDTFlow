@@ -29,6 +29,9 @@ gen/
 .cxx/
 .externalNativeBuild/
 
+# Firebase
+google-services.json
+
 # Other
 *.swp
 *.swo

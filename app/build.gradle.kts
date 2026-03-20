@@ -2,16 +2,23 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
 }
+
+val androidCompileSdk: String by project
+val androidMinSdk: String by project
+val androidTargetSdk: String by project
+val jvmVersion: String by project
 
 android {
     namespace = "com.pedrogm.tdtflow"
-    compileSdk = 36
+    compileSdk = androidCompileSdk.toInt()
 
     defaultConfig {
         applicationId = "com.pedrogm.tdtflow"
-        minSdk = 24
-        targetSdk = 35
+        minSdk = androidMinSdk.toInt()
+        targetSdk = androidTargetSdk.toInt()
         versionCode = 1
         versionName = "1.0.0"
     }
@@ -24,11 +31,17 @@ android {
                 "proguard-rules.pro"
             )
         }
+        debug {
+            // Crashlytics desactivado en debug para builds más rápidos
+            configure<com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension> {
+                mappingFileUploadEnabled = false
+            }
+        }
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.toVersion(jvmVersion)
+        targetCompatibility = JavaVersion.toVersion(jvmVersion)
     }
 
     buildFeatures {
@@ -38,7 +51,7 @@ android {
 
 kotlin {
     compilerOptions {
-        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget(jvmVersion))
     }
 }
 
@@ -84,6 +97,11 @@ dependencies {
 
     // Images
     implementation(libs.coil.compose)
+
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.analytics)
 
     // Testing
     testImplementation(libs.junit)

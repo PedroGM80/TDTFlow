@@ -164,6 +164,41 @@ class ChannelFilterLogicTest {
         assertTrue(result.isEmpty())
     }
 
+    @Test
+    fun `whitespace-only query is treated as blank and returns all valid channels`() {
+        val channels = listOf(
+            channel(name = "Antena 3"),
+            channel(name = "La Sexta")
+        )
+
+        val result = ChannelFilterLogic.applyFilters(
+            channels = channels,
+            category = null,
+            query = "   ",
+            brokenUrls = emptySet(),
+            showBroken = true
+        )
+
+        assertEquals(2, result.size)
+    }
+
+    @Test
+    fun `query does not match against channel url`() {
+        val channels = listOf(
+            channel(name = "Canal Uno", url = "antena-stream.m3u8", category = ChannelCategory.GENERAL)
+        )
+
+        val result = ChannelFilterLogic.applyFilters(
+            channels = channels,
+            category = null,
+            query = "antena", // presente en la URL pero no en el nombre
+            brokenUrls = emptySet(),
+            showBroken = true
+        )
+
+        assertTrue(result.isEmpty())
+    }
+
     // ── applyFilters full pipeline ──────────────────────────────────────────
 
     @Test

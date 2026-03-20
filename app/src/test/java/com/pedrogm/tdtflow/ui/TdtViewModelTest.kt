@@ -7,9 +7,11 @@ import com.pedrogm.tdtflow.domain.usecase.GetChannelsUseCase
 import com.pedrogm.tdtflow.fakes.FakeBrokenChannelTracker
 import com.pedrogm.tdtflow.fakes.FakeChannelsRepository
 import com.pedrogm.tdtflow.player.PlayerState
+import com.pedrogm.tdtflow.util.TimeConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -210,6 +212,73 @@ class TdtViewModelTest {
         val vm = buildViewModel()
         vm.uiState.test {
             assertEquals(PlayerState.IDLE, awaitItem().playerState)
+        }
+    }
+
+    @Test
+    fun `Search updates searchQuery in state`() = runTest {
+        fakeChannels.channels = listOf(channel1, channel2)
+        val vm = buildViewModel()
+
+        vm.uiState.test {
+            awaitItem() // loaded
+
+            vm.onIntent(TdtIntent.Search("rtve"))
+            advanceTimeBy(TimeConstants.SEARCH_DEBOUNCE_MS + 1)
+
+            assertEquals("rtve", awaitItem().searchQuery)
+        }
+    }
+
+    @Test
+    fun `Search filters filteredChannels by channel name`() = runTest {
+        fakeChannels.channels = listOf(channel1, channel2, newsChannel) // "La 1", "La 2", "24h"
+        val vm = buildViewModel()
+
+        vm.uiState.test {
+            awaitItem() // loaded
+
+            vm.onIntent(TdtIntent.Search("La"))
+            advanceTimeBy(TimeConstants.SEARCH_DEBOUNCE_MS + 1)
+
+            val state = awaitItem()
+            assertEquals(2, state.filteredChannels.size)
+            assertTrue(state.filteredChannels.none { it.name == "24h" })
+        }
+    }
+
+    @Test
+    fun `Search with empty string restores full channel list`() = runTest {
+        fakeChannels.channels = listOf(channel1, channel2, newsChannel)
+        val vm = buildViewModel()
+
+        vm.uiState.test {
+            awaitItem() // loaded
+
+            vm.onIntent(TdtIntent.Search("La"))
+            advanceTimeBy(TimeConstants.SEARCH_DEBOUNCE_MS + 1)
+            awaitItem() // filtered to 2
+
+            vm.onIntent(TdtIntent.Search(""))
+            advanceTimeBy(TimeConstants.SEARCH_DEBOUNCE_MS + 1)
+
+            assertEquals(3, awaitItem().filteredChannels.size)
+        }
+    }
+
+    @Test
+    fun `StopPlayback before selecting any channel does not crash and keeps IDLE state`() = runTest {
+        fakeChannels.channels = listOf(channel1)
+        val vm = buildViewModel()
+
+        vm.uiState.test {
+            awaitItem() // loaded
+
+            vm.onIntent(TdtIntent.StopPlayback) // player is null — must be safe
+
+            expectNoEvents()
+            assertNull(vm.uiState.value.currentChannel)
+            assertEquals(PlayerState.IDLE, vm.uiState.value.playerState)
         }
     }
 
