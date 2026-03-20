@@ -1,6 +1,7 @@
 package com.pedrogm.tdtflow
 
 import android.app.Application
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 
 class TdtFlowApp : Application() {
     companion object {
@@ -11,5 +12,6 @@ class TdtFlowApp : Application() {
     override fun onCreate() {
         super.onCreate()
         appContext = this
+        FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)
     }
 }

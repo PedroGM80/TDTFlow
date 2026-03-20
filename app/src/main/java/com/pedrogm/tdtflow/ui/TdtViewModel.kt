@@ -2,6 +2,7 @@ package com.pedrogm.tdtflow.ui
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
 import com.pedrogm.tdtflow.domain.model.Channel
@@ -169,6 +170,7 @@ class TdtViewModel(
                 _error.value = null
             }
             .catch { e ->
+                FirebaseCrashlytics.getInstance().recordException(e)
                 _error.value = loadError(e)
             }
             .onCompletion {
@@ -188,6 +190,7 @@ class TdtViewModel(
             .filterNotNull()
             .distinctUntilChanged()
             .onEach { errorMsg ->
+                FirebaseCrashlytics.getInstance().log("Player error: $errorMsg (channel: ${_currentChannel.value?.name})")
                 _error.value = errorMsg
                 markCurrentChannelAsBroken()
             }
