@@ -1,6 +1,8 @@
 package com.pedrogm.tdtflow.ui.favorites
 
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import androidx.lifecycle.viewModelScope
 import com.pedrogm.tdtflow.domain.usecase.AddFavoriteUseCase
 import com.pedrogm.tdtflow.domain.usecase.GetFavoritesUseCase
@@ -11,7 +13,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
-class FavoritesViewModel(
+@HiltViewModel
+class FavoritesViewModel @Inject constructor(
     private val addFavorite: AddFavoriteUseCase,
     private val removeFavorite: RemoveFavoriteUseCase,
     getFavorites: GetFavoritesUseCase

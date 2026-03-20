@@ -5,15 +5,16 @@ import android.view.KeyEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import com.pedrogm.tdtflow.di.DIContainer
 import com.pedrogm.tdtflow.ui.TdtIntent
 import com.pedrogm.tdtflow.ui.TdtViewModel
 import com.pedrogm.tdtflow.ui.theme.TDTFlowTheme
 import com.pedrogm.tdtflow.ui.tv.TvScreen
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class TvActivity : ComponentActivity() {
 
-    private val viewModel: TdtViewModel by viewModels { DIContainer.provideViewModelFactory(this) }
+    private val viewModel: TdtViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

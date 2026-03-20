@@ -2,7 +2,11 @@
 # Android & Kotlin
 androidGradlePlugin = "9.1.0"
 kotlin = "2.3.20"
-ksp = "2.0.0-1.0.21"
+ksp = "2.3.20-1.0.32" # verify at https://github.com/google/ksp/releases
+
+# Hilt
+hilt = "2.52"
+hiltNavigationCompose = "1.2.0"
 
 # Firebase
 googleServices = "4.4.4"
@@ -89,6 +93,11 @@ compottie-network = { group = "io.github.alexzhirkevich", name = "compottie-netw
 # Images
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 
+# Hilt
+hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
+hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
+hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+
 # Firebase
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
@@ -110,3 +119,5 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsPlugin" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

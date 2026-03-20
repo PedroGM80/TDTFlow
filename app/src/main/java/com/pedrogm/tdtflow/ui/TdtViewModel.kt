@@ -1,8 +1,13 @@
 package com.pedrogm.tdtflow.ui
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.pedrogm.tdtflow.R
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
 import com.pedrogm.tdtflow.domain.model.Channel
@@ -37,6 +42,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
+@HiltViewModel
 @UnstableApi
 class TdtViewModel(
     private val getChannelsUseCase: GetChannelsUseCase,
@@ -44,6 +50,19 @@ class TdtViewModel(
     private val loadError: (Throwable) -> String,
     private val playerFactory: () -> TdtPlayer
 ) : ViewModel() {
+
+    @Inject constructor(
+        getChannelsUseCase: GetChannelsUseCase,
+        brokenChannelTracker: BrokenChannelTracker,
+        @ApplicationContext context: Context
+    ) : this(
+        getChannelsUseCase = getChannelsUseCase,
+        brokenChannelTracker = brokenChannelTracker,
+        loadError = { e ->
+            context.getString(R.string.error_loading_channels, e.localizedMessage ?: "Unknown")
+        },
+        playerFactory = { TdtPlayer(context) }
+    )
 
     companion object {
         private const val TAG = "TdtViewModel"

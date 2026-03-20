@@ -3,13 +3,16 @@ package com.pedrogm.tdtflow.ui.options
 import androidx.lifecycle.ViewModel
 import com.pedrogm.tdtflow.data.IOptionsPreferences
 import com.pedrogm.tdtflow.data.NoOpOptionsPreferences
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class OptionsMenuViewModel(
-    private val prefs: IOptionsPreferences = NoOpOptionsPreferences()
+@HiltViewModel
+class OptionsMenuViewModel @Inject constructor(
+    private val prefs: IOptionsPreferences
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
