@@ -84,7 +84,6 @@ import com.composables.icons.lucide.Settings
 import com.composables.icons.lucide.Tv
 import com.composables.icons.lucide.X
 import com.pedrogm.tdtflow.R
-import com.pedrogm.tdtflow.di.DIContainer
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
 import com.pedrogm.tdtflow.player.PlayerState
@@ -111,8 +110,8 @@ import kotlinx.coroutines.delay
 @Composable
 fun MobileScreen(
     viewModel: TdtViewModel,
-    favoritesViewModel: FavoritesViewModel = DIContainer.favorites.viewModel,
-    optionsViewModel: OptionsMenuViewModel = DIContainer.options.viewModel,
+    favoritesViewModel: FavoritesViewModel,
+    optionsViewModel: OptionsMenuViewModel,
     onNavigateToFavorites: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
