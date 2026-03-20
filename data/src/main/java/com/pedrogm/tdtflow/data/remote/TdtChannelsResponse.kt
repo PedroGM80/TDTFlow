@@ -1,68 +1,54 @@
 package com.pedrogm.tdtflow.data.remote
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class TdtChannelsResponse(
-    @SerializedName("license")
-    val license: TdtLicense?,
-    @SerializedName("epg")
-    val epg: TdtEpg?,
-    @SerializedName("countries")
-    val countries: List<TdtCountry>
+    @SerialName("license") val license: TdtLicense? = null,
+    @SerialName("epg") val epg: TdtEpg? = null,
+    @SerialName("countries") val countries: List<TdtCountry> = emptyList()
 )
 
+@Serializable
 data class TdtLicense(
-    @SerializedName("source")
-    val source: String?,
-    @SerializedName("url")
-    val url: String?
+    @SerialName("source") val source: String? = null,
+    @SerialName("url") val url: String? = null
 )
 
+@Serializable
 data class TdtEpg(
-    @SerializedName("xml")
-    val xml: String?,
-    @SerializedName("json")
-    val json: String?
+    @SerialName("xml") val xml: String? = null,
+    @SerialName("json") val json: String? = null
 )
 
+@Serializable
 data class TdtCountry(
-    @SerializedName("name")
-    val name: String,
-    @SerializedName("ambits")
-    val ambits: List<TdtAmbit>
+    @SerialName("name") val name: String,
+    @SerialName("ambits") val ambits: List<TdtAmbit> = emptyList()
 )
 
+@Serializable
 data class TdtAmbit(
-    @SerializedName("name")
-    val name: String,
-    @SerializedName("channels")
-    val channels: List<TdtChannel>
+    @SerialName("name") val name: String,
+    @SerialName("channels") val channels: List<TdtChannel> = emptyList()
 )
 
+@Serializable
 data class TdtChannel(
-    @SerializedName("name")
-    val name: String,
-    @SerializedName("web")
-    val web: String?,
-    @SerializedName("logo")
-    val logo: String,
-    @SerializedName("epg_id")
-    val epgId: String?,
-    @SerializedName("options")
-    val options: List<TdtOption>,
-    @SerializedName("extra_info")
-    val extraInfo: List<String>?
+    @SerialName("name") val name: String,
+    @SerialName("web") val web: String? = null,
+    @SerialName("logo") val logo: String = "",
+    @SerialName("epg_id") val epgId: String? = null,
+    @SerialName("options") val options: List<TdtOption> = emptyList(),
+    @SerialName("extra_info") val extraInfo: List<String>? = null
 )
 
+@Serializable
 data class TdtOption(
-    @SerializedName("format")
-    val format: String,
-    @SerializedName("url")
-    val url: String,
-    @SerializedName("geo2")
-    val geo: String?,
-    @SerializedName("res")
-    val resolution: String?,
-    @SerializedName("lang")
-    val language: String?
+    @SerialName("format") val format: String,
+    @SerialName("url") val url: String,
+    @SerialName("geo2") val geo: String? = null,
+    @SerialName("res") val resolution: String? = null,
+    @SerialName("lang") val language: String? = null
 )

@@ -13,7 +13,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 
-class ChannelRepositoryImpl : ChannelRepository {
+class ChannelRepositoryImpl(
+    private val cache: ChannelCache = ChannelCache(),
+    private val onError: (Throwable) -> Unit = {}
+) : ChannelRepository {
 
     companion object {
         private const val TAG = "ChannelRepository"
@@ -21,7 +24,13 @@ class ChannelRepositoryImpl : ChannelRepository {
     }
 
     override fun getChannels(): Flow<List<Channel>> = flow {
-        emit(loadChannels())
+        cache.get()?.let {
+            emit(it)
+            return@flow
+        }
+        val channels = loadChannels()
+        cache.put(channels)
+        emit(channels)
     }
 
     private suspend fun loadChannels(): List<Channel> = withContext(Dispatchers.IO) {
@@ -40,15 +49,12 @@ class ChannelRepositoryImpl : ChannelRepository {
                 return@withContext fallback
             }
 
-            // Map API responses to Channel objects
             val tvChannels = mapTvChannels(tvResponse)
             val radioChannels = mapRadioChannels(radioResponse)
 
             Log.d(TAG, "Mapped ${tvChannels.size} TV + ${radioChannels.size} radio channels")
 
             val apiChannels = tvChannels + radioChannels
-
-            // Merge with fallback, enriching with logos where needed
             val combined = mergeWithFallback(fallback, apiChannels)
 
             Log.d(TAG, "Total combined channels: ${combined.size}")
@@ -56,27 +62,17 @@ class ChannelRepositoryImpl : ChannelRepository {
         } catch (e: Exception) {
             Log.e(TAG, "Error loading TDTChannels: ${e.message}", e)
             Log.d(TAG, "Using only ${fallback.size} fallback channels")
+            onError(e)
             fallback
         }
     }
 
-    /**
-     * Fetches TV channels from the API
-     */
-    private suspend fun fetchTvChannels(): TdtChannelsResponse? = withContext(Dispatchers.IO) {
-        runCatching { NetworkModule.service.getChannels() }.getOrNull()
-    }
+    private suspend fun fetchTvChannels(): TdtChannelsResponse? =
+        runCatching { NetworkModule.getTvChannels() }.getOrNull()
 
-    /**
-     * Fetches radio channels from the API
-     */
-    private suspend fun fetchRadioChannels(): TdtChannelsResponse? = withContext(Dispatchers.IO) {
-        runCatching { NetworkModule.service.getRadioChannels() }.getOrNull()
-    }
+    private suspend fun fetchRadioChannels(): TdtChannelsResponse? =
+        runCatching { NetworkModule.getRadioChannels() }.getOrNull()
 
-    /**
-     * Extracts and maps TV channels from API response
-     */
     private suspend fun mapTvChannels(response: TdtChannelsResponse?): List<Channel> =
         withContext(Dispatchers.Default) {
             response?.countries?.firstOrNull { it.name == SPAIN }?.ambits?.flatMap { ambit ->
@@ -86,10 +82,6 @@ class ChannelRepositoryImpl : ChannelRepository {
             } ?: emptyList()
         }
 
-    /**
-     * Extracts and maps radio channels from API response.
-     * Only includes "Musicales" category to avoid overwhelming the app with local stations.
-     */
     private suspend fun mapRadioChannels(response: TdtChannelsResponse?): List<Channel> =
         withContext(Dispatchers.Default) {
             response?.countries?.firstOrNull { it.name == SPAIN }?.ambits
@@ -104,12 +96,13 @@ class ChannelRepositoryImpl : ChannelRepository {
         }
 
     /**
-     * Merges API channels with fallback channels, enriching with fallback logos when needed.
-     * Deduplicates by URL and enriches empty logos from fallback.
+     * API channels take priority over fallback.
+     * Fallback only fills in channels not present in the API (by URL).
+     * Logos from fallback enrich API channels that have empty logos.
      */
     private fun mergeWithFallback(fallback: List<Channel>, apiChannels: List<Channel>): List<Channel> {
         val fallbackMap = fallback.associateBy { it.name }
-        return (fallback + apiChannels)
+        return (apiChannels + fallback)
             .distinctBy { it.url }
             .map { channel ->
                 val fallbackChannel = fallbackMap[channel.name]

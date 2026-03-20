@@ -106,10 +106,10 @@ class TdtPlayer(context: Context) {
                 if (isPlaying) {
                     cancelBufferingTimeout()
                     _bufferingTimeout.value = false
-                }
-                _playerState.value = when {
-                    isPlaying -> PlayerState.PLAYING
-                    else -> PlayerState.PAUSED
+                    _playerState.value = PlayerState.PLAYING
+                } else if (_playerState.value == PlayerState.PLAYING) {
+                    // Only transition to PAUSED from PLAYING — never override BUFFERING or ERROR
+                    _playerState.value = PlayerState.PAUSED
                 }
             }
 

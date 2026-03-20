@@ -29,7 +29,6 @@ ktor = "3.4.1"
 
 # Networking & Serialization
 coil = "2.7.0"
-retrofit = "3.0.0"
 
 # Lottie & Icons
 compottie = "2.1.0"
@@ -89,10 +88,6 @@ compottie-network = { group = "io.github.alexzhirkevich", name = "compottie-netw
 
 # Images
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
-
-# Retrofit
-retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
-retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
 
 # Firebase
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }

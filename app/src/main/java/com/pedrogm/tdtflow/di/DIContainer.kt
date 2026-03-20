@@ -3,6 +3,7 @@ package com.pedrogm.tdtflow.di
 import android.app.Activity
 import androidx.lifecycle.ViewModelProvider
 import androidx.media3.common.util.UnstableApi
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.TdtFlowApp
 import com.pedrogm.tdtflow.data.BrokenChannelTrackerImpl
@@ -14,7 +15,9 @@ import com.pedrogm.tdtflow.ui.TdtViewModel
 @UnstableApi
 object DIContainer {
     private val channelRepository by lazy {
-        ChannelRepositoryImpl()
+        ChannelRepositoryImpl(
+            onError = { FirebaseCrashlytics.getInstance().recordException(it) }
+        )
     }
 
     val getChannelsUseCase: GetChannelsUseCase by lazy {
