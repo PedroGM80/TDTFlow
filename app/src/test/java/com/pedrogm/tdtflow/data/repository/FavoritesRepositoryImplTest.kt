@@ -67,4 +67,24 @@ class FavoritesRepositoryImplTest {
             assertEquals(setOf("antena3.m3u8"), awaitItem())
         }
     }
+
+    @Test
+    fun `add preserves insertion order`() {
+        repository.add("url_c")
+        repository.add("url_a")
+        repository.add("url_b")
+
+        assertEquals(listOf("url_c", "url_a", "url_b"), repository.favoriteIds.value.toList())
+    }
+
+    @Test
+    fun `remove preserves order of remaining items`() {
+        repository.add("url_1")
+        repository.add("url_2")
+        repository.add("url_3")
+
+        repository.remove("url_2")
+
+        assertEquals(listOf("url_1", "url_3"), repository.favoriteIds.value.toList())
+    }
 }

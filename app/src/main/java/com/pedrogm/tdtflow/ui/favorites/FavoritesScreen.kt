@@ -38,7 +38,7 @@ fun FavoritesScreen(
     onBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val favoriteChannels = allChannels.filter { it.url in uiState.favoriteIds }
+    val favoriteChannels = uiState.favoriteIds.mapNotNull { url -> allChannels.find { it.url == url } }
 
     Scaffold(
         topBar = {
