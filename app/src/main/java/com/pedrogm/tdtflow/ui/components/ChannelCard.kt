@@ -32,10 +32,6 @@ import com.composables.icons.lucide.Lucide
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.domain.model.Channel
 
-/**
- * Card component for displaying a channel with logo, name, and live indicator.
- * Consolidated logo loading and live indicator into shared components.
- */
 @Composable
 fun ChannelCard(
     channel: Channel,
