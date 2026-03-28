@@ -59,6 +59,7 @@ class FavoritesScreenTest {
 
     private fun setContent(
         allChannels: List<Channel> = listOf(channel1, channel2, channel3),
+        currentChannel: Channel? = null,
         viewModel: FavoritesViewModel = createViewModel(),
         onChannelClick: (Channel) -> Unit = {},
         onBack: () -> Unit = {}
@@ -67,6 +68,7 @@ class FavoritesScreenTest {
             TDTFlowTheme {
                 FavoritesScreen(
                     allChannels = allChannels,
+                    currentChannel = currentChannel,
                     viewModel = viewModel,
                     onChannelClick = onChannelClick,
                     onBack = onBack

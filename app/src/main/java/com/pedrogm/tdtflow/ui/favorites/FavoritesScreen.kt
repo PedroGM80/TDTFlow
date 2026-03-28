@@ -32,6 +32,7 @@ import com.pedrogm.tdtflow.ui.components.EmptyState
 @Composable
 fun FavoritesScreen(
     allChannels: List<Channel>,
+    currentChannel: Channel?,
     viewModel: FavoritesViewModel,
     onChannelClick: (Channel) -> Unit,
     onBack: () -> Unit
@@ -79,7 +80,7 @@ fun FavoritesScreen(
                 ) { channel ->
                     ChannelCard(
                         channel = channel,
-                        isSelected = false,
+                        isSelected = channel.url == currentChannel?.url,
                         onClick = { onChannelClick(channel) },
                         isFavorite = true,
                         onToggleFavorite = { viewModel.onIntent(FavoritesIntent.RemoveFavorite(channel.url)) }

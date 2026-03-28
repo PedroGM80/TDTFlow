@@ -58,6 +58,7 @@ fun AppNavGraph(
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             FavoritesScreen(
                 allChannels = uiState.channels,
+                currentChannel = uiState.currentChannel,
                 viewModel = favoritesViewModel,
                 onChannelClick = { channel ->
                     viewModel.onIntent(TdtIntent.SelectChannel(channel))
