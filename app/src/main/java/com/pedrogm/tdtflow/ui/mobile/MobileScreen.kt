@@ -288,13 +288,12 @@ private fun BoxScope.TopLandscapeOverlay(
     currentChannelName: String,
     onClose: () -> Unit
 ) {
-    if (showOverlay) {
-        AnimatedVisibility(
-            visible = true,
-            enter = fadeIn() + slideInVertically { -it },
-            exit = fadeOut() + slideOutVertically { -it },
-            modifier = Modifier.align(Alignment.TopCenter)
-        ) {
+    AnimatedVisibility(
+        visible = showOverlay,
+        enter = fadeIn() + slideInVertically { -it },
+        exit = fadeOut() + slideOutVertically { -it },
+        modifier = Modifier.align(Alignment.TopCenter)
+    ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -332,7 +331,6 @@ private fun BoxScope.TopLandscapeOverlay(
                     )
                 }
             }
-        }
     }
 }
 
@@ -345,13 +343,12 @@ private fun BoxScope.BottomLandscapeOverlay(
     onCategorySelected: (ChannelCategory?) -> Unit,
     onChannelSelected: (Channel) -> Unit
 ) {
-    if (showOverlay) {
-        AnimatedVisibility(
-            visible = true,
-            enter = fadeIn() + slideInVertically { it },
-            exit = fadeOut() + slideOutVertically { it },
-            modifier = Modifier.align(Alignment.BottomCenter)
-        ) {
+    AnimatedVisibility(
+        visible = showOverlay,
+        enter = fadeIn() + slideInVertically { it },
+        exit = fadeOut() + slideOutVertically { it },
+        modifier = Modifier.align(Alignment.BottomCenter)
+    ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -387,7 +384,6 @@ private fun BoxScope.BottomLandscapeOverlay(
                     }
                 }
             }
-        }
     }
 }
 
