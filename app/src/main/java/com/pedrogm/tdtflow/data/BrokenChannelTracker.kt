@@ -53,10 +53,6 @@ class BrokenChannelTrackerImpl(context: Context) : BrokenChannelTracker {
             .apply()
     }
 
-    fun isBroken(url: String): Boolean = url in _brokenUrls.value
-
-    fun brokenCount(): Int = _brokenUrls.value.size
-
     private fun saveBrokenUrls(urls: Set<String>) {
         prefs.edit()
             .putStringSet(KEY_BROKEN_URLS, urls)
