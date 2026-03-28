@@ -76,7 +76,8 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import coil.compose.AsyncImage
-import com.composables.icons.lucide.Heart
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.RefreshCw
 import com.composables.icons.lucide.Search
@@ -426,7 +427,7 @@ private fun PortraitLayout(
                 },
                 actions = {
                     IconButton(onClick = onShowFavorites) {
-                        Icon(Lucide.Heart, contentDescription = stringResource(R.string.favorites_title))
+                        Icon(Icons.Outlined.FavoriteBorder, contentDescription = stringResource(R.string.favorites_title))
                     }
                     IconButton(onClick = onToggleSearch) {
                         Icon(
