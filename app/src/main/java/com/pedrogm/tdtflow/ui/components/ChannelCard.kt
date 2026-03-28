@@ -30,8 +30,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.Surface
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.domain.model.Channel
+import com.pedrogm.tdtflow.domain.model.ChannelCategory
+import com.pedrogm.tdtflow.ui.theme.TDTFlowTheme
 
 @Composable
 fun ChannelCard(
@@ -133,5 +137,44 @@ fun ChannelCard(
             )
         }
     }
+    }
+}
+
+private val previewChannel = Channel(
+    name = "Antena 3",
+    url = "https://stream.antena3.m3u8",
+    logo = "",
+    category = ChannelCategory.GENERAL
+)
+
+@PreviewLightDark
+@Composable
+private fun ChannelCardPreview() {
+    TDTFlowTheme {
+        Surface {
+            ChannelCard(
+                channel = previewChannel,
+                isSelected = false,
+                onClick = {},
+                isFavorite = false,
+                onToggleFavorite = {}
+            )
+        }
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun ChannelCardSelectedPreview() {
+    TDTFlowTheme {
+        Surface {
+            ChannelCard(
+                channel = previewChannel,
+                isSelected = true,
+                onClick = {},
+                isFavorite = true,
+                onToggleFavorite = {}
+            )
+        }
     }
 }

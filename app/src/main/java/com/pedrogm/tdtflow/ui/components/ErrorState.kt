@@ -11,12 +11,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.composables.icons.lucide.*
 import com.pedrogm.tdtflow.R
+import com.pedrogm.tdtflow.ui.theme.TDTFlowTheme
 import io.github.alexzhirkevich.compottie.LottieCompositionSpec
 import io.github.alexzhirkevich.compottie.rememberLottieComposition
 import io.github.alexzhirkevich.compottie.rememberLottiePainter
 import io.github.alexzhirkevich.compottie.Compottie
+
+@PreviewLightDark
+@Composable
+private fun ErrorStatePreview() {
+    TDTFlowTheme {
+        Surface {
+            ErrorState(
+                message = "No se pudieron cargar los canales",
+                onRetry = {}
+            )
+        }
+    }
+}
 
 @Composable
 fun ErrorState(
