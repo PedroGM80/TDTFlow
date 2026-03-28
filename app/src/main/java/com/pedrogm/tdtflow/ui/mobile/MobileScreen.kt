@@ -510,9 +510,9 @@ private fun PortraitLayout(
 private fun ChannelContent(
     uiState: TdtUiState,
     viewModel: TdtViewModel,
+    modifier: Modifier = Modifier,
     favoriteIds: Set<String> = emptySet(),
-    onToggleFavorite: (String) -> Unit = {},
-    modifier: Modifier = Modifier
+    onToggleFavorite: (String) -> Unit = {}
 ) {
     AnimatedContent(
         targetState = uiState.isLoading,
