@@ -7,6 +7,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import com.pedrogm.tdtflow.data.NoOpOptionsPreferences
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -23,7 +24,7 @@ class OptionsMenuViewModelTest {
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
-        viewModel = OptionsMenuViewModel()
+        viewModel = OptionsMenuViewModel(NoOpOptionsPreferences())
     }
 
     @After

@@ -28,6 +28,8 @@ import com.pedrogm.tdtflow.domain.model.ChannelCategory
 import com.pedrogm.tdtflow.ui.TdtIntent
 import com.pedrogm.tdtflow.ui.TdtViewModel
 import com.pedrogm.tdtflow.ui.components.ChannelGridSkeleton
+import com.pedrogm.tdtflow.ui.components.EmptyState
+import com.pedrogm.tdtflow.ui.components.ErrorState
 import com.pedrogm.tdtflow.ui.components.toLucideIcon
 import com.pedrogm.tdtflow.ui.components.toStringRes
 
@@ -67,6 +69,16 @@ internal fun TvChannelBrowser(viewModel: TdtViewModel) {
             return@Column
         }
 
+        if (uiState.error != null && uiState.channels.isEmpty()) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                ErrorState(
+                    message = uiState.error,
+                    onRetry = { viewModel.onIntent(TdtIntent.Retry) }
+                )
+            }
+            return@Column
+        }
+
         // Categorías
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium)),
@@ -90,19 +102,25 @@ internal fun TvChannelBrowser(viewModel: TdtViewModel) {
             }
         }
 
-        // Grid de canales
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(dimensionResource(R.dimen.card_width_tv)),
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_large)),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_large)),
-            modifier = Modifier.fillMaxSize()
-        ) {
-            items(items = uiState.filteredChannels, key = { it.url }) { channel ->
-                TvChannelCard(
-                    channel = channel,
-                    isSelected = channel == uiState.currentChannel,
-                    onClick = { viewModel.onIntent(TdtIntent.SelectChannel(channel)) }
-                )
+        if (uiState.filteredChannels.isEmpty()) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                EmptyState(message = stringResource(R.string.no_channels_found))
+            }
+        } else {
+            // Grid de canales
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(dimensionResource(R.dimen.card_width_tv)),
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_large)),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_large)),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(items = uiState.filteredChannels, key = { it.url }) { channel ->
+                    TvChannelCard(
+                        channel = channel,
+                        isSelected = channel == uiState.currentChannel,
+                        onClick = { viewModel.onIntent(TdtIntent.SelectChannel(channel)) }
+                    )
+                }
             }
         }
     }

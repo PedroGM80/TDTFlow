@@ -49,7 +49,8 @@ class TdtViewModel(
     private val getChannelsUseCase: GetChannelsUseCase,
     private val brokenChannelTracker: BrokenChannelTracker,
     private val loadError: (Throwable) -> String,
-    private val playerFactory: () -> TdtPlayer
+    private val playerFactory: () -> TdtPlayer,
+    private val onError: (Throwable) -> Unit = {}
 ) : ViewModel() {
 
     @Inject constructor(
@@ -62,7 +63,8 @@ class TdtViewModel(
         loadError = { e ->
             context.getString(R.string.error_loading_channels, e.localizedMessage ?: "Unknown")
         },
-        playerFactory = { TdtPlayer(context) }
+        playerFactory = { TdtPlayer(context) },
+        onError = { e -> FirebaseCrashlytics.getInstance().recordException(e) }
     )
 
     companion object {
@@ -190,7 +192,7 @@ class TdtViewModel(
                 _error.value = null
             }
             .catch { e ->
-                FirebaseCrashlytics.getInstance().recordException(e)
+                onError(e)
                 _error.value = loadError(e)
             }
             .onCompletion {
