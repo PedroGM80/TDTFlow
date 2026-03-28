@@ -2,7 +2,9 @@ package com.pedrogm.tdtflow.ui.tv.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
@@ -38,89 +40,107 @@ import com.pedrogm.tdtflow.ui.components.toStringRes
 internal fun TvChannelBrowser(viewModel: TdtViewModel) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colorResource(R.color.tv_background))
-            .padding(dimensionResource(R.dimen.padding_tv))
-    ) {
-        // Header con icono Lucide
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_extra_large))
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(colorResource(R.color.tv_background))
+                .padding(dimensionResource(R.dimen.padding_tv))
         ) {
-            Icon(
-                imageVector = Lucide.Tv,
-                contentDescription = stringResource(R.string.app_logo),
-                tint = colorResource(R.color.primary_dark),
-                modifier = Modifier.size(dimensionResource(R.dimen.icon_size_large))
-            )
-            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_medium)))
-            Text(
-                text = stringResource(R.string.app_name),
-                color = Color.White,
-                fontSize = dimensionResource(R.dimen.text_size_header_tv).value.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        if (uiState.isLoading) {
-            ChannelGridSkeleton(modifier = Modifier.fillMaxSize())
-            return@Column
-        }
-
-        if (uiState.error != null && uiState.channels.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                ErrorState(
-                    message = uiState.error,
-                    onRetry = { viewModel.onIntent(TdtIntent.Retry) }
-                )
-            }
-            return@Column
-        }
-
-        // Categorías
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium)),
-            modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_extra_large))
-        ) {
-            item {
-                TvCategoryChip(
-                    label = stringResource(R.string.category_all),
-                    icon = Lucide.LayoutGrid,
-                    isSelected = uiState.selectedCategory == null,
-                    onClick = { viewModel.onIntent(TdtIntent.FilterByCategory(null)) }
-                )
-            }
-            items(ChannelCategory.entries.toList()) { category ->
-                TvCategoryChip(
-                    label = stringResource(category.toStringRes()),
-                    icon = category.toLucideIcon(),
-                    isSelected = uiState.selectedCategory == category,
-                    onClick = { viewModel.onIntent(TdtIntent.FilterByCategory(category)) }
-                )
-            }
-        }
-
-        if (uiState.filteredChannels.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                EmptyState(message = stringResource(R.string.no_channels_found))
-            }
-        } else {
-            // Grid de canales
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(dimensionResource(R.dimen.card_width_tv)),
-                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_large)),
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_large)),
-                modifier = Modifier.fillMaxSize()
+            // Header con icono Lucide
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_extra_large))
             ) {
-                items(items = uiState.filteredChannels, key = { it.url }) { channel ->
-                    TvChannelCard(
-                        channel = channel,
-                        isSelected = channel == uiState.currentChannel,
-                        onClick = { viewModel.onIntent(TdtIntent.SelectChannel(channel)) }
+                Icon(
+                    imageVector = Lucide.Tv,
+                    contentDescription = stringResource(R.string.app_logo),
+                    tint = colorResource(R.color.primary_dark),
+                    modifier = Modifier.size(dimensionResource(R.dimen.icon_size_large))
+                )
+                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_medium)))
+                Text(
+                    text = stringResource(R.string.app_name),
+                    color = Color.White,
+                    fontSize = dimensionResource(R.dimen.text_size_header_tv).value.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            if (uiState.isLoading) {
+                ChannelGridSkeleton(modifier = Modifier.fillMaxSize())
+                return@Column
+            }
+
+            if (uiState.error != null && uiState.channels.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    ErrorState(
+                        message = uiState.error!!,
+                        onRetry = { viewModel.onIntent(TdtIntent.Retry) }
                     )
                 }
+                return@Column
+            }
+
+            // Categorías
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium)),
+                modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_extra_large))
+            ) {
+                item {
+                    TvCategoryChip(
+                        label = stringResource(R.string.category_all),
+                        icon = Lucide.LayoutGrid,
+                        isSelected = uiState.selectedCategory == null,
+                        onClick = { viewModel.onIntent(TdtIntent.FilterByCategory(null)) }
+                    )
+                }
+                items(ChannelCategory.entries.toList()) { category ->
+                    TvCategoryChip(
+                        label = stringResource(category.toStringRes()),
+                        icon = category.toLucideIcon(),
+                        isSelected = uiState.selectedCategory == category,
+                        onClick = { viewModel.onIntent(TdtIntent.FilterByCategory(category)) }
+                    )
+                }
+            }
+
+            if (uiState.filteredChannels.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    EmptyState(message = stringResource(R.string.no_channels_found))
+                }
+            } else {
+                // Grid de canales
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(dimensionResource(R.dimen.card_width_tv)),
+                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_large)),
+                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_large)),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(items = uiState.filteredChannels, key = { it.url }) { channel ->
+                        TvChannelCard(
+                            channel = channel,
+                            isSelected = channel == uiState.currentChannel,
+                            onClick = { viewModel.onIntent(TdtIntent.SelectChannel(channel)) }
+                        )
+                    }
+                }
+            }
+        }
+
+        // Snackbar para errores de reproducción (canales ya cargados)
+        if (uiState.error != null && uiState.channels.isNotEmpty()) {
+            Snackbar(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(dimensionResource(R.dimen.padding_large)),
+                action = {
+                    TextButton(onClick = { viewModel.onIntent(TdtIntent.DismissError) }) {
+                        Text(stringResource(R.string.close))
+                    }
+                }
+            ) {
+                Text(uiState.error!!)
             }
         }
     }
