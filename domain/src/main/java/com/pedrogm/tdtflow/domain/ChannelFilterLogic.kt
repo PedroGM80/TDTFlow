@@ -1,17 +1,8 @@
-package com.pedrogm.tdtflow.ui
+package com.pedrogm.tdtflow.domain
 
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
 
-/**
- * Encapsulates channel filtering logic to keep TdtViewModel lean.
- *
- * Applies a pipeline of filters:
- * 1. Valid URLs only
- * 2. Exclude broken channels (unless explicitly showing)
- * 3. Category filtering (with special "Todos" handling excluding MUSIC)
- * 4. Search query matching
- */
 object ChannelFilterLogic {
 
     fun applyFilters(

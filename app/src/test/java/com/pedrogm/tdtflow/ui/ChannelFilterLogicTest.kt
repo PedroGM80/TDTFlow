@@ -1,5 +1,6 @@
 package com.pedrogm.tdtflow.ui
 
+import com.pedrogm.tdtflow.domain.ChannelFilterLogic
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
 import org.junit.Assert.assertEquals
