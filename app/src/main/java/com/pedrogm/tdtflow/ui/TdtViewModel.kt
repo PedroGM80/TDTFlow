@@ -50,7 +50,9 @@ class TdtViewModel(
     private val brokenChannelTracker: BrokenChannelTracker,
     private val loadError: (Throwable) -> String,
     private val playerFactory: () -> TdtPlayer,
-    private val onError: (Throwable) -> Unit = {}
+    private val onError: (Throwable) -> Unit = {},
+    private val ioDispatcher: kotlinx.coroutines.CoroutineDispatcher = Dispatchers.Default,
+    private val searchDebounceMs: Long = TimeConstants.SEARCH_DEBOUNCE_MS
 ) : ViewModel() {
 
     @Inject constructor(
@@ -88,7 +90,7 @@ class TdtViewModel(
 
     @OptIn(FlowPreview::class)
     private val debouncedQuery: Flow<String> = _searchQuery
-        .debounce(TimeConstants.SEARCH_DEBOUNCE_MS)
+        .debounce(searchDebounceMs)
         .distinctUntilChanged()
 
     // ── Flow derivado: canales filtrados ─────────────────────────────
@@ -108,11 +110,11 @@ class TdtViewModel(
             showBroken = showBroken
         )
     }
-        .flowOn(Dispatchers.Default)
+        .flowOn(ioDispatcher)
         .distinctUntilChanged()
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(TimeConstants.FLOW_SUBSCRIPTION_TIMEOUT_MS),
+            started = SharingStarted.Eagerly,
             initialValue = emptyList()
         )
 
@@ -128,7 +130,7 @@ class TdtViewModel(
         PartialState(filtered, current, category, query, loading)
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(TimeConstants.FLOW_SUBSCRIPTION_TIMEOUT_MS),
+        started = SharingStarted.Eagerly,
         initialValue = PartialState(emptyList(), null, null, Constants.EMPTY_STRING, true)
     )
 
@@ -154,7 +156,7 @@ class TdtViewModel(
         )
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(TimeConstants.FLOW_SUBSCRIPTION_TIMEOUT_MS),
+        started = SharingStarted.Eagerly,
         initialValue = TdtUiState()
     )
 
@@ -213,10 +215,7 @@ class TdtViewModel(
             .distinctUntilChanged()
             .onEach { errorMsg ->
                 val channelName = _currentChannel.value?.name
-                FirebaseCrashlytics.getInstance().apply {
-                    log("Player error on channel: $channelName")
-                    recordException(Exception("Player error: $errorMsg (channel: $channelName)"))
-                }
+                onError(Exception("Player error: $errorMsg (channel: $channelName)"))
                 _error.value = errorMsg
                 markCurrentChannelAsBroken()
             }

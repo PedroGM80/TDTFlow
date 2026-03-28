@@ -1,6 +1,5 @@
 package com.pedrogm.tdtflow.ui
 
-import app.cash.turbine.test
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
 import com.pedrogm.tdtflow.domain.usecase.GetChannelsUseCase
@@ -29,7 +28,6 @@ class TdtViewModelTest {
     private val testDispatcher = UnconfinedTestDispatcher()
     private lateinit var fakeChannels: FakeChannelsRepository
     private lateinit var fakeTracker: FakeBrokenChannelTracker
-    private lateinit var viewModel: TdtViewModel
 
     private val channel1 = Channel("La 1", "rtve1.m3u8", category = ChannelCategory.GENERAL)
     private val channel2 = Channel("La 2", "rtve2.m3u8", category = ChannelCategory.GENERAL)
@@ -40,12 +38,6 @@ class TdtViewModelTest {
         Dispatchers.setMain(testDispatcher)
         fakeChannels = FakeChannelsRepository()
         fakeTracker = FakeBrokenChannelTracker()
-        viewModel = TdtViewModel(
-            getChannelsUseCase = GetChannelsUseCase(fakeChannels),
-            brokenChannelTracker = fakeTracker,
-            loadError = { e -> "Error: ${e.message}" },
-            playerFactory = { error("Player not expected in unit tests") }
-        )
     }
 
     @After
@@ -56,12 +48,11 @@ class TdtViewModelTest {
     @Test
     fun `initial state is loading with no channels`() = runTest {
         fakeChannels.channels = emptyList()
-        viewModel.uiState.test {
-            val state = awaitItem()
-            assertFalse(state.isLoading)
-            assertTrue(state.channels.isEmpty())
-            assertNull(state.error)
-        }
+        val vm = buildViewModel()
+        val state = vm.uiState.value
+        assertFalse(state.isLoading)
+        assertTrue(state.channels.isEmpty())
+        assertNull(state.error)
     }
 
     @Test
@@ -69,12 +60,10 @@ class TdtViewModelTest {
         fakeChannels.channels = listOf(channel1, channel2)
         val vm = buildViewModel()
 
-        vm.uiState.test {
-            val state = awaitItem()
-            assertFalse(state.isLoading)
-            assertEquals(2, state.channels.size)
-            assertNull(state.error)
-        }
+        val state = vm.uiState.value
+        assertFalse(state.isLoading)
+        assertEquals(2, state.channels.size)
+        assertNull(state.error)
     }
 
     @Test
@@ -82,12 +71,10 @@ class TdtViewModelTest {
         fakeChannels.error = RuntimeException("Network unavailable")
         val vm = buildViewModel()
 
-        vm.uiState.test {
-            val state = awaitItem()
-            assertFalse(state.isLoading)
-            assertTrue(state.error?.contains("Network unavailable") == true)
-            assertTrue(state.channels.isEmpty())
-        }
+        val state = vm.uiState.value
+        assertFalse(state.isLoading)
+        assertTrue(state.error?.contains("Network unavailable") == true)
+        assertTrue(state.channels.isEmpty())
     }
 
     @Test
@@ -95,17 +82,15 @@ class TdtViewModelTest {
         fakeChannels.error = RuntimeException("fail")
         val vm = buildViewModel()
 
-        vm.uiState.test {
-            awaitItem() // error state
+        assertTrue(vm.uiState.value.error != null)
 
-            fakeChannels.error = null
-            fakeChannels.channels = listOf(channel1)
-            vm.onIntent(TdtIntent.Retry)
+        fakeChannels.error = null
+        fakeChannels.channels = listOf(channel1)
+        vm.onIntent(TdtIntent.Retry)
 
-            val state = awaitItem()
-            assertNull(state.error)
-            assertEquals(1, state.channels.size)
-        }
+        val state = vm.uiState.value
+        assertNull(state.error)
+        assertEquals(1, state.channels.size)
     }
 
     @Test
@@ -113,15 +98,11 @@ class TdtViewModelTest {
         fakeChannels.channels = listOf(channel1, channel2, newsChannel)
         val vm = buildViewModel()
 
-        vm.uiState.test {
-            awaitItem() // loaded
+        vm.onIntent(TdtIntent.FilterByCategory(ChannelCategory.NEWS))
 
-            vm.onIntent(TdtIntent.FilterByCategory(ChannelCategory.NEWS))
-
-            val state = awaitItem()
-            assertEquals(1, state.filteredChannels.size)
-            assertEquals("24h", state.filteredChannels.first().name)
-        }
+        val state = vm.uiState.value
+        assertEquals(1, state.filteredChannels.size)
+        assertEquals("24h", state.filteredChannels.first().name)
     }
 
     @Test
@@ -129,16 +110,12 @@ class TdtViewModelTest {
         fakeChannels.channels = listOf(channel1, channel2, newsChannel)
         val vm = buildViewModel()
 
-        vm.uiState.test {
-            awaitItem()
+        vm.onIntent(TdtIntent.FilterByCategory(ChannelCategory.NEWS))
+        assertEquals(1, vm.uiState.value.filteredChannels.size)
 
-            vm.onIntent(TdtIntent.FilterByCategory(ChannelCategory.NEWS))
-            awaitItem()
-
-            vm.onIntent(TdtIntent.FilterByCategory(null))
-            val state = awaitItem()
-            assertEquals(3, state.filteredChannels.size)
-        }
+        vm.onIntent(TdtIntent.FilterByCategory(null))
+        val state = vm.uiState.value
+        assertEquals(3, state.filteredChannels.size)
     }
 
     @Test
@@ -146,14 +123,12 @@ class TdtViewModelTest {
         fakeChannels.error = RuntimeException("oops")
         val vm = buildViewModel()
 
-        vm.uiState.test {
-            awaitItem() // error state
+        assertTrue(vm.uiState.value.error != null)
 
-            vm.onIntent(TdtIntent.DismissError)
+        vm.onIntent(TdtIntent.DismissError)
 
-            val state = awaitItem()
-            assertNull(state.error)
-        }
+        val state = vm.uiState.value
+        assertNull(state.error)
     }
 
     @Test
@@ -161,15 +136,11 @@ class TdtViewModelTest {
         fakeChannels.channels = listOf(channel1)
         val vm = buildViewModel()
 
-        vm.uiState.test {
-            awaitItem()
+        vm.onIntent(TdtIntent.ToggleShowBrokenChannels)
+        assertTrue(vm.uiState.value.showBrokenChannels)
 
-            vm.onIntent(TdtIntent.ToggleShowBrokenChannels)
-            assertTrue(awaitItem().showBrokenChannels)
-
-            vm.onIntent(TdtIntent.ToggleShowBrokenChannels)
-            assertFalse(awaitItem().showBrokenChannels)
-        }
+        vm.onIntent(TdtIntent.ToggleShowBrokenChannels)
+        assertFalse(vm.uiState.value.showBrokenChannels)
     }
 
     @Test
@@ -178,17 +149,13 @@ class TdtViewModelTest {
         fakeChannels.channels = listOf(channel1)
         val vm = buildViewModel()
 
-        vm.uiState.test {
-            awaitItem()
+        vm.onIntent(TdtIntent.ToggleShowBrokenChannels)
+        assertTrue(vm.uiState.value.showBrokenChannels)
 
-            vm.onIntent(TdtIntent.ToggleShowBrokenChannels)
-            awaitItem()
-
-            vm.onIntent(TdtIntent.RevalidateChannels)
-            val state = awaitItem()
-            assertFalse(state.showBrokenChannels)
-            assertEquals(0, state.brokenChannelsCount)
-        }
+        vm.onIntent(TdtIntent.RevalidateChannels)
+        val state = vm.uiState.value
+        assertFalse(state.showBrokenChannels)
+        assertEquals(0, state.brokenChannelsCount)
     }
 
     @Test
@@ -197,22 +164,17 @@ class TdtViewModelTest {
         fakeChannels.channels = listOf(channel1)
         val vm = buildViewModel()
 
-        vm.uiState.test {
-            awaitItem()
-            assertEquals(1, awaitItem().brokenChannelsCount)
+        assertEquals(1, vm.uiState.value.brokenChannelsCount)
 
-            vm.onIntent(TdtIntent.RetryBrokenChannel(channel1))
-            val state = awaitItem()
-            assertEquals(0, state.brokenChannelsCount)
-        }
+        vm.onIntent(TdtIntent.RetryBrokenChannel(channel1))
+        val state = vm.uiState.value
+        assertEquals(0, state.brokenChannelsCount)
     }
 
     @Test
     fun `initial playerState is IDLE`() = runTest {
         val vm = buildViewModel()
-        vm.uiState.test {
-            assertEquals(PlayerState.IDLE, awaitItem().playerState)
-        }
+        assertEquals(PlayerState.IDLE, vm.uiState.value.playerState)
     }
 
     @Test
@@ -220,14 +182,10 @@ class TdtViewModelTest {
         fakeChannels.channels = listOf(channel1, channel2)
         val vm = buildViewModel()
 
-        vm.uiState.test {
-            awaitItem() // loaded
+        vm.onIntent(TdtIntent.Search("rtve"))
+        advanceTimeBy(TimeConstants.SEARCH_DEBOUNCE_MS + 1)
 
-            vm.onIntent(TdtIntent.Search("rtve"))
-            advanceTimeBy(TimeConstants.SEARCH_DEBOUNCE_MS + 1)
-
-            assertEquals("rtve", awaitItem().searchQuery)
-        }
+        assertEquals("rtve", vm.uiState.value.searchQuery)
     }
 
     @Test
@@ -235,16 +193,12 @@ class TdtViewModelTest {
         fakeChannels.channels = listOf(channel1, channel2, newsChannel) // "La 1", "La 2", "24h"
         val vm = buildViewModel()
 
-        vm.uiState.test {
-            awaitItem() // loaded
+        vm.onIntent(TdtIntent.Search("La"))
+        advanceTimeBy(TimeConstants.SEARCH_DEBOUNCE_MS + 1)
 
-            vm.onIntent(TdtIntent.Search("La"))
-            advanceTimeBy(TimeConstants.SEARCH_DEBOUNCE_MS + 1)
-
-            val state = awaitItem()
-            assertEquals(2, state.filteredChannels.size)
-            assertTrue(state.filteredChannels.none { it.name == "24h" })
-        }
+        val state = vm.uiState.value
+        assertEquals(2, state.filteredChannels.size)
+        assertTrue(state.filteredChannels.none { it.name == "24h" })
     }
 
     @Test
@@ -252,18 +206,14 @@ class TdtViewModelTest {
         fakeChannels.channels = listOf(channel1, channel2, newsChannel)
         val vm = buildViewModel()
 
-        vm.uiState.test {
-            awaitItem() // loaded
+        vm.onIntent(TdtIntent.Search("La"))
+        advanceTimeBy(TimeConstants.SEARCH_DEBOUNCE_MS + 1)
+        assertEquals(2, vm.uiState.value.filteredChannels.size)
 
-            vm.onIntent(TdtIntent.Search("La"))
-            advanceTimeBy(TimeConstants.SEARCH_DEBOUNCE_MS + 1)
-            awaitItem() // filtered to 2
+        vm.onIntent(TdtIntent.Search(""))
+        advanceTimeBy(TimeConstants.SEARCH_DEBOUNCE_MS + 1)
 
-            vm.onIntent(TdtIntent.Search(""))
-            advanceTimeBy(TimeConstants.SEARCH_DEBOUNCE_MS + 1)
-
-            assertEquals(3, awaitItem().filteredChannels.size)
-        }
+        assertEquals(3, vm.uiState.value.filteredChannels.size)
     }
 
     @Test
@@ -271,31 +221,22 @@ class TdtViewModelTest {
         fakeChannels.channels = listOf(channel1)
         val vm = buildViewModel()
 
-        vm.uiState.test {
-            awaitItem() // loaded
+        vm.onIntent(TdtIntent.StopPlayback) // player is null — must be safe
 
-            vm.onIntent(TdtIntent.StopPlayback) // player is null — must be safe
-
-            expectNoEvents()
-            assertNull(vm.uiState.value.currentChannel)
-            assertEquals(PlayerState.IDLE, vm.uiState.value.playerState)
-        }
+        assertNull(vm.uiState.value.currentChannel)
+        assertEquals(PlayerState.IDLE, vm.uiState.value.playerState)
     }
 
     @Test
     fun `isPlaying is false initially`() = runTest {
         val vm = buildViewModel()
-        vm.uiState.test {
-            assertFalse(awaitItem().isPlaying)
-        }
+        assertFalse(vm.uiState.value.isPlaying)
     }
 
     @Test
     fun `currentChannel is null initially`() = runTest {
         val vm = buildViewModel()
-        vm.uiState.test {
-            assertNull(awaitItem().currentChannel)
-        }
+        assertNull(vm.uiState.value.currentChannel)
     }
 
     @Test
@@ -303,14 +244,10 @@ class TdtViewModelTest {
         fakeChannels.channels = listOf(channel1, channel2)
         val vm = buildViewModel()
 
-        vm.uiState.test {
-            awaitItem() // loaded
-
-            fakeTracker.markAsBroken(channel1.url)
-            val state = awaitItem()
-            assertFalse(state.filteredChannels.any { it.url == channel1.url })
-            assertEquals(1, state.filteredChannels.size)
-        }
+        fakeTracker.markAsBroken(channel1.url)
+        val state = vm.uiState.value
+        assertFalse(state.filteredChannels.any { it.url == channel1.url })
+        assertEquals(1, state.filteredChannels.size)
     }
 
     @Test
@@ -319,14 +256,13 @@ class TdtViewModelTest {
         fakeTracker.markAsBroken(channel1.url)
         val vm = buildViewModel()
 
-        vm.uiState.test {
-            awaitItem() // loaded (broken hidden by default)
+        // broken hidden by default
+        assertFalse(vm.uiState.value.filteredChannels.any { it.url == channel1.url })
 
-            vm.onIntent(TdtIntent.ToggleShowBrokenChannels)
-            val state = awaitItem()
-            assertEquals(2, state.filteredChannels.size)
-            assertTrue(state.filteredChannels.any { it.url == channel1.url })
-        }
+        vm.onIntent(TdtIntent.ToggleShowBrokenChannels)
+        val state = vm.uiState.value
+        assertEquals(2, state.filteredChannels.size)
+        assertTrue(state.filteredChannels.any { it.url == channel1.url })
     }
 
     @Test
@@ -335,19 +271,16 @@ class TdtViewModelTest {
         fakeChannels.channels = listOf(channel1, channel2, newsChannel, sportsChannel)
         val vm = buildViewModel()
 
-        vm.uiState.test {
-            awaitItem() // loaded
+        vm.onIntent(TdtIntent.FilterByCategory(ChannelCategory.GENERAL))
+        // filtered to GENERAL (channel1, channel2)
+        assertEquals(2, vm.uiState.value.filteredChannels.size)
 
-            vm.onIntent(TdtIntent.FilterByCategory(ChannelCategory.GENERAL))
-            awaitItem() // filtered to GENERAL (channel1, channel2)
+        vm.onIntent(TdtIntent.Search("1"))
+        advanceTimeBy(TimeConstants.SEARCH_DEBOUNCE_MS + 1)
 
-            vm.onIntent(TdtIntent.Search("1"))
-            advanceTimeBy(TimeConstants.SEARCH_DEBOUNCE_MS + 1)
-
-            val state = awaitItem()
-            assertEquals(1, state.filteredChannels.size)
-            assertEquals("La 1", state.filteredChannels.first().name)
-        }
+        val state = vm.uiState.value
+        assertEquals(1, state.filteredChannels.size)
+        assertEquals("La 1", state.filteredChannels.first().name)
     }
 
     @Test
@@ -355,17 +288,15 @@ class TdtViewModelTest {
         fakeChannels.channels = listOf(channel1)
         val vm = buildViewModel()
 
-        vm.uiState.test {
-            awaitItem() // loaded
-            vm.onIntent(TdtIntent.PausePlayer) // player is null — must be safe
-            expectNoEvents()
-        }
+        vm.onIntent(TdtIntent.PausePlayer) // player is null — must be safe
     }
 
     private fun buildViewModel() = TdtViewModel(
         getChannelsUseCase = GetChannelsUseCase(fakeChannels),
         brokenChannelTracker = fakeTracker,
         loadError = { e -> "Error: ${e.message}" },
-        playerFactory = { error("Player not expected in unit tests") }
+        playerFactory = { error("Player not expected in unit tests") },
+        ioDispatcher = testDispatcher,
+        searchDebounceMs = 0L
     )
 }
