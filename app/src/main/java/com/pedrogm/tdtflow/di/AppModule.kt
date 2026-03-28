@@ -2,9 +2,9 @@ package com.pedrogm.tdtflow.di
 
 import android.content.Context
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.pedrogm.tdtflow.data.BrokenChannelTrackerImpl
 import com.pedrogm.tdtflow.data.IOptionsPreferences
 import com.pedrogm.tdtflow.data.OptionsPreferences
-import com.pedrogm.tdtflow.data.BrokenChannelTrackerImpl
 import com.pedrogm.tdtflow.data.repository.ChannelRepositoryImpl
 import com.pedrogm.tdtflow.data.repository.FavoritesRepositoryImpl
 import com.pedrogm.tdtflow.domain.repository.ChannelRepository

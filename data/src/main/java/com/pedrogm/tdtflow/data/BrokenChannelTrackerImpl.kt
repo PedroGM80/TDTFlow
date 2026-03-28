@@ -3,7 +3,6 @@ package com.pedrogm.tdtflow.data
 import android.content.Context
 import android.content.SharedPreferences
 import com.pedrogm.tdtflow.domain.tracker.BrokenChannelTracker
-import com.pedrogm.tdtflow.util.TimeConstants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -12,15 +11,17 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class BrokenChannelTrackerImpl(context: Context) : BrokenChannelTracker {
+class BrokenChannelTrackerImpl(
+    context: Context,
+    private val autoClearIntervalMs: Long = DEFAULT_AUTO_CLEAR_INTERVAL_MS
+) : BrokenChannelTracker {
 
     companion object {
         private const val PREFS_NAME = "broken_channels_prefs"
         private const val KEY_BROKEN_URLS = "broken_channel_urls"
         private const val KEY_LAST_CLEARED = "last_cleared_timestamp"
+        const val DEFAULT_AUTO_CLEAR_INTERVAL_MS = 24 * 60 * 60 * 1000L
     }
-
-    private val autoClearIntervalMs = TimeConstants.AUTO_CLEAR_BROKEN_CHANNELS_MS
 
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     private val ioScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
