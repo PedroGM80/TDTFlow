@@ -19,7 +19,7 @@ Android app for streaming Spanish TDT channels and radio stations. Built with Ko
 ### UI
 - Jetpack Compose + Material Design 3
 - Phone: portrait grid + landscape fullscreen player
-- TV (10-foot): focus-based navigation, D-pad friendly
+- TV (10-foot): focus-based navigation, D-pad friendly, error/empty states
 - Light / Dark / System theme
 - Multilingual: Spanish, English, Catalan
 
@@ -48,7 +48,7 @@ Three-layer Clean Architecture with MVI presentation pattern.
 │  Data (data module)                         │
 │  ChannelRepositoryImpl (network + fallback) │
 │  FavoritesRepositoryImpl (in-memory)        │
-│  BrokenChannelTracker                       │
+│  BrokenChannelTrackerImpl                   │
 └─────────────────────────────────────────────┘
 ```
 
@@ -73,7 +73,7 @@ All mutation methods are private; the sealed intent class is the exhaustive cont
 
 - **Repository pattern** — data source abstraction
 - **Use cases** — `operator fun invoke()` for single-responsibility operations
-- **Manual DI** — `DIContainer` object with lazy singletons, no framework needed
+- **Dependency injection** — Hilt (`@HiltViewModel`, `@AndroidEntryPoint`, `AppModule`)
 
 ---
 
@@ -87,7 +87,6 @@ tdtflow/
 │       │   ├── TdtViewModel.kt
 │       │   ├── TdtUiState.kt
 │       │   ├── TdtIntent.kt
-│       │   ├── ChannelFilterLogic.kt
 │       │   ├── mobile/
 │       │   │   └── MobileScreen.kt       # Portrait + landscape fullscreen
 │       │   ├── tv/
@@ -101,7 +100,7 @@ tdtflow/
 │       │   ├── options/
 │       │   │   ├── OptionsMenuViewModel.kt
 │       │   │   ├── OptionsMenuState.kt
-│       │   │   ├── OptionsMenuIntent.kt  # (file: OptionsMenuEvent.kt)
+│       │   │   ├── OptionsMenuIntent.kt
 │       │   │   ├── OptionsMenuScreen.kt
 │       │   │   ├── AppTheme.kt
 │       │   │   └── AppLanguage.kt
@@ -111,38 +110,48 @@ tdtflow/
 │       │   ├── TdtPlayer.kt              # ExoPlayer wrapper
 │       │   └── PlayerState.kt
 │       ├── di/
-│       │   └── DIContainer.kt
+│       │   └── AppModule.kt              # Hilt module
+│       ├── navigation/
+│       │   └── AppNavGraph.kt
 │       ├── util/
 │       │   ├── TimeConstants.kt
 │       │   └── Constants.kt
+│       ├── TdtFlowApp.kt                 # @HiltAndroidApp
 │       ├── MainActivity.kt
 │       └── TvActivity.kt
 │
 ├── domain/
 │   └── src/main/java/com/pedrogm/tdtflow/domain/
 │       ├── model/
-│       │   ├── Channel.kt
-│       │   └── ChannelCategory.kt
+│       │   └── Channel.kt                # Channel + ChannelCategory
 │       ├── usecase/
 │       │   ├── GetChannelsUseCase.kt
 │       │   ├── AddFavoriteUseCase.kt
 │       │   ├── RemoveFavoriteUseCase.kt
 │       │   └── GetFavoritesUseCase.kt
-│       └── repository/
-│           ├── ChannelRepository.kt
-│           └── FavoritesRepository.kt
+│       ├── repository/
+│       │   ├── ChannelRepository.kt
+│       │   └── FavoritesRepository.kt
+│       ├── tracker/
+│       │   └── BrokenChannelTracker.kt   # interface
+│       └── ChannelFilterLogic.kt
 │
 └── data/
     └── src/main/java/com/pedrogm/tdtflow/data/
         ├── repository/
         │   ├── ChannelRepositoryImpl.kt
-        │   └── FavoritesRepositoryImpl.kt
+        │   ├── ChannelCache.kt
+        │   ├── FavoritesRepositoryImpl.kt
+        │   └── FallbackChannels.kt
         ├── remote/
-        │   ├── ChannelService.kt
-        │   └── ChannelMapper.kt
-        ├── BrokenChannelTracker.kt
-        ├── FallbackChannels.kt
-        └── OptionsPreferences.kt
+        │   ├── NetworkModule.kt          # Ktor HttpClient
+        │   ├── ChannelMapper.kt
+        │   ├── TdtChannelsResponse.kt
+        │   └── AmbitConstants.kt
+        ├── BrokenChannelTrackerImpl.kt
+        ├── IOptionsPreferences.kt
+        ├── OptionsPreferences.kt
+        └── NoOpOptionsPreferences.kt
 ```
 
 ---
@@ -215,8 +224,10 @@ private fun filterByCategory(category: ChannelCategory?) { ... }
 | UI | Jetpack Compose, Material 3, Lucide icons |
 | ViewModel / Flow | AndroidX Lifecycle, Kotlin Coroutines |
 | Media | AndroidX Media3 (ExoPlayer) |
-| Networking | Retrofit 2, OkHttp 3 |
+| Networking | Ktor (client + content negotiation + kotlinx.serialization) |
 | Images | Coil Compose |
+| DI | Hilt |
+| Crash reporting | Firebase Crashlytics |
 | Testing | JUnit 4, kotlinx-coroutines-test, Turbine |
 
 ---
@@ -225,9 +236,12 @@ private fun filterByCategory(category: ChannelCategory?) { ... }
 
 Unit tests cover all ViewModels without Android dependencies:
 
+- `TdtViewModelTest` — channel loading, filtering, broken channel detection, player state
 - `FavoritesViewModelTest` — 11 tests, `FakeFavoritesRepository`, verifies MVI intents
 - `OptionsMenuViewModelTest` — 12 tests with Turbine, verifies state transitions per intent
+- `FavoritesRepositoryImplTest` — repository contract tests (data module)
 
 ```bash
 ./gradlew :app:test
+./gradlew :data:test
 ```
