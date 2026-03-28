@@ -282,6 +282,86 @@ class TdtViewModelTest {
         }
     }
 
+    @Test
+    fun `isPlaying is false initially`() = runTest {
+        val vm = buildViewModel()
+        vm.uiState.test {
+            assertFalse(awaitItem().isPlaying)
+        }
+    }
+
+    @Test
+    fun `currentChannel is null initially`() = runTest {
+        val vm = buildViewModel()
+        vm.uiState.test {
+            assertNull(awaitItem().currentChannel)
+        }
+    }
+
+    @Test
+    fun `broken channel is excluded from filteredChannels when showBroken is false`() = runTest {
+        fakeChannels.channels = listOf(channel1, channel2)
+        val vm = buildViewModel()
+
+        vm.uiState.test {
+            awaitItem() // loaded
+
+            fakeTracker.markAsBroken(channel1.url)
+            val state = awaitItem()
+            assertFalse(state.filteredChannels.any { it.url == channel1.url })
+            assertEquals(1, state.filteredChannels.size)
+        }
+    }
+
+    @Test
+    fun `broken channel is included in filteredChannels when showBroken is true`() = runTest {
+        fakeChannels.channels = listOf(channel1, channel2)
+        fakeTracker.markAsBroken(channel1.url)
+        val vm = buildViewModel()
+
+        vm.uiState.test {
+            awaitItem() // loaded (broken hidden by default)
+
+            vm.onIntent(TdtIntent.ToggleShowBrokenChannels)
+            val state = awaitItem()
+            assertEquals(2, state.filteredChannels.size)
+            assertTrue(state.filteredChannels.any { it.url == channel1.url })
+        }
+    }
+
+    @Test
+    fun `Search and category filter work together`() = runTest {
+        val sportsChannel = Channel("Teledeporte", "tdp.m3u8", category = ChannelCategory.SPORTS)
+        fakeChannels.channels = listOf(channel1, channel2, newsChannel, sportsChannel)
+        val vm = buildViewModel()
+
+        vm.uiState.test {
+            awaitItem() // loaded
+
+            vm.onIntent(TdtIntent.FilterByCategory(ChannelCategory.GENERAL))
+            awaitItem() // filtered to GENERAL (channel1, channel2)
+
+            vm.onIntent(TdtIntent.Search("1"))
+            advanceTimeBy(TimeConstants.SEARCH_DEBOUNCE_MS + 1)
+
+            val state = awaitItem()
+            assertEquals(1, state.filteredChannels.size)
+            assertEquals("La 1", state.filteredChannels.first().name)
+        }
+    }
+
+    @Test
+    fun `PausePlayer does not crash when no channel has been selected`() = runTest {
+        fakeChannels.channels = listOf(channel1)
+        val vm = buildViewModel()
+
+        vm.uiState.test {
+            awaitItem() // loaded
+            vm.onIntent(TdtIntent.PausePlayer) // player is null — must be safe
+            expectNoEvents()
+        }
+    }
+
     private fun buildViewModel() = TdtViewModel(
         getChannelsUseCase = GetChannelsUseCase(fakeChannels),
         brokenChannelTracker = fakeTracker,
