@@ -388,6 +388,7 @@ private fun BoxScope.BottomLandscapeOverlay(
     }
 }
 
+@androidx.annotation.OptIn(UnstableApi::class)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PortraitLayout(
@@ -504,6 +505,7 @@ private fun PortraitLayout(
     }
 }
 
+@androidx.annotation.OptIn(UnstableApi::class)
 @Composable
 private fun ChannelContent(
     uiState: TdtUiState,
