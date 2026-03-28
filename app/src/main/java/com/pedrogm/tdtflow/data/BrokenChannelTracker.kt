@@ -4,6 +4,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.pedrogm.tdtflow.domain.tracker.BrokenChannelTracker
 import com.pedrogm.tdtflow.util.TimeConstants
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,6 +23,7 @@ class BrokenChannelTrackerImpl(context: Context) : BrokenChannelTracker {
     private val autoClearIntervalMs = TimeConstants.AUTO_CLEAR_BROKEN_CHANNELS_MS
 
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    private val ioScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     private val _brokenUrls = MutableStateFlow<Set<String>>(loadBrokenUrls())
     override val brokenUrls: StateFlow<Set<String>> = _brokenUrls.asStateFlow()
@@ -36,21 +41,23 @@ class BrokenChannelTrackerImpl(context: Context) : BrokenChannelTracker {
     override fun markAsBroken(url: String) {
         val updated = _brokenUrls.value + url
         _brokenUrls.value = updated
-        saveBrokenUrls(updated)
+        ioScope.launch { saveBrokenUrls(updated) }
     }
 
     override fun unmarkAsBroken(url: String) {
         val updated = _brokenUrls.value - url
         _brokenUrls.value = updated
-        saveBrokenUrls(updated)
+        ioScope.launch { saveBrokenUrls(updated) }
     }
 
     override fun clearAll() {
         _brokenUrls.value = emptySet()
-        prefs.edit()
-            .remove(KEY_BROKEN_URLS)
-            .putLong(KEY_LAST_CLEARED, System.currentTimeMillis())
-            .apply()
+        ioScope.launch {
+            prefs.edit()
+                .remove(KEY_BROKEN_URLS)
+                .putLong(KEY_LAST_CLEARED, System.currentTimeMillis())
+                .apply()
+        }
     }
 
     private fun saveBrokenUrls(urls: Set<String>) {
