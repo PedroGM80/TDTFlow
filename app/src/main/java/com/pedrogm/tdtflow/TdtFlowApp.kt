@@ -14,6 +14,6 @@ class TdtFlowApp : Application() {
     override fun onCreate() {
         super.onCreate()
         appContext = this
-        FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)
+        FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(!BuildConfig.DEBUG)
     }
 }

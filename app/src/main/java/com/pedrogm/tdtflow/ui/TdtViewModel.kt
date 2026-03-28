@@ -212,7 +212,11 @@ class TdtViewModel(
             .filterNotNull()
             .distinctUntilChanged()
             .onEach { errorMsg ->
-                FirebaseCrashlytics.getInstance().log("Player error: $errorMsg (channel: ${_currentChannel.value?.name})")
+                val channelName = _currentChannel.value?.name
+                FirebaseCrashlytics.getInstance().apply {
+                    log("Player error on channel: $channelName")
+                    recordException(Exception("Player error: $errorMsg (channel: $channelName)"))
+                }
                 _error.value = errorMsg
                 markCurrentChannelAsBroken()
             }
