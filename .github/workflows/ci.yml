@@ -4,7 +4,7 @@ on:
   push:
     branches: ['**']
   pull_request:
-    branches: [main, develop]
+    branches: [master, develop]
 
 permissions:
   contents: read
@@ -21,6 +21,11 @@ jobs:
           distribution: 'temurin'
 
       - uses: gradle/actions/setup-gradle@v4
+
+      - name: Create google-services.json
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: echo "$GOOGLE_SERVICES_JSON" > app/google-services.json
 
       - name: Grant execute permission to gradlew
         run: chmod +x gradlew
@@ -48,6 +53,11 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      - name: Create google-services.json
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: echo "$GOOGLE_SERVICES_JSON" > app/google-services.json
+
       - name: Grant execute permission to gradlew
         run: chmod +x gradlew
 
@@ -73,6 +83,11 @@ jobs:
           distribution: 'temurin'
 
       - uses: gradle/actions/setup-gradle@v4
+
+      - name: Create google-services.json
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: echo "$GOOGLE_SERVICES_JSON" > app/google-services.json
 
       - name: Grant execute permission to gradlew
         run: chmod +x gradlew
