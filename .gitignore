@@ -19,7 +19,6 @@ thumbs.db
 
 # Local properties
 local.properties
-gradle.properties
 
 # Build outputs
 bin/
