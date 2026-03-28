@@ -3,6 +3,10 @@ package com.pedrogm.tdtflow.data.repository
 import android.content.Context
 import androidx.core.content.edit
 import com.pedrogm.tdtflow.domain.repository.FavoritesRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,18 +15,19 @@ import kotlinx.coroutines.flow.update
 class FavoritesRepositoryImpl(context: Context) : FavoritesRepository {
 
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    private val ioScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     private val _favoriteIds = MutableStateFlow<Set<String>>(load())
     override val favoriteIds: StateFlow<Set<String>> = _favoriteIds.asStateFlow()
 
     override fun add(channelUrl: String) {
         _favoriteIds.update { it + channelUrl }
-        save(_favoriteIds.value)
+        ioScope.launch { save(_favoriteIds.value) }
     }
 
     override fun remove(channelUrl: String) {
         _favoriteIds.update { it - channelUrl }
-        save(_favoriteIds.value)
+        ioScope.launch { save(_favoriteIds.value) }
     }
 
     private fun load(): Set<String> =
