@@ -26,6 +26,7 @@ internal fun TvCategoryChip(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
+    val semanticLabel = stringResource(R.string.filter_category, label)
     Surface(
         onClick = onClick,
         shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(dimensionResource(R.dimen.radius_extra_large))),
@@ -33,7 +34,7 @@ internal fun TvCategoryChip(
             containerColor = if (isSelected) colorResource(R.color.primary_container_dark) else colorResource(R.color.tv_surface),
             focusedContainerColor = colorResource(R.color.tv_surface_focused)
         ),
-        modifier = Modifier.semantics { onClick(label = stringResource(R.string.filter_category, label), action = null) }
+        modifier = Modifier.semantics { onClick(label = semanticLabel, action = null) }
     ) {
         Row(
             modifier = Modifier.padding(

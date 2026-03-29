@@ -13,10 +13,8 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -38,6 +36,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -51,26 +51,29 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.error
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -84,8 +87,6 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import coil.compose.AsyncImage
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.RefreshCw
 import com.composables.icons.lucide.Search
@@ -101,9 +102,9 @@ import com.pedrogm.tdtflow.ui.TdtUiState
 import com.pedrogm.tdtflow.ui.TdtViewModel
 import com.pedrogm.tdtflow.ui.components.CategoryFilter
 import com.pedrogm.tdtflow.ui.components.ChannelCard
+import com.pedrogm.tdtflow.ui.components.ChannelGridSkeleton
 import com.pedrogm.tdtflow.ui.components.EmptyState
 import com.pedrogm.tdtflow.ui.components.ErrorState
-import com.pedrogm.tdtflow.ui.components.ChannelGridSkeleton
 import com.pedrogm.tdtflow.ui.components.SearchBar
 import com.pedrogm.tdtflow.ui.components.VideoPlayer
 import com.pedrogm.tdtflow.ui.favorites.FavoritesIntent
@@ -128,14 +129,15 @@ fun MobileScreen(
 
     val configuration = LocalConfiguration.current
     val isLandscape by remember { derivedStateOf { configuration.orientation == Configuration.ORIENTATION_LANDSCAPE } }
-    val isPlaying = uiState.isPlaying
+    val isPlaying = uiState.currentChannel != null
 
-    when {
-        isLandscape && isPlaying -> LandscapeFullscreenPlayer(
+    if (isLandscape && isPlaying) {
+        LandscapeFullscreenPlayer(
             viewModel = viewModel,
             uiState = uiState
         )
-        else -> PortraitLayout(
+    } else {
+        PortraitLayout(
             viewModel = viewModel,
             favoritesViewModel = favoritesViewModel,
             uiState = uiState,
@@ -564,19 +566,6 @@ private fun ChannelContent(
     favoriteIds: Set<String> = emptySet(),
     onToggleFavorite: (String) -> Unit = {}
 ) {
-    val view = LocalView.current
-    val channelsLoadedText = stringResource(R.string.a11y_channels_loaded)
-
-    LaunchedEffect(uiState.isLoading) {
-        if (!uiState.isLoading) {
-            view.announceForAccessibility(channelsLoadedText)
-        }
-    }
-
-    LaunchedEffect(uiState.error) {
-        uiState.error?.let { view.announceForAccessibility(it) }
-    }
-
     AnimatedContent(
         targetState = uiState.isLoading,
         transitionSpec = {
@@ -590,10 +579,20 @@ private fun ChannelContent(
         } else {
             when {
                 uiState.error != null && uiState.channels.isEmpty() -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .semantics {
+                                liveRegion = LiveRegionMode.Assertive
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
                         ErrorState(
                             message = uiState.error,
-                            onRetry = { viewModel.onIntent(TdtIntent.Retry) }
+                            onRetry = { viewModel.onIntent(TdtIntent.Retry) },
+                            modifier = Modifier.semantics {
+                                error(uiState.error)
+                            }
                         )
                     }
                 }
@@ -609,7 +608,10 @@ private fun ChannelContent(
                         columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.min_grid_cell_size)),
                         contentPadding = PaddingValues(dimensionResource(R.dimen.spacing_small)),
                         horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small)),
-                        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small))
+                        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small)),
+                        modifier = Modifier.semantics {
+                            liveRegion = LiveRegionMode.Polite
+                        }
                     ) {
                         items(
                             items = uiState.filteredChannels,
