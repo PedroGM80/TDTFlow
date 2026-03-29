@@ -1,6 +1,6 @@
 package com.pedrogm.tdtflow.ui.components
 
-import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -90,10 +90,10 @@ private fun ChannelCardSkeleton(shimmerBrush: Brush) {
 private fun rememberShimmerBrush(): Brush {
     val transition = rememberInfiniteTransition(label = "shimmer")
     val translateAnim by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1000f,
+        initialValue = -600f,
+        targetValue = 1800f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1000, easing = LinearEasing),
+            animation = tween(durationMillis = 1400, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Restart
         ),
         label = "shimmerTranslate"
@@ -101,13 +101,13 @@ private fun rememberShimmerBrush(): Brush {
 
     val shimmerColors = listOf(
         MaterialTheme.colorScheme.surfaceVariant,
-        MaterialTheme.colorScheme.surface,
+        MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
         MaterialTheme.colorScheme.surfaceVariant,
     )
 
     return Brush.linearGradient(
         colors = shimmerColors,
-        start = Offset(translateAnim - 300f, 0f),
-        end = Offset(translateAnim, 0f)
+        start = Offset(translateAnim, 0f),
+        end = Offset(translateAnim + 600f, 0f)
     )
 }
