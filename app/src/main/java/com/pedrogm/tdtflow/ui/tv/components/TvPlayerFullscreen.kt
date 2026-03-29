@@ -75,7 +75,7 @@ internal fun TvPlayerFullscreen(viewModel: TdtViewModel, channelName: String) {
         Row(
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .padding(dimensionResource(R.dimen.padding_extra_large))
+                .padding(dimensionResource(R.dimen.padding_tv))
                 .background(Color.Black.copy(alpha = mediumAlpha), RoundedCornerShape(dimensionResource(R.dimen.radius_small)))
                 .padding(horizontal = dimensionResource(R.dimen.radius_large), vertical = dimensionResource(R.dimen.spacing_small)),
             verticalAlignment = Alignment.CenterVertically
