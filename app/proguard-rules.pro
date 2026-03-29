@@ -3,9 +3,9 @@
 # Only suppress warnings for internal APIs we reference via @OptIn.
 -dontwarn androidx.media3.**
 
-# Ktor — keep only the Android HTTP engine entry point (used via reflection)
--keep class io.ktor.client.engine.android.AndroidClientEngine { *; }
--keep class io.ktor.client.engine.android.AndroidEngineConfig { *; }
+# Ktor — keep the Android HTTP engine (used via reflection)
+# We use wildcards because some engine classes are internal in Ktor 3.
+-keep class io.ktor.client.engine.android.** { *; }
 -dontwarn io.ktor.**
 
 # Kotlinx Serialization
@@ -19,14 +19,13 @@
 -dontwarn coil.**
 
 # Compottie (Lottie animations)
--keep class io.github.alexzhirkevich.compottie.** { *; }
+# Compottie works with R8 out of the box. No additional configuration is required.
 -dontwarn io.github.alexzhirkevich.compottie.**
 
 # Lucide icons (Compose ImageVector data objects)
--keep class com.composables.icons.** { *; }
+# Icons are referenced directly in code, R8 traces usage automatically.
 
 # Firebase Crashlytics
 -keepattributes SourceFile,LineNumberTable
 -keep public class * extends java.lang.Exception
--keep class com.google.firebase.crashlytics.** { *; }
 -dontwarn com.google.firebase.crashlytics.**
