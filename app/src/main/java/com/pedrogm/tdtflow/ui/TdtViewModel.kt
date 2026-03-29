@@ -219,6 +219,7 @@ class TdtViewModel(
                 _error.value = errorMsg
                 markCurrentChannelAsBroken()
             }
+            .catch { e -> Log.e(TAG, "Error observing player errors", e) }
             .launchIn(viewModelScope)
     }
 
@@ -233,6 +234,7 @@ class TdtViewModel(
                 Log.d(TAG, "Buffering timeout detected, marking channel as broken")
                 markCurrentChannelAsBroken()
             }
+            .catch { e -> Log.e(TAG, "Error observing buffering timeout", e) }
             .launchIn(viewModelScope)
     }
 

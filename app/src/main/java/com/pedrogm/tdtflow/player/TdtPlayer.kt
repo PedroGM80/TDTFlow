@@ -69,7 +69,12 @@ class TdtPlayer(context: Context) {
 
     /** Job del timeout de buffering, se cancela si el player pasa a PLAYING */
     private var bufferingTimeoutJob: Job? = null
-    private val playerScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private val playerScope = CoroutineScope(
+        Dispatchers.Main + SupervisorJob() +
+            CoroutineExceptionHandler { _, e ->
+                Log.e(TAG, "Uncaught exception in playerScope", e)
+            }
+    )
 
     private val appContext = context.applicationContext
 
