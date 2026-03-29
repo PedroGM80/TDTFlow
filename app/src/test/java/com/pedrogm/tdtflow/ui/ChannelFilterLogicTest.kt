@@ -15,10 +15,6 @@ class ChannelFilterLogicTest {
         category: ChannelCategory = ChannelCategory.GENERAL
     ) = Channel(name = name, url = url, category = category)
 
-    // Note: Channel.init enforces non-blank name/url, so invalid channels
-    // cannot be constructed. Blank-URL filtering at the domain model level
-    // is tested in ChannelTest; ChannelFilterLogic tests focus on the
-    // filtering logic over valid channels only.
     private val sampleChannels = listOf(
         channel(name = "Antena 3", url = "antena3.m3u8", category = ChannelCategory.GENERAL),
         channel(name = "La Sexta", url = "lasexta.m3u8", category = ChannelCategory.GENERAL),
@@ -262,8 +258,7 @@ class ChannelFilterLogicTest {
             channel(name = "Antena 3", url = "antena3.m3u8", category = ChannelCategory.GENERAL),
             channel(name = "Antena Noticias", url = "anoticias.m3u8", category = ChannelCategory.NEWS),
             channel(name = "La Sexta", url = "lasexta.m3u8", category = ChannelCategory.GENERAL),
-            channel(name = "Broken Antena", url = "broken.m3u8", category = ChannelCategory.GENERAL),
-            channel(name = "Blank", url = "", category = ChannelCategory.GENERAL)
+            channel(name = "Broken Antena", url = "broken.m3u8", category = ChannelCategory.GENERAL)
         )
 
         val result = ChannelFilterLogic.applyFilters(
@@ -274,7 +269,7 @@ class ChannelFilterLogicTest {
             showBroken = false
         )
 
-        // Only "Antena 3" should survive: GENERAL + matches "antena" + not broken + valid url
+        // Only "Antena 3" should survive: GENERAL + matches "antena" + not broken
         assertEquals(1, result.size)
         assertEquals("Antena 3", result.first().name)
     }
