@@ -95,7 +95,7 @@ internal fun TvChannelBrowser(viewModel: TdtViewModel) {
                         onClick = { viewModel.onIntent(TdtIntent.FilterByCategory(null)) }
                     )
                 }
-                items(ChannelCategory.entries.toList()) { category ->
+                items(ChannelCategory.entries.toList(), key = { it.name }) { category ->
                     TvCategoryChip(
                         label = stringResource(category.toStringRes()),
                         icon = category.toLucideIcon(),
