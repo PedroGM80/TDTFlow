@@ -1,6 +1,7 @@
 package com.pedrogm.tdtflow.ui.tv.components
 
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,6 +21,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.*
 import coil.compose.AsyncImage
@@ -47,6 +49,18 @@ internal fun TvChannelCard(
             focusedContainerColor = colorResource(R.color.tv_card_focused)
         ),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1.06f),
+        glow = ClickableSurfaceDefaults.glow(
+            focusedGlow = Glow(
+                elevationColor = colorResource(R.color.primary_dark).copy(alpha = 0.6f),
+                elevation = 12.dp
+            )
+        ),
+        border = ClickableSurfaceDefaults.border(
+            focusedBorder = Border(
+                border = BorderStroke(2.dp, colorResource(R.color.primary_dark)),
+                shape = RoundedCornerShape(dimensionResource(R.dimen.radius_large))
+            )
+        ),
         modifier = Modifier
             .onFocusChanged { isFocused = it.isFocused }
             .semantics { onClick(label = stringResource(R.string.play_channel, channel.name), action = null) }
