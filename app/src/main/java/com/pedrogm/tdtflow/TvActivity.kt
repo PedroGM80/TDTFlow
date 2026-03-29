@@ -13,10 +13,12 @@ import com.pedrogm.tdtflow.ui.TdtViewModel
 import com.pedrogm.tdtflow.ui.options.AppTheme
 import com.pedrogm.tdtflow.ui.options.OptionsMenuViewModel
 import com.pedrogm.tdtflow.ui.theme.TDTFlowTheme
-import com.pedrogm.tdtflow.ui.tv.TvScreen
+import androidx.media3.common.util.UnstableApi
+import com.pedrogm.tdtflow.ui.tv.TvNavGraph
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
+@androidx.annotation.OptIn(UnstableApi::class)
 class TvActivity : ComponentActivity() {
 
     private val viewModel: TdtViewModel by viewModels()
@@ -35,12 +37,18 @@ class TvActivity : ComponentActivity() {
                 darkTheme = darkTheme,
                 dynamicColor = optionsState.selectedTheme == AppTheme.SYSTEM
             ) {
-                TvScreen(viewModel = viewModel)
+                TvNavGraph(
+                    viewModel = viewModel,
+                    optionsViewModel = optionsViewModel
+                )
             }
         }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        // Interceptar BACK solo cuando hay reproducción activa; el resto de la
+        // navegación (volver de Favoritos, etc.) lo gestiona el BackHandler de
+        // cada composable a través del onBackPressedDispatcher.
         if (keyCode == KeyEvent.KEYCODE_BACK && viewModel.uiState.value.isPlaying) {
             viewModel.onIntent(TdtIntent.StopPlayback)
             return true
