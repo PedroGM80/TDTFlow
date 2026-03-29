@@ -19,8 +19,8 @@ androidxActivity = "1.13.0"
 androidxAppCompat = "1.7.1"
 androidxLifecycle = "2.10.0"
 androidxNavigation = "2.9.7"
-androidxComposeBom = "2026.03.00"
-androidxMedia3 = "1.9.3"
+androidxComposeBom = "2026.03.01"
+androidxMedia3 = "1.10.0"
 tvFoundation = "1.0.0-beta01"
 tvMaterial = "1.1.0-beta01"
 
@@ -29,7 +29,7 @@ kotlinxCoroutines = "1.10.2"
 kotlinxSerialization = "1.10.0"
 
 # Ktor
-ktor = "3.4.1"
+ktor = "3.4.2"
 
 # Networking & Serialization
 coil = "2.7.0"
