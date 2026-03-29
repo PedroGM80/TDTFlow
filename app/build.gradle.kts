@@ -53,6 +53,18 @@ android {
     }
 }
 
+androidComponents {
+    onVariants { variant ->
+        variant.outputs.forEach { output ->
+            val name = "TDTFlow"
+            val variantName = variant.name
+            val versionName = android.defaultConfig.versionName
+            val outputFileName = "${name}-${variantName}-v${versionName}.apk"
+            (output as com.android.build.api.variant.impl.VariantOutputImpl).outputFileName.set(outputFileName)
+        }
+    }
+}
+
 kotlin {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget(jvmVersion))
