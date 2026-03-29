@@ -40,8 +40,6 @@
     <color name="live_indicator">#FF5252</color>
 
     <!-- Alphas -->
-    <integer name="alpha_high_percent">85</integer>
     <integer name="alpha_medium_percent">50</integer>
     <integer name="alpha_overlay_percent">90</integer>
-    <integer name="alpha_buffering_percent">80</integer>
 </resources>

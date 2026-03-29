@@ -5,12 +5,9 @@
     <string name="search_description">Search</string>
     <string name="clear_description">Clear</string>
     <string name="reload_description">Reload</string>
-    <string name="unknown_error">Unknown error</string>
     <string name="no_channels_found">No channels found</string>
     <string name="close">Close</string>
     <string name="fullscreen_description">Full screen</string>
-    <string name="tuning_channels">Tuning channels&#8230;</string>
-    <string name="loading_description">Loading</string>
     <string name="error_description">Error</string>
     <string name="playback_error">Playback error</string>
     <string name="retry_button">Retry</string>
@@ -30,7 +27,6 @@
 
     <!-- Broken channels -->
     <string name="channel_not_available">Channel not available</string>
-    <string name="broken_channels_hidden">%1$d channels hidden for not broadcasting</string>
     <string name="show_broken_channels">Show all</string>
     <string name="revalidate_channels">Revalidate channels</string>
 
@@ -40,12 +36,8 @@
     <string name="channel_logo_placeholder">Channel logo %1$s</string>
     <string name="audio_only_channel">Audio only playback</string>
     <string name="empty_state_icon">No results</string>
-    <string name="error_state_icon">Error</string>
-    <string name="channel_logo_description">Logo of %1$s</string>
     <string name="app_logo">Application logo</string>
     <string name="tv_icon">Television icon</string>
-    <string name="music_icon">Music icon</string>
-    <string name="category_chip_icon">Category icon</string>
     <string name="channel_card_icon">Channel icon</string>
 
     <!-- Options -->
@@ -61,9 +53,6 @@
     <string name="options_language_es">Español</string>
     <string name="options_language_en">English</string>
     <string name="options_language_ca">Català</string>
-
-    <!-- Accessibility announcements -->
-    <string name="a11y_channels_loaded">Channels loaded</string>
 
     <!-- TV accessibility -->
     <string name="play_channel">Play %1$s</string>

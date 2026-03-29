@@ -5,12 +5,9 @@
     <string name="search_description">Buscar</string>
     <string name="clear_description">Limpiar</string>
     <string name="reload_description">Recargar</string>
-    <string name="unknown_error">Error desconocido</string>
     <string name="no_channels_found">No se encontraron canales</string>
     <string name="close">Cerrar</string>
     <string name="fullscreen_description">Pantalla completa</string>
-    <string name="tuning_channels">Sintonizando canales&#8230;</string>
-    <string name="loading_description">Cargando</string>
     <string name="error_description">Error</string>
     <string name="playback_error">Error de reproducción</string>
     <string name="retry_button">Reintentar</string>
@@ -30,7 +27,6 @@
 
     <!-- Canales rotos -->
     <string name="channel_not_available">Canal no disponible</string>
-    <string name="broken_channels_hidden">%1$d canales ocultos por no emitir</string>
     <string name="show_broken_channels">Mostrar todos</string>
     <string name="revalidate_channels">Revalidar canales</string>
 
@@ -40,12 +36,8 @@
     <string name="channel_logo_placeholder">Logo del canal %1$s</string>
     <string name="audio_only_channel">Reproducción solo audio</string>
     <string name="empty_state_icon">Sin resultados</string>
-    <string name="error_state_icon">Error</string>
-    <string name="channel_logo_description">Logo de %1$s</string>
     <string name="app_logo">Logo de la aplicación</string>
     <string name="tv_icon">Icono de televisión</string>
-    <string name="music_icon">Icono de música</string>
-    <string name="category_chip_icon">Icono de categoría</string>
     <string name="channel_card_icon">Icono de canal</string>
 
     <!-- Opciones -->
@@ -61,9 +53,6 @@
     <string name="options_language_es">Español</string>
     <string name="options_language_en">English</string>
     <string name="options_language_ca">Català</string>
-
-    <!-- Anuncios de accesibilidad -->
-    <string name="a11y_channels_loaded">Canales cargados</string>
 
     <!-- TV accesibilidad -->
     <string name="play_channel">Reproducir %1$s</string>

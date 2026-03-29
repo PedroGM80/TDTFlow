@@ -2,7 +2,6 @@
 <resources>
     <!-- Padding & Margins -->
     <dimen name="padding_extra_small">2dp</dimen>
-    <dimen name="padding_small">4dp</dimen>
     <dimen name="padding_medium">8dp</dimen>
     <dimen name="padding_large">16dp</dimen>
     <dimen name="padding_extra_large">24dp</dimen>
@@ -33,7 +32,6 @@
     <dimen name="chip_height">48dp</dimen>
     <dimen name="card_width_tv">170dp</dimen>
     <dimen name="card_logo_size_tv">60dp</dimen>
-    <dimen name="card_logo_size_mobile">52dp</dimen>
     <dimen name="loading_animation_size">120dp</dimen>
     <dimen name="error_animation_size">100dp</dimen>
 
@@ -42,13 +40,9 @@
     <dimen name="text_size_tiny">10sp</dimen>
     <dimen name="text_size_small">12sp</dimen>
     <dimen name="text_size_channel_name">11sp</dimen>
-    <dimen name="text_size_medium_small">14sp</dimen>
     <dimen name="text_size_medium">15sp</dimen>
     <dimen name="text_size_large">20sp</dimen>
-    <dimen name="text_size_header_tv">34sp</dimen>
-
     <!-- Corner Radii -->
-    <dimen name="radius_extra_small">6dp</dimen>
     <dimen name="radius_small">8dp</dimen>
     <dimen name="radius_medium">12dp</dimen>
     <dimen name="radius_large">14dp</dimen>
