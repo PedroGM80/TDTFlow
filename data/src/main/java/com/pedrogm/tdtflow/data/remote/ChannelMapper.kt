@@ -7,12 +7,12 @@ import com.pedrogm.tdtflow.domain.model.ChannelCategory
  * Convierte un TdtChannel a Channel del dominio.
  * @param ambitName Nombre del ambit (categoría) del canal en TDTChannels
  */
+private val FORMAT_PRIORITY = listOf("m3u8", "aac", "mp3", "stream")
+
 fun TdtChannel.toChannel(ambitName: String): Channel? {
-    // Prioridad de formatos: m3u8 > aac > mp3 > stream
-    val stream = options.firstOrNull { it.format == "m3u8" }?.url
-        ?: options.firstOrNull { it.format == "aac" }?.url
-        ?: options.firstOrNull { it.format == "mp3" }?.url
-        ?: options.firstOrNull { it.format == "stream" }?.url
+    // Prioridad de formatos: m3u8 > aac > mp3 > stream — una sola pasada
+    val stream = FORMAT_PRIORITY
+        .firstNotNullOfOrNull { fmt -> options.find { it.format == fmt }?.url }
         ?: return null
 
     val mappedCategory = mapAmbitToCategory(ambitName)
