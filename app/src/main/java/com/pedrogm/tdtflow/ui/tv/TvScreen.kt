@@ -5,9 +5,10 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.tv.material3.*
+import androidx.tv.material3.ExperimentalTvMaterial3Api
 import com.pedrogm.tdtflow.ui.TdtViewModel
 import com.pedrogm.tdtflow.ui.tv.components.TvChannelBrowser
 import com.pedrogm.tdtflow.ui.tv.components.TvPlayerFullscreen
@@ -21,12 +22,14 @@ fun TvScreen(viewModel: TdtViewModel) {
     AnimatedContent(
         targetState = isPlaying,
         transitionSpec = {
-            fadeIn(tween(400)) togetherWith fadeOut(tween(300))
+            fadeIn(tween(200)) togetherWith fadeOut(tween(150))
         },
         label = "tv_screen_transition"
     ) { playing ->
         if (playing) {
-            TvPlayerFullscreen(viewModel = viewModel, channelName = uiState.currentChannel!!.name)
+            uiState.currentChannel?.let { channel ->
+                TvPlayerFullscreen(viewModel = viewModel, channelName = channel.name)
+            }
         } else {
             TvChannelBrowser(viewModel = viewModel)
         }
