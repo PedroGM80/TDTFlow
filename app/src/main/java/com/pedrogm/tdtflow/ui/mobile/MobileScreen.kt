@@ -195,11 +195,10 @@ private fun LandscapeFullscreenPlayer(
                     onTap = { showOverlay = !showOverlay },
                     onDoubleTap = { offset ->
                         val exo = viewModel.player?.exoPlayer ?: return@detectTapGestures
-                        val seekMs = 10_000L
                         if (offset.x < size.width / 2f) {
-                            exo.seekTo(maxOf(0L, exo.currentPosition - seekMs))
+                            exo.seekTo(maxOf(0L, exo.currentPosition - TimeConstants.PLAYER_SEEK_MS))
                         } else {
-                            exo.seekTo(exo.currentPosition + seekMs)
+                            exo.seekTo(exo.currentPosition + TimeConstants.PLAYER_SEEK_MS)
                         }
                     }
                 )
@@ -222,7 +221,7 @@ private fun LandscapeFullscreenPlayer(
                             window.attributes = attrs
                         } else {
                             volumeAccumulator += dragAmount
-                            if (kotlin.math.abs(volumeAccumulator) >= 50f) {
+                            if (kotlin.math.abs(volumeAccumulator) >= TimeConstants.VOLUME_DRAG_THRESHOLD) {
                                 val adjust = if (volumeAccumulator < 0f) AudioManager.ADJUST_RAISE else AudioManager.ADJUST_LOWER
                                 audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, adjust, AudioManager.FLAG_SHOW_UI)
                                 volumeAccumulator = 0f

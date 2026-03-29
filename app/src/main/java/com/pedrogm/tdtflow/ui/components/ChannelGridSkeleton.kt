@@ -28,6 +28,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.dimensionResource
 import com.pedrogm.tdtflow.R
+import com.pedrogm.tdtflow.util.AnimationConstants
 
 @Composable
 fun ChannelGridSkeleton(
@@ -91,10 +92,10 @@ private fun ChannelCardSkeleton(shimmerBrush: Brush) {
 private fun rememberShimmerBrush(): Brush {
     val transition = rememberInfiniteTransition(label = "shimmer")
     val translateAnim by transition.animateFloat(
-        initialValue = -600f,
-        targetValue = 1800f,
+        initialValue = AnimationConstants.SHIMMER_START_OFFSET,
+        targetValue = AnimationConstants.SHIMMER_END_OFFSET,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1400, easing = FastOutSlowInEasing),
+            animation = tween(durationMillis = AnimationConstants.SHIMMER_DURATION_MS, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Restart
         ),
         label = "shimmerTranslate"
@@ -112,6 +113,6 @@ private fun rememberShimmerBrush(): Brush {
     return Brush.linearGradient(
         colors = shimmerColors,
         start = Offset(translateAnim, 0f),
-        end = Offset(translateAnim + 600f, 0f)
+        end = Offset(translateAnim + AnimationConstants.SHIMMER_GRADIENT_WIDTH, 0f)
     )
 }
