@@ -47,6 +47,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -404,6 +405,8 @@ private fun PortraitLayout(
 ) {
     val favoritesState by favoritesViewModel.uiState.collectAsStateWithLifecycle()
     val favoriteIds = favoritesState.favoriteIds
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
     // Auto-dismiss player errors after 4 seconds
     LaunchedEffect(uiState.error) {
         if (uiState.error != null && uiState.channels.isNotEmpty()) {
@@ -413,6 +416,7 @@ private fun PortraitLayout(
     }
 
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 title = {
@@ -446,7 +450,8 @@ private fun PortraitLayout(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface
-                )
+                ),
+                scrollBehavior = scrollBehavior
             )
         }
     ) { padding ->
