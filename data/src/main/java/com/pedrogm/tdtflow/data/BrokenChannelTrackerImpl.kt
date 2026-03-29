@@ -3,6 +3,8 @@ package com.pedrogm.tdtflow.data
 import android.content.Context
 import android.content.SharedPreferences
 import com.pedrogm.tdtflow.domain.tracker.BrokenChannelTracker
+import android.util.Log
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -24,7 +26,12 @@ class BrokenChannelTrackerImpl(
     }
 
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-    private val ioScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val ioScope = CoroutineScope(
+        Dispatchers.IO + SupervisorJob() +
+            CoroutineExceptionHandler { _, e ->
+                Log.e("BrokenChannelTracker", "Error persisting broken URLs", e)
+            }
+    )
 
     private val _brokenUrls = MutableStateFlow<Set<String>>(loadBrokenUrls())
     override val brokenUrls: StateFlow<Set<String>> = _brokenUrls.asStateFlow()

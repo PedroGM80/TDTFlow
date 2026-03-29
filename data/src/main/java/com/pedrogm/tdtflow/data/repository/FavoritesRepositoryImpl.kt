@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.pedrogm.tdtflow.domain.repository.FavoritesRepository
+import android.util.Log
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -24,7 +26,12 @@ class FavoritesRepositoryImpl private constructor(
     // For unit tests — in-memory only, no persistence
     internal constructor() : this(prefs = null)
 
-    private val ioScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val ioScope = CoroutineScope(
+        Dispatchers.IO + SupervisorJob() +
+            CoroutineExceptionHandler { _, e ->
+                Log.e("FavoritesRepository", "Error persisting favorites", e)
+            }
+    )
 
     private val _favoriteIds = MutableStateFlow<Set<String>>(load())
     override val favoriteIds: StateFlow<Set<String>> = _favoriteIds.asStateFlow()
