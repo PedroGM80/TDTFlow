@@ -166,8 +166,6 @@ private fun LandscapeFullscreenPlayer(
     val view = LocalView.current
     var showOverlay by remember { mutableStateOf(false) }
     val audioManager = remember { view.context.getSystemService(Context.AUDIO_SERVICE) as AudioManager }
-    val dragStartX = remember { floatArrayOf(0f) }
-    val volumeAccumulator = remember { floatArrayOf(0f) }
 
     DisposableEffect(Unit) {
         val window = (view.context as Activity).window
@@ -207,25 +205,27 @@ private fun LandscapeFullscreenPlayer(
                 )
             }
             .pointerInput(Unit) {
+                var dragStartX = 0f
+                var volumeAccumulator = 0f
                 detectVerticalDragGestures(
                     onDragStart = { offset ->
-                        dragStartX[0] = offset.x
-                        volumeAccumulator[0] = 0f
+                        dragStartX = offset.x
+                        volumeAccumulator = 0f
                     },
                     onVerticalDrag = { change, dragAmount ->
                         change.consume()
-                        if (dragStartX[0] < size.width / 2f) {
+                        if (dragStartX < size.width / 2f) {
                             val window = (view.context as Activity).window
                             val attrs = window.attributes
                             val current = if (attrs.screenBrightness < 0f) 0.5f else attrs.screenBrightness
                             attrs.screenBrightness = (current - dragAmount / size.height).coerceIn(0.01f, 1.0f)
                             window.attributes = attrs
                         } else {
-                            volumeAccumulator[0] += dragAmount
-                            if (kotlin.math.abs(volumeAccumulator[0]) >= 50f) {
-                                val adjust = if (volumeAccumulator[0] < 0f) AudioManager.ADJUST_RAISE else AudioManager.ADJUST_LOWER
+                            volumeAccumulator += dragAmount
+                            if (kotlin.math.abs(volumeAccumulator) >= 50f) {
+                                val adjust = if (volumeAccumulator < 0f) AudioManager.ADJUST_RAISE else AudioManager.ADJUST_LOWER
                                 audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, adjust, AudioManager.FLAG_SHOW_UI)
-                                volumeAccumulator[0] = 0f
+                                volumeAccumulator = 0f
                             }
                         }
                     }
