@@ -53,9 +53,6 @@ fun VideoPlayer(
     onFullscreen: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
-    integerResource(R.integer.alpha_high_percent) / 100f
-    integerResource(R.integer.alpha_buffering_percent) / 100f
-
     Column(modifier = modifier) {
         // Barra superior
         Row(
