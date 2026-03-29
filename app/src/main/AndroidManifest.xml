@@ -20,7 +20,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TDTFlow"
         android:usesCleartextTraffic="true"
-        android:banner="@drawable/tv_banner">
+        android:banner="@mipmap/ic_launcher">
 
         <activity
             android:name=".MainActivity"

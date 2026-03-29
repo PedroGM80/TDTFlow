@@ -1,5 +1,7 @@
 package com.pedrogm.tdtflow
 
+import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -26,6 +28,12 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val uiMode = resources.configuration.uiMode and Configuration.UI_MODE_TYPE_MASK
+        if (uiMode == Configuration.UI_MODE_TYPE_TELEVISION) {
+            startActivity(Intent(this, TvActivity::class.java))
+            finish()
+            return
+        }
         enableEdgeToEdge()
         setContent {
             val optionsState by optionsViewModel.uiState.collectAsStateWithLifecycle()
