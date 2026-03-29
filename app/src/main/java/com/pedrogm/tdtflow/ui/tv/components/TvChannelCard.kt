@@ -11,6 +11,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
@@ -45,7 +47,9 @@ internal fun TvChannelCard(
             focusedContainerColor = colorResource(R.color.tv_card_focused)
         ),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1.06f),
-        modifier = Modifier.onFocusChanged { isFocused = it.isFocused }
+        modifier = Modifier
+            .onFocusChanged { isFocused = it.isFocused }
+            .semantics { onClick(label = stringResource(R.string.play_channel, channel.name), action = null) }
     ) {
         Column(
             modifier = Modifier

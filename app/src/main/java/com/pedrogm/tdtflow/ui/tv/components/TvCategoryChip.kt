@@ -9,6 +9,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.sp
@@ -29,7 +31,8 @@ internal fun TvCategoryChip(
         colors = ClickableSurfaceDefaults.colors(
             containerColor = if (isSelected) colorResource(R.color.primary_container_dark) else colorResource(R.color.tv_surface),
             focusedContainerColor = colorResource(R.color.tv_surface_focused)
-        )
+        ),
+        modifier = Modifier.semantics { onClick(label = stringResource(R.string.filter_category, label), action = null) }
     ) {
         Row(
             modifier = Modifier.padding(
