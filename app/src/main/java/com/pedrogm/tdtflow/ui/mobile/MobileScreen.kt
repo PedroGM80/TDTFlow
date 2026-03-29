@@ -1,7 +1,9 @@
 package com.pedrogm.tdtflow.ui.mobile
 
 import android.app.Activity
+import android.content.Context
 import android.content.res.Configuration
+import android.media.AudioManager
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -12,6 +14,8 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -54,12 +58,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalView
@@ -157,6 +163,9 @@ private fun LandscapeFullscreenPlayer(
 ) {
     val view = LocalView.current
     var showOverlay by remember { mutableStateOf(false) }
+    val audioManager = remember { view.context.getSystemService(Context.AUDIO_SERVICE) as AudioManager }
+    val dragStartX = remember { floatArrayOf(0f) }
+    val volumeAccumulator = remember { floatArrayOf(0f) }
 
     DisposableEffect(Unit) {
         val window = (view.context as Activity).window
@@ -181,10 +190,45 @@ private fun LandscapeFullscreenPlayer(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) { showOverlay = !showOverlay }
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = { showOverlay = !showOverlay },
+                    onDoubleTap = { offset ->
+                        val exo = viewModel.player?.exoPlayer ?: return@detectTapGestures
+                        val seekMs = 10_000L
+                        if (offset.x < size.width / 2f) {
+                            exo.seekTo(maxOf(0L, exo.currentPosition - seekMs))
+                        } else {
+                            exo.seekTo(exo.currentPosition + seekMs)
+                        }
+                    }
+                )
+            }
+            .pointerInput(Unit) {
+                detectVerticalDragGestures(
+                    onDragStart = { offset ->
+                        dragStartX[0] = offset.x
+                        volumeAccumulator[0] = 0f
+                    },
+                    onVerticalDrag = { change, dragAmount ->
+                        change.consume()
+                        if (dragStartX[0] < size.width / 2f) {
+                            val window = (view.context as Activity).window
+                            val attrs = window.attributes
+                            val current = if (attrs.screenBrightness < 0f) 0.5f else attrs.screenBrightness
+                            attrs.screenBrightness = (current - dragAmount / size.height).coerceIn(0.01f, 1.0f)
+                            window.attributes = attrs
+                        } else {
+                            volumeAccumulator[0] += dragAmount
+                            if (kotlin.math.abs(volumeAccumulator[0]) >= 50f) {
+                                val adjust = if (volumeAccumulator[0] < 0f) AudioManager.ADJUST_RAISE else AudioManager.ADJUST_LOWER
+                                audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, adjust, AudioManager.FLAG_SHOW_UI)
+                                volumeAccumulator[0] = 0f
+                            }
+                        }
+                    }
+                )
+            }
     ) {
         AndroidView(
             factory = { context ->
