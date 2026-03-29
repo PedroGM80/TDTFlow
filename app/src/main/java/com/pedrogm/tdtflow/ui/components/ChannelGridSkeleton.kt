@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -99,11 +100,14 @@ private fun rememberShimmerBrush(): Brush {
         label = "shimmerTranslate"
     )
 
-    val shimmerColors = listOf(
-        MaterialTheme.colorScheme.surfaceVariant,
-        MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-        MaterialTheme.colorScheme.surfaceVariant,
-    )
+    val colorScheme = MaterialTheme.colorScheme
+    val shimmerColors = remember(colorScheme) {
+        listOf(
+            colorScheme.surfaceVariant,
+            colorScheme.surface.copy(alpha = 0.9f),
+            colorScheme.surfaceVariant,
+        )
+    }
 
     return Brush.linearGradient(
         colors = shimmerColors,
