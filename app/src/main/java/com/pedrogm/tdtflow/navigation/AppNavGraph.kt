@@ -35,10 +35,10 @@ fun AppNavGraph(
     NavHost(
         navController = navController,
         startDestination = ROUTE_CHANNELS,
-        enterTransition = { fadeIn(tween(300)) },
-        exitTransition = { fadeOut(tween(200)) },
-        popEnterTransition = { fadeIn(tween(300)) },
-        popExitTransition = { fadeOut(tween(200)) }
+        enterTransition = { fadeIn(tween(150)) },
+        exitTransition = { fadeOut(tween(100)) },
+        popEnterTransition = { fadeIn(tween(150)) },
+        popExitTransition = { fadeOut(tween(100)) }
     ) {
         composable(ROUTE_CHANNELS) {
             MobileScreen(
@@ -50,10 +50,10 @@ fun AppNavGraph(
         }
         composable(
             route = ROUTE_FAVORITES,
-            enterTransition = { slideInHorizontally(tween(300)) { it } + fadeIn(tween(300)) },
-            exitTransition = { slideOutHorizontally(tween(250)) { it } + fadeOut(tween(250)) },
-            popEnterTransition = { fadeIn(tween(300)) },
-            popExitTransition = { slideOutHorizontally(tween(250)) { it } + fadeOut(tween(250)) }
+            enterTransition = { slideInHorizontally(tween(150)) { it } + fadeIn(tween(300)) },
+            exitTransition = { slideOutHorizontally(tween(125)) { it } + fadeOut(tween(250)) },
+            popEnterTransition = { fadeIn(tween(150)) },
+            popExitTransition = { slideOutHorizontally(tween(125)) { it } + fadeOut(tween(250)) }
         ) {
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             FavoritesScreen(
