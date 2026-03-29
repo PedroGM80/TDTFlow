@@ -91,7 +91,7 @@ internal fun TvChannelCard(
                     model = channel.logo,
                     onState = { state ->
                         if (state is AsyncImagePainter.State.Error) {
-                            Log.e("TvChannelCard", "Error loading logo for ${channel.name}: ${channel.logo}", state.result.throwable)
+                            Log.w("TvChannelCard", "Error loading logo for ${channel.name}: ${channel.logo}")
                         }
                     },
                     contentDescription = channel.name,
