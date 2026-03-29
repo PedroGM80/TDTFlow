@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -52,6 +54,7 @@ import androidx.compose.material3.MaterialTheme as M3Theme
 internal fun TvChannelCard(
     channel: Channel,
     isSelected: Boolean,
+    isFavorite: Boolean = false,
     onClick: () -> Unit
 ) {
     var isFocused by remember { mutableStateOf(false) }
@@ -143,6 +146,16 @@ internal fun TvChannelCard(
                         fontSize = dimensionResource(R.dimen.chip_padding_vertical).value.sp
                     )
                 }
+            }
+
+            if (isFavorite) {
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_tiny)))
+                Icon(
+                    imageVector = Icons.Filled.Favorite,
+                    contentDescription = stringResource(R.string.add_to_favorites),
+                    tint = colorResource(R.color.primary_dark),
+                    modifier = Modifier.size(dimensionResource(R.dimen.chip_padding_vertical))
+                )
             }
         }
     }
