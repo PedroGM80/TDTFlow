@@ -96,11 +96,11 @@ class TdtViewModel(
     // ── Flow derivado: canales filtrados ─────────────────────────────
 
     private val _filteredChannels: StateFlow<List<Channel>> = combine(
-        _channels.distinctUntilChanged(),
-        _selectedCategory.distinctUntilChanged(),
+        _channels,
+        _selectedCategory,
         debouncedQuery,
-        brokenChannelTracker.brokenUrls.distinctUntilChanged(),
-        _showBrokenChannels.distinctUntilChanged()
+        brokenChannelTracker.brokenUrls,
+        _showBrokenChannels
     ) { channels, category, query, brokenUrls, showBroken ->
         ChannelFilterLogic.applyFilters(
             channels = channels,
