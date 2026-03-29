@@ -2,6 +2,7 @@ package com.pedrogm.tdtflow.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -48,7 +49,7 @@ fun ChannelCard(
 ) {
     Box(modifier = modifier) {
     Card(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}.clickable(onClick = onClick),
         shape = RoundedCornerShape(dimensionResource(R.dimen.radius_large)),
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) {
