@@ -1,20 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Padding & Margins -->
+    <!-- Padding & Margins
+         padding_extra_small : micro-espaciado interno (bordes finos)
+         padding_medium      : padding estándar en contenedores
+         padding_large       : padding de secciones / cards
+         padding_extra_large : separación entre bloques mayores
+         padding_tv          : margen de zona segura overscan en TV (48dp) -->
     <dimen name="padding_extra_small">2dp</dimen>
     <dimen name="padding_medium">8dp</dimen>
     <dimen name="padding_large">16dp</dimen>
     <dimen name="padding_extra_large">24dp</dimen>
     <dimen name="padding_tv">48dp</dimen>
 
-    <!-- Spacing -->
+    <!-- Spacing — espaciado interno entre elementos (no padding de contenedor)
+         Escala: tiny=4 · small=8 · medium=12 · large=16 · bottom_sheet=32 -->
     <dimen name="spacing_tiny">4dp</dimen>
     <dimen name="spacing_small">8dp</dimen>
     <dimen name="spacing_medium">12dp</dimen>
     <dimen name="spacing_large">16dp</dimen>
     <dimen name="spacing_bottom_sheet">32dp</dimen>
 
-    <!-- Icon Sizes -->
+    <!-- Icon Sizes
+         small        : icono de chip/badge (14dp)
+         action       : icono en botones de acción (18dp)
+         medium       : icono estándar Material (24dp)
+         card_logo    : logo cuadrado dentro de lista (32dp)
+         large        : icono de cabecera / TV header (36dp)
+         channel_chip : logo en chip de canal (40dp)
+         extra_large  : botón icon grande (48dp)
+         music_logo   : portada de emisora de radio (80dp)
+         favorite     : corazón en tarjeta de canal (16dp) -->
     <dimen name="icon_size_small">14dp</dimen>
     <dimen name="icon_size_action">18dp</dimen>
     <dimen name="icon_size_medium">24dp</dimen>
@@ -28,21 +43,37 @@
     <!-- Indicator Sizes -->
     <dimen name="size_live_indicator">8dp</dimen>
 
-    <!-- Card & Component Dimensions -->
+    <!-- Card & Component Dimensions
+         chip_height      : altura mínima táctil de chips (Material 48dp)
+         card_width_tv    : ancho de tarjeta en grid TV (mínimo cómodo para D-pad)
+         card_logo_size_tv: logo cuadrado en tarjeta TV
+         loading/error    : tamaño de animación de estado vacío/error -->
     <dimen name="chip_height">48dp</dimen>
     <dimen name="card_width_tv">170dp</dimen>
     <dimen name="card_logo_size_tv">60dp</dimen>
     <dimen name="loading_animation_size">120dp</dimen>
     <dimen name="error_animation_size">100dp</dimen>
 
-    <!-- Text Sizes -->
+    <!-- Text Sizes
+         badge        : contador de canales rotos sobre icono (7sp, intencionadamente pequeño)
+         tiny         : metadatos secundarios (10sp)
+         small        : etiquetas de chips (12sp)
+         channel_name : nombre de canal en tarjeta compacta (11sp)
+         medium       : texto de cuerpo estándar (15sp)
+         large        : títulos de sección (20sp) -->
     <dimen name="text_size_badge">7sp</dimen>
     <dimen name="text_size_tiny">10sp</dimen>
     <dimen name="text_size_small">12sp</dimen>
     <dimen name="text_size_channel_name">11sp</dimen>
     <dimen name="text_size_medium">15sp</dimen>
     <dimen name="text_size_large">20sp</dimen>
-    <!-- Corner Radii -->
+
+    <!-- Corner Radii
+         small      : chips pequeños, logos (8dp)
+         medium     : cards compactas (12dp)
+         large      : cards principales (14dp)
+         music_card : tarjeta de radio con esquinas más redondeadas (16dp)
+         extra_large: botones pill / chips TV (20dp) -->
     <dimen name="radius_small">8dp</dimen>
     <dimen name="radius_medium">12dp</dimen>
     <dimen name="radius_large">14dp</dimen>
@@ -54,7 +85,10 @@
     <dimen name="elevation_low">1dp</dimen>
     <dimen name="elevation_high">8dp</dimen>
 
-    <!-- Misc -->
+    <!-- Misc
+         stroke_thin         : borde de foco en TV (2dp)
+         min_grid_cell_size  : tamaño mínimo de celda en grid adaptativo móvil
+         chip_padding_h/v    : padding interno de botones TV en cabecera -->
     <dimen name="stroke_thin">2dp</dimen>
     <dimen name="min_grid_cell_size">100dp</dimen>
     <dimen name="chip_padding_horizontal">18dp</dimen>
