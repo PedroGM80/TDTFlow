@@ -10,7 +10,6 @@ object TimeConstants {
 
     // Channel tracking
     const val BUFFERING_TIMEOUT_MS = 15_000L
-    const val AUTO_CLEAR_BROKEN_CHANNELS_MS = 24 * 60 * 60 * 1000L
 
     // UI interactions
     const val SEARCH_DEBOUNCE_MS = 300L

@@ -188,11 +188,6 @@ class TdtPlayer(context: Context) {
         _playerState.value = PlayerState.IDLE
     }
 
-    fun togglePlayPause() {
-        if (exoPlayer.isPlaying) exoPlayer.pause() else exoPlayer.play()
-    }
-
-    val isPlaying: Boolean get() = exoPlayer.isPlaying
 }
 
 enum class PlayerState {
