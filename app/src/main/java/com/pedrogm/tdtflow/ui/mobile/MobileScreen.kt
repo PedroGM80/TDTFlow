@@ -194,11 +194,9 @@ private fun LandscapeFullscreenPlayer(
                 detectTapGestures(
                     onTap = { showOverlay = !showOverlay },
                     onDoubleTap = { offset ->
-                        val exo = viewModel.player?.exoPlayer ?: return@detectTapGestures
-                        if (offset.x < size.width / 2f) {
-                            exo.seekTo(maxOf(0L, exo.currentPosition - TimeConstants.PLAYER_SEEK_MS))
-                        } else {
-                            exo.seekTo(exo.currentPosition + TimeConstants.PLAYER_SEEK_MS)
+                        if (viewModel.uiState.value.isPlaying) {
+                            val direction = if (offset.x < size.width / 2f) -1L else 1L
+                            viewModel.onIntent(TdtIntent.SeekRelative(direction * TimeConstants.PLAYER_SEEK_MS))
                         }
                     }
                 )

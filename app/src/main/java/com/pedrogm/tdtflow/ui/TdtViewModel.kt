@@ -181,6 +181,7 @@ class TdtViewModel(
             is TdtIntent.RevalidateChannels -> revalidateChannels()
             is TdtIntent.RetryBrokenChannel -> retryBrokenChannel(intent.channel)
             is TdtIntent.PausePlayer -> pausePlayer()
+            is TdtIntent.SeekRelative -> seekRelative(intent.offsetMs)
         }
     }
 
@@ -277,7 +278,11 @@ class TdtViewModel(
     }
 
     private fun pausePlayer() {
-        player?.exoPlayer?.pause()
+        player?.pause()
+    }
+
+    private fun seekRelative(offsetMs: Long) {
+        player?.seekRelative(offsetMs)
     }
 
     private fun dismissError() {

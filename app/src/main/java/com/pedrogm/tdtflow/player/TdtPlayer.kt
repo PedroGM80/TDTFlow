@@ -173,6 +173,15 @@ class TdtPlayer(context: Context) {
      */
     fun getCurrentStreamUrl(): String? = currentStreamUrl
 
+    fun pause() {
+        exoPlayer.pause()
+    }
+
+    fun seekRelative(offsetMs: Long) {
+        val target = (exoPlayer.currentPosition + offsetMs).coerceAtLeast(0L)
+        exoPlayer.seekTo(target)
+    }
+
     fun stop() {
         cancelBufferingTimeout()
         exoPlayer.stop()

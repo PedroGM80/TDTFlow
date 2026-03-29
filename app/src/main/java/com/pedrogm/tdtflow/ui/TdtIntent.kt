@@ -14,4 +14,5 @@ sealed class TdtIntent {
     data object RevalidateChannels : TdtIntent()
     data class RetryBrokenChannel(val channel: Channel) : TdtIntent()
     data object PausePlayer : TdtIntent()
+    data class SeekRelative(val offsetMs: Long) : TdtIntent()
 }
