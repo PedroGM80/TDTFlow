@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.*
+import androidx.compose.material3.MaterialTheme as M3Theme
 import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import com.composables.icons.lucide.*
@@ -106,7 +107,7 @@ internal fun TvChannelCard(
             Text(
                 text = channel.name,
                 color = Color.White,
-                fontSize = dimensionResource(R.dimen.text_size_medium_small).value.sp,
+                style = M3Theme.typography.titleSmall,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = if (isSelected || isFocused) FontWeight.Bold else FontWeight.Normal

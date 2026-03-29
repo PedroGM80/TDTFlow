@@ -2,6 +2,7 @@ package com.pedrogm.tdtflow.ui.tv.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.MaterialTheme as M3Theme
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -14,7 +15,6 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -62,7 +62,7 @@ internal fun TvChannelBrowser(viewModel: TdtViewModel) {
                 Text(
                     text = stringResource(R.string.app_name),
                     color = Color.White,
-                    fontSize = dimensionResource(R.dimen.text_size_header_tv).value.sp,
+                    style = M3Theme.typography.headlineLarge,
                     fontWeight = FontWeight.Bold
                 )
             }

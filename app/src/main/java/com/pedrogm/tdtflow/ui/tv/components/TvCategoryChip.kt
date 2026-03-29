@@ -11,9 +11,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.material3.MaterialTheme as M3Theme
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
 import androidx.tv.material3.*
 import com.pedrogm.tdtflow.R
 
@@ -51,7 +52,7 @@ internal fun TvCategoryChip(
             Text(
                 text = label,
                 color = Color.White,
-                fontSize = dimensionResource(R.dimen.text_size_medium).value.sp
+                style = M3Theme.typography.bodyLarge
             )
         }
     }

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme as M3Theme
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -24,7 +25,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
@@ -90,7 +90,7 @@ internal fun TvPlayerFullscreen(viewModel: TdtViewModel, channelName: String) {
             Text(
                 text = channelName,
                 color = Color.White.copy(alpha = overlayAlpha),
-                fontSize = dimensionResource(R.dimen.text_size_medium).value.sp,
+                style = M3Theme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium
             )
         }
