@@ -62,6 +62,13 @@
     <string name="options_language_en">English</string>
     <string name="options_language_ca">Català</string>
 
+    <!-- Anuncis d'accessibilitat -->
+    <string name="a11y_channels_loaded">Canals carregats</string>
+
+    <!-- Accessibilitat TV -->
+    <string name="play_channel">Reprodueix %1$s</string>
+    <string name="filter_category">Filtra per %1$s</string>
+
     <!-- Preferits -->
     <string name="favorites_title">Preferits</string>
     <string name="no_favorites">Encara no tens canals preferits</string>
