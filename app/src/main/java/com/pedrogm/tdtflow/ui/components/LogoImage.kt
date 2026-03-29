@@ -85,8 +85,8 @@ fun LogoImage(
 private fun LogoPlaceholder(
     name: String,
     category: ChannelCategory,
-    iconSize: Dp = 32.dp,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    iconSize: Dp = 32.dp
 ) {
     Box(
         modifier = modifier

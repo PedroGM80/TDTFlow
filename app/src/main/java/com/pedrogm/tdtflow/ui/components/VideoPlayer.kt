@@ -49,8 +49,8 @@ fun VideoPlayer(
     playerState: PlayerState,
     channel: Channel,
     onClose: () -> Unit,
-    onFullscreen: (() -> Unit)? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onFullscreen: (() -> Unit)? = null
 ) {
     Column(modifier = modifier) {
         // Barra superior

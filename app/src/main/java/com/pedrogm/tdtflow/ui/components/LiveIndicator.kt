@@ -17,8 +17,8 @@ import com.pedrogm.tdtflow.ui.theme.AppColors
  */
 @Composable
 fun LiveIndicator(
-    size: Dp = 8.dp,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    size: Dp = 8.dp
 ) {
     Box(
         modifier = modifier
