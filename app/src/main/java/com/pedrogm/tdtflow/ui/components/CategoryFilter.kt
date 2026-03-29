@@ -136,7 +136,7 @@ private fun BrokenChannelsActions(
             Box {
                 IconButton(
                     onClick = onToggleBroken,
-                    modifier = Modifier.size(dimensionResource(R.dimen.icon_size_large))
+                    modifier = Modifier.size(dimensionResource(R.dimen.icon_size_extra_large))
                 ) {
                     Icon(
                         imageVector = if (showingBroken) Lucide.Eye else Lucide.EyeOff,
@@ -170,7 +170,7 @@ private fun BrokenChannelsActions(
             if (onRevalidate != null) {
                 IconButton(
                     onClick = onRevalidate,
-                    modifier = Modifier.size(dimensionResource(R.dimen.icon_size_large))
+                    modifier = Modifier.size(dimensionResource(R.dimen.icon_size_extra_large))
                 ) {
                     Icon(
                         imageVector = Lucide.RotateCcw,

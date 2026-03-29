@@ -123,7 +123,7 @@ fun ChannelCard(
             onClick = onToggleFavorite,
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .size(dimensionResource(R.dimen.icon_size_card_logo))
+                .size(dimensionResource(R.dimen.icon_size_extra_large))
         ) {
             Icon(
                 imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,

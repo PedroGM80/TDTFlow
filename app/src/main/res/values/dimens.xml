@@ -30,7 +30,7 @@
     <dimen name="size_live_indicator">8dp</dimen>
 
     <!-- Card & Component Dimensions -->
-    <dimen name="chip_height">32dp</dimen>
+    <dimen name="chip_height">48dp</dimen>
     <dimen name="card_width_tv">170dp</dimen>
     <dimen name="card_logo_size_tv">60dp</dimen>
     <dimen name="card_logo_size_mobile">52dp</dimen>
