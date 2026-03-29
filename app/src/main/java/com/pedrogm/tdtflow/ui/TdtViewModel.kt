@@ -245,9 +245,9 @@ class TdtViewModel(
     private fun initPlayer() {
         if (player == null) {
             player = playerFactory()
-            player!!.playerState
-                .onEach { _playerState.value = it }
-                .launchIn(viewModelScope)
+            player?.playerState
+                ?.onEach { _playerState.value = it }
+                ?.launchIn(viewModelScope)
             observePlayerErrors()
             observeBufferingTimeout()
         }
