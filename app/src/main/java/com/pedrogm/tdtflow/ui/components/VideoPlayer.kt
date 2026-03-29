@@ -22,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -64,7 +63,7 @@ fun VideoPlayer(
             Icon(
                 imageVector = Lucide.Music,
                 contentDescription = stringResource(R.string.audio_only_channel),
-                tint = if (playerState == PlayerState.PLAYING) colorResource(R.color.live_indicator) else AppColors.Player.inactiveIcon,
+                tint = if (playerState == PlayerState.PLAYING) AppColors.liveIndicator else AppColors.Player.inactiveIcon,
                 modifier = Modifier.size(dimensionResource(R.dimen.icon_size_small))
             )
             Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_small)))

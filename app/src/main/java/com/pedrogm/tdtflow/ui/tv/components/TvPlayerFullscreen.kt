@@ -20,7 +20,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
@@ -35,6 +34,7 @@ import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.player.PlayerState
 import com.pedrogm.tdtflow.ui.TdtIntent
 import com.pedrogm.tdtflow.ui.TdtViewModel
+import com.pedrogm.tdtflow.ui.theme.AppColors
 
 private const val TOTAL_OPACITY = 100f
 
@@ -83,7 +83,7 @@ internal fun TvPlayerFullscreen(viewModel: TdtViewModel, channelName: String) {
             Icon(
                 imageVector = Lucide.Tv,
                 contentDescription = stringResource(R.string.tv_icon),
-                tint = colorResource(R.color.live_indicator),
+                tint = AppColors.liveIndicator,
                 modifier = Modifier.size(dimensionResource(R.dimen.icon_size_small))
             )
             Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_small)))

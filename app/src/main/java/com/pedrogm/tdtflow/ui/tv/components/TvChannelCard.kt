@@ -30,6 +30,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import com.pedrogm.tdtflow.ui.theme.AppColors
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -142,7 +143,7 @@ internal fun TvChannelCard(
                     )
                     Text(
                         stringResource(R.string.live_indicator),
-                        color = colorResource(R.color.live_indicator),
+                        color = AppColors.liveIndicator,
                         fontSize = dimensionResource(R.dimen.chip_padding_vertical).value.sp
                     )
                 }

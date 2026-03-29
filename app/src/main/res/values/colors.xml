@@ -37,8 +37,6 @@
     <color name="tv_surface_focused">#42A5F5</color>
     <color name="tv_card">#151820</color>
     <color name="tv_card_focused">#1976D2</color>
-    <color name="live_indicator">#FF5252</color>
-
     <!-- Alphas -->
     <integer name="alpha_medium_percent">50</integer>
     <integer name="alpha_overlay_percent">90</integer>

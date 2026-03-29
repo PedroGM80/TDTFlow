@@ -48,6 +48,7 @@ import com.pedrogm.tdtflow.ui.components.toLucideIcon
 import com.pedrogm.tdtflow.ui.components.toStringRes
 import com.pedrogm.tdtflow.ui.favorites.FavoritesIntent
 import com.pedrogm.tdtflow.ui.favorites.FavoritesViewModel
+import com.pedrogm.tdtflow.ui.theme.AppColors
 import androidx.compose.material3.MaterialTheme as M3Theme
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -230,7 +231,7 @@ private fun TvFavoriteChannelRow(
                         LiveIndicator(size = dimensionResource(R.dimen.spacing_medium))
                         Text(
                             text = stringResource(R.string.live_indicator),
-                            color = colorResource(R.color.live_indicator),
+                            color = AppColors.liveIndicator,
                             style = M3Theme.typography.labelSmall
                         )
                     }
