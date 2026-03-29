@@ -15,6 +15,10 @@ class ChannelFilterLogicTest {
         category: ChannelCategory = ChannelCategory.GENERAL
     ) = Channel(name = name, url = url, category = category)
 
+    // Note: Channel.init enforces non-blank name/url, so invalid channels
+    // cannot be constructed. Blank-URL filtering at the domain model level
+    // is tested in ChannelTest; ChannelFilterLogic tests focus on the
+    // filtering logic over valid channels only.
     private val sampleChannels = listOf(
         channel(name = "Antena 3", url = "antena3.m3u8", category = ChannelCategory.GENERAL),
         channel(name = "La Sexta", url = "lasexta.m3u8", category = ChannelCategory.GENERAL),
@@ -22,25 +26,8 @@ class ChannelFilterLogicTest {
         channel(name = "Teledeporte", url = "tdp.m3u8", category = ChannelCategory.SPORTS),
         channel(name = "Clan", url = "clan.m3u8", category = ChannelCategory.KIDS),
         channel(name = "Radio Música", url = "musica.m3u8", category = ChannelCategory.MUSIC),
-        channel(name = "Broken Channel", url = "broken.m3u8", category = ChannelCategory.GENERAL),
-        channel(name = "Blank Url", url = "", category = ChannelCategory.GENERAL),
-        channel(name = "  ", url = "   ", category = ChannelCategory.GENERAL)
+        channel(name = "Broken Channel", url = "broken.m3u8", category = ChannelCategory.GENERAL)
     )
-
-    // ── filterValidUrls ─────────────────────────────────────────────────────
-
-    @Test
-    fun `channel with blank url is excluded`() {
-        val result = ChannelFilterLogic.applyFilters(
-            channels = sampleChannels,
-            category = null,
-            query = "",
-            brokenUrls = emptySet(),
-            showBroken = true
-        )
-
-        assertTrue(result.none { it.url.isBlank() })
-    }
 
     // ── filterBrokenChannels ────────────────────────────────────────────────
 
@@ -115,6 +102,73 @@ class ChannelFilterLogicTest {
         )
 
         assertTrue(result.all { it.category == ChannelCategory.MUSIC })
+        assertEquals(1, result.size)
+    }
+
+    @Test
+    fun `category KIDS returns only KIDS channels`() {
+        val result = ChannelFilterLogic.applyFilters(
+            channels = sampleChannels,
+            category = ChannelCategory.KIDS,
+            query = "",
+            brokenUrls = emptySet(),
+            showBroken = true
+        )
+
+        assertTrue(result.all { it.category == ChannelCategory.KIDS })
+        assertEquals(1, result.size)
+        assertEquals("Clan", result.first().name)
+    }
+
+    @Test
+    fun `category ENTERTAINMENT returns only ENTERTAINMENT channels`() {
+        val entertainmentChannel = channel(name = "Paramount+", url = "paramount.m3u8", category = ChannelCategory.ENTERTAINMENT)
+        val channels = sampleChannels + entertainmentChannel
+
+        val result = ChannelFilterLogic.applyFilters(
+            channels = channels,
+            category = ChannelCategory.ENTERTAINMENT,
+            query = "",
+            brokenUrls = emptySet(),
+            showBroken = true
+        )
+
+        assertTrue(result.all { it.category == ChannelCategory.ENTERTAINMENT })
+        assertEquals(1, result.size)
+    }
+
+    @Test
+    fun `category REGIONAL returns only REGIONAL channels`() {
+        val regionalChannel = channel(name = "TV3", url = "tv3.m3u8", category = ChannelCategory.REGIONAL)
+        val channels = sampleChannels + regionalChannel
+
+        val result = ChannelFilterLogic.applyFilters(
+            channels = channels,
+            category = ChannelCategory.REGIONAL,
+            query = "",
+            brokenUrls = emptySet(),
+            showBroken = true
+        )
+
+        assertTrue(result.all { it.category == ChannelCategory.REGIONAL })
+        assertEquals(1, result.size)
+        assertEquals("TV3", result.first().name)
+    }
+
+    @Test
+    fun `category OTHER returns only OTHER channels`() {
+        val otherChannel = channel(name = "Shopping TV", url = "shopping.m3u8", category = ChannelCategory.OTHER)
+        val channels = sampleChannels + otherChannel
+
+        val result = ChannelFilterLogic.applyFilters(
+            channels = channels,
+            category = ChannelCategory.OTHER,
+            query = "",
+            brokenUrls = emptySet(),
+            showBroken = true
+        )
+
+        assertTrue(result.all { it.category == ChannelCategory.OTHER })
         assertEquals(1, result.size)
     }
 
@@ -226,7 +280,7 @@ class ChannelFilterLogicTest {
     }
 
     @Test
-    fun `applyFilters with all filters permissive returns valid non-music channels`() {
+    fun `applyFilters with all filters permissive returns all non-music channels`() {
         val result = ChannelFilterLogic.applyFilters(
             channels = sampleChannels,
             category = null,
@@ -235,9 +289,8 @@ class ChannelFilterLogicTest {
             showBroken = true
         )
 
-        // Excludes: blank urls (2) and MUSIC (1)
+        // sampleChannels has 7 channels; 1 MUSIC is excluded by default "Todos" behavior
         assertEquals(6, result.size)
-        assertTrue(result.none { it.url.isBlank() })
         assertTrue(result.none { it.category == ChannelCategory.MUSIC })
     }
 }

@@ -9,6 +9,9 @@ import com.pedrogm.tdtflow.player.PlayerState
 import com.pedrogm.tdtflow.util.TimeConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.resetMain
@@ -291,12 +294,26 @@ class TdtViewModelTest {
         vm.onIntent(TdtIntent.PausePlayer) // player is null — must be safe
     }
 
-    private fun buildViewModel() = TdtViewModel(
-        getChannelsUseCase = GetChannelsUseCase(fakeChannels),
-        brokenChannelTracker = fakeTracker,
-        loadError = { e -> "Error: ${e.message}" },
-        playerFactory = { error("Player not expected in unit tests") },
-        ioDispatcher = testDispatcher,
-        searchDebounceMs = 0L
-    )
+    // Extension on TestScope so backgroundScope is accessible to start the
+    // WhileSubscribed StateFlow chain before tests assert on uiState.value.
+    private fun TestScope.buildViewModel(): TdtViewModel {
+        val vm = TdtViewModel(
+            getChannelsUseCase = GetChannelsUseCase(fakeChannels),
+            brokenChannelTracker = fakeTracker,
+            loadError = { e: Throwable -> "Error: ${e.message}" },
+            playerControllerFactory = { scope ->
+                PlayerController(
+                    playerFactory = { error("Player not expected in unit tests") },
+                    brokenChannelTracker = fakeTracker,
+                    scope = scope
+                )
+            },
+            ioDispatcher = testDispatcher,
+            searchDebounceMs = 0L
+        )
+        // UNDISPATCHED: run the collector immediately (without dispatch) until
+        // its first suspension, so uiState.value is populated before tests assert.
+        backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) { vm.uiState.collect {} }
+        return vm
+    }
 }
