@@ -114,7 +114,7 @@ class TdtViewModel(
         .distinctUntilChanged()
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.Eagerly,
+            started = SharingStarted.WhileSubscribed(TimeConstants.FLOW_SUBSCRIPTION_TIMEOUT_MS),
             initialValue = emptyList()
         )
 
@@ -130,7 +130,7 @@ class TdtViewModel(
         PartialState(filtered, current, category, query, loading)
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.Eagerly,
+        started = SharingStarted.WhileSubscribed(TimeConstants.FLOW_SUBSCRIPTION_TIMEOUT_MS),
         initialValue = PartialState(emptyList(), null, null, Constants.EMPTY_STRING, true)
     )
 
@@ -156,7 +156,7 @@ class TdtViewModel(
         )
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.Eagerly,
+        started = SharingStarted.WhileSubscribed(TimeConstants.FLOW_SUBSCRIPTION_TIMEOUT_MS),
         initialValue = TdtUiState()
     )
 
