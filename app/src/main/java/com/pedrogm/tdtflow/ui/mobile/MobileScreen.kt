@@ -515,6 +515,19 @@ private fun ChannelContent(
     favoriteIds: Set<String> = emptySet(),
     onToggleFavorite: (String) -> Unit = {}
 ) {
+    val view = LocalView.current
+    val channelsLoadedText = stringResource(R.string.a11y_channels_loaded)
+
+    LaunchedEffect(uiState.isLoading) {
+        if (!uiState.isLoading) {
+            view.announceForAccessibility(channelsLoadedText)
+        }
+    }
+
+    LaunchedEffect(uiState.error) {
+        uiState.error?.let { view.announceForAccessibility(it) }
+    }
+
     AnimatedContent(
         targetState = uiState.isLoading,
         transitionSpec = {
