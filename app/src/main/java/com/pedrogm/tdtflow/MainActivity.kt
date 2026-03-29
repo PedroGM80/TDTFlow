@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
                 AppTheme.LIGHT -> false
                 AppTheme.SYSTEM -> isSystemInDarkTheme()
             }
-            TDTFlowTheme(darkTheme = darkTheme) {
+            TDTFlowTheme(darkTheme = darkTheme, dynamicColor = optionsState.selectedTheme == AppTheme.SYSTEM) {
                 AppNavGraph(viewModel = viewModel, optionsViewModel = optionsViewModel)
             }
         }

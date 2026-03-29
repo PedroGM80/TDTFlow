@@ -1,19 +1,25 @@
 package com.pedrogm.tdtflow.ui.theme
 
+import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import com.pedrogm.tdtflow.R
 
 @Composable
 fun TDTFlowTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) {
-        darkColorScheme(
+    val context = LocalContext.current
+    val colorScheme = when {
+        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        }
+        darkTheme -> darkColorScheme(
             primary = colorResource(R.color.primary_dark),
             onPrimary = colorResource(R.color.on_primary_dark),
             primaryContainer = colorResource(R.color.primary_container_dark),
@@ -30,8 +36,7 @@ fun TDTFlowTheme(
             error = colorResource(R.color.error_dark),
             outline = colorResource(R.color.outline_dark)
         )
-    } else {
-        lightColorScheme(
+        else -> lightColorScheme(
             primary = colorResource(R.color.primary_light),
             onPrimary = colorResource(R.color.on_primary_light),
             primaryContainer = colorResource(R.color.primary_container_light),
