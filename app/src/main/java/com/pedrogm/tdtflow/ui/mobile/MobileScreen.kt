@@ -465,39 +465,12 @@ private fun PortraitLayout(
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            TopAppBar(
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Lucide.Tv,
-                            contentDescription = stringResource(R.string.app_logo),
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(dimensionResource(R.dimen.icon_size_medium))
-                        )
-                        Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_small)))
-                        Text(stringResource(R.string.app_name))
-                    }
-                },
-                actions = {
-                    IconButton(onClick = onShowFavorites) {
-                        Icon(Icons.Outlined.FavoriteBorder, contentDescription = stringResource(R.string.favorites_title))
-                    }
-                    IconButton(onClick = onToggleSearch) {
-                        Icon(
-                            imageVector = if (showSearch) Lucide.X else Lucide.Search,
-                            contentDescription = stringResource(R.string.search_description)
-                        )
-                    }
-                    IconButton(onClick = { viewModel.onIntent(TdtIntent.Retry) }) {
-                        Icon(Lucide.RefreshCw, contentDescription = stringResource(R.string.reload_description))
-                    }
-                    IconButton(onClick = onShowOptions) {
-                        Icon(Lucide.Settings, contentDescription = stringResource(R.string.options_title))
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
+            MobileTopBar(
+                showSearch = showSearch,
+                onShowFavorites = onShowFavorites,
+                onToggleSearch = onToggleSearch,
+                onRetry = { viewModel.onIntent(TdtIntent.Retry) },
+                onShowOptions = onShowOptions,
                 scrollBehavior = scrollBehavior
             )
         }
@@ -507,25 +480,17 @@ private fun PortraitLayout(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            val activePlayer = viewModel.player
-            val activeChannel = uiState.currentChannel
-            if (isPlaying && activePlayer != null && activeChannel != null) {
-                VideoPlayer(
-                    player = activePlayer,
-                    playerState = uiState.playerState,
-                    channel = activeChannel,
-                    onClose = { viewModel.onIntent(TdtIntent.StopPlayback) },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+            PortraitPlayerSection(
+                viewModel = viewModel,
+                uiState = uiState,
+                isPlaying = isPlaying
+            )
 
-            if (showSearch) {
-                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_small)))
-                SearchBar(
-                    query = uiState.searchQuery,
-                    onQueryChange = { viewModel.onIntent(TdtIntent.Search(it)) }
-                )
-            }
+            PortraitSearchSection(
+                showSearch = showSearch,
+                query = uiState.searchQuery,
+                onQueryChange = { viewModel.onIntent(TdtIntent.Search(it)) }
+            )
 
             CategoryFilter(
                 selectedCategory = uiState.selectedCategory,
@@ -545,17 +510,112 @@ private fun PortraitLayout(
             )
         }
 
-        if (uiState.error != null && uiState.channels.isNotEmpty()) {
-            Snackbar(
-                modifier = Modifier.padding(dimensionResource(R.dimen.padding_large)),
-                action = {
-                    TextButton(onClick = { viewModel.onIntent(TdtIntent.DismissError) }) {
-                        Text(stringResource(R.string.close))
-                    }
-                }
-            ) {
-                Text(uiState.error)
+        PlayerErrorSnackbar(
+            error = uiState.error,
+            showChannels = uiState.channels.isNotEmpty(),
+            onDismiss = { viewModel.onIntent(TdtIntent.DismissError) }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MobileTopBar(
+    showSearch: Boolean,
+    onShowFavorites: () -> Unit,
+    onToggleSearch: () -> Unit,
+    onRetry: () -> Unit,
+    onShowOptions: () -> Unit,
+    scrollBehavior: androidx.compose.material3.TopAppBarScrollBehavior
+) {
+    TopAppBar(
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Lucide.Tv,
+                    contentDescription = stringResource(R.string.app_logo),
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(dimensionResource(R.dimen.icon_size_medium))
+                )
+                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_small)))
+                Text(stringResource(R.string.app_name))
             }
+        },
+        actions = {
+            IconButton(onClick = onShowFavorites) {
+                Icon(Icons.Outlined.FavoriteBorder, contentDescription = stringResource(R.string.favorites_title))
+            }
+            IconButton(onClick = onToggleSearch) {
+                Icon(
+                    imageVector = if (showSearch) Lucide.X else Lucide.Search,
+                    contentDescription = stringResource(R.string.search_description)
+                )
+            }
+            IconButton(onClick = onRetry) {
+                Icon(Lucide.RefreshCw, contentDescription = stringResource(R.string.reload_description))
+            }
+            IconButton(onClick = onShowOptions) {
+                Icon(Lucide.Settings, contentDescription = stringResource(R.string.options_title))
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        scrollBehavior = scrollBehavior
+    )
+}
+
+@androidx.annotation.OptIn(UnstableApi::class)
+@Composable
+private fun PortraitPlayerSection(
+    viewModel: TdtViewModel,
+    uiState: TdtUiState,
+    isPlaying: Boolean
+) {
+    val activePlayer = viewModel.player
+    val activeChannel = uiState.currentChannel
+    if (isPlaying && activePlayer != null && activeChannel != null) {
+        VideoPlayer(
+            player = activePlayer,
+            playerState = uiState.playerState,
+            channel = activeChannel,
+            onClose = { viewModel.onIntent(TdtIntent.StopPlayback) },
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+private fun PortraitSearchSection(
+    showSearch: Boolean,
+    query: String,
+    onQueryChange: (String) -> Unit
+) {
+    if (showSearch) {
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_small)))
+        SearchBar(
+            query = query,
+            onQueryChange = onQueryChange
+        )
+    }
+}
+
+@Composable
+private fun PlayerErrorSnackbar(
+    error: String?,
+    showChannels: Boolean,
+    onDismiss: () -> Unit
+) {
+    if (error != null && showChannels) {
+        Snackbar(
+            modifier = Modifier.padding(dimensionResource(R.dimen.padding_large)),
+            action = {
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(R.string.close))
+                }
+            }
+        ) {
+            Text(error)
         }
     }
 }
