@@ -75,7 +75,7 @@ internal fun TvChannelBrowser(viewModel: TdtViewModel) {
             if (uiState.error != null && uiState.channels.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     ErrorState(
-                        message = uiState.error!!,
+                        message = uiState.error.orEmpty(),
                         onRetry = { viewModel.onIntent(TdtIntent.Retry) }
                     )
                 }
@@ -140,7 +140,7 @@ internal fun TvChannelBrowser(viewModel: TdtViewModel) {
                     }
                 }
             ) {
-                Text(uiState.error!!)
+                Text(uiState.error.orEmpty())
             }
         }
     }
