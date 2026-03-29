@@ -9,7 +9,12 @@ data class Channel(
     val logo: String = "",
     val category: ChannelCategory = ChannelCategory.GENERAL,
     val epgId: String = ""
-)
+) {
+    init {
+        require(name.isNotBlank()) { "Channel name cannot be blank" }
+        require(url.isNotBlank()) { "Channel URL cannot be blank" }
+    }
+}
 
 enum class ChannelCategory {
     GENERAL,
