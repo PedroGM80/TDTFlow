@@ -25,6 +25,7 @@ import com.composables.icons.lucide.ArrowLeft
 import com.composables.icons.lucide.Lucide
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.domain.model.Channel
+import com.pedrogm.tdtflow.domain.model.filterByUrls
 import com.pedrogm.tdtflow.ui.components.ChannelCard
 import com.pedrogm.tdtflow.ui.components.EmptyState
 
@@ -38,7 +39,7 @@ fun FavoritesScreen(
     onBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val favoriteChannels = uiState.favoriteIds.mapNotNull { url -> allChannels.find { it.url == url } }
+    val favoriteChannels = allChannels.filterByUrls(uiState.favoriteIds)
 
     Scaffold(
         topBar = {
