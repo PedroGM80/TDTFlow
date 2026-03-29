@@ -455,9 +455,13 @@ private fun PortraitLayout(
 
     // Auto-dismiss player errors after 4 seconds
     LaunchedEffect(uiState.error) {
-        if (uiState.error != null && uiState.channels.isNotEmpty()) {
+        val capturedError = uiState.error
+        if (capturedError != null && uiState.channels.isNotEmpty()) {
             delay(TimeConstants.OVERLAY_AUTO_HIDE_DELAY_MS)
-            viewModel.onIntent(TdtIntent.DismissError)
+            // Only dismiss if the same error is still showing (no new error arrived)
+            if (viewModel.uiState.value.error == capturedError) {
+                viewModel.onIntent(TdtIntent.DismissError)
+            }
         }
     }
 

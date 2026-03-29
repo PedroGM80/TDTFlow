@@ -87,7 +87,7 @@ internal fun TvChannelBrowser(viewModel: TdtViewModel) {
                 horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium)),
                 modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_extra_large))
             ) {
-                item {
+                item(key = "category_all") {
                     TvCategoryChip(
                         label = stringResource(R.string.category_all),
                         icon = Lucide.LayoutGrid,
