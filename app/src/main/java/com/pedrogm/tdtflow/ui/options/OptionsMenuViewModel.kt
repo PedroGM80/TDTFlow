@@ -43,8 +43,8 @@ class OptionsMenuViewModel @Inject constructor(
     }
 
     private fun loadTheme(): AppTheme =
-        runCatching { AppTheme.valueOf(prefs.loadTheme()) }.getOrDefault(AppTheme.SYSTEM)
+        AppTheme.entries.find { it.name == prefs.loadTheme() } ?: AppTheme.SYSTEM
 
     private fun loadLanguage(): AppLanguage =
-        runCatching { AppLanguage.valueOf(prefs.loadLanguage()) }.getOrDefault(AppLanguage.SYSTEM)
+        AppLanguage.entries.find { it.name == prefs.loadLanguage() } ?: AppLanguage.SYSTEM
 }
