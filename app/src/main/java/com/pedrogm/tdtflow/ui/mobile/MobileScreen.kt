@@ -506,11 +506,13 @@ private fun PortraitLayout(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            if (isPlaying) {
+            val activePlayer = viewModel.player
+            val activeChannel = uiState.currentChannel
+            if (isPlaying && activePlayer != null && activeChannel != null) {
                 VideoPlayer(
-                    player = viewModel.player!!,
+                    player = activePlayer,
                     playerState = uiState.playerState,
-                    channel = uiState.currentChannel!!,
+                    channel = activeChannel,
                     onClose = { viewModel.onIntent(TdtIntent.StopPlayback) },
                     modifier = Modifier.fillMaxWidth()
                 )
