@@ -15,6 +15,7 @@ import com.pedrogm.tdtflow.domain.usecase.RemoveFavoriteUseCase
 import com.pedrogm.tdtflow.fakes.FakeBrokenChannelTracker
 import com.pedrogm.tdtflow.fakes.FakeChannelsRepository
 import com.pedrogm.tdtflow.fakes.FakeFavoritesRepository
+import com.pedrogm.tdtflow.ui.PlayerController
 import com.pedrogm.tdtflow.ui.TdtViewModel
 import com.pedrogm.tdtflow.ui.favorites.FavoritesViewModel
 import com.pedrogm.tdtflow.ui.options.OptionsMenuViewModel
@@ -34,12 +35,21 @@ class MobileScreenTest {
     private fun buildTdtViewModel(
         channels: List<Channel> = listOf(channel1, channel2),
         error: Throwable? = null
-    ) = TdtViewModel(
-        getChannelsUseCase = GetChannelsUseCase(FakeChannelsRepository(channels = channels, error = error)),
-        brokenChannelTracker = FakeBrokenChannelTracker(),
-        loadError = { e -> "Error: ${e.message}" },
-        playerFactory = { error("No player in UI tests") }
-    )
+    ): TdtViewModel {
+        val tracker = FakeBrokenChannelTracker()
+        return TdtViewModel(
+            getChannelsUseCase = GetChannelsUseCase(FakeChannelsRepository(channels = channels, error = error)),
+            brokenChannelTracker = tracker,
+            loadError = { e -> "Error: ${e.message}" },
+            playerControllerFactory = { scope ->
+                PlayerController(
+                    playerFactory = { error("No player in UI tests") },
+                    brokenChannelTracker = tracker,
+                    scope = scope
+                )
+            }
+        )
+    }
 
     private fun buildFavoritesViewModel(): FavoritesViewModel {
         val repo = FakeFavoritesRepository()
