@@ -2,6 +2,7 @@ package com.pedrogm.tdtflow.data
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import com.pedrogm.tdtflow.domain.tracker.BrokenChannelTracker
 import android.util.Log
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -61,16 +62,14 @@ class BrokenChannelTrackerImpl(
     override fun clearAll() {
         _brokenUrls.value = emptySet()
         ioScope.launch {
-            prefs.edit()
-                .remove(KEY_BROKEN_URLS)
-                .putLong(KEY_LAST_CLEARED, System.currentTimeMillis())
-                .apply()
+            prefs.edit {
+                remove(KEY_BROKEN_URLS)
+                putLong(KEY_LAST_CLEARED, System.currentTimeMillis())
+            }
         }
     }
 
     private fun saveBrokenUrls(urls: Set<String>) {
-        prefs.edit()
-            .putStringSet(KEY_BROKEN_URLS, urls)
-            .apply()
+        prefs.edit { putStringSet(KEY_BROKEN_URLS, urls) }
     }
 }
