@@ -2,7 +2,6 @@ package com.pedrogm.tdtflow.ui.options
 
 import androidx.lifecycle.ViewModel
 import com.pedrogm.tdtflow.data.IOptionsPreferences
-import com.pedrogm.tdtflow.data.NoOpOptionsPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
