@@ -1,7 +1,6 @@
 package com.pedrogm.tdtflow.ui
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.pedrogm.tdtflow.R
@@ -15,12 +14,12 @@ import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
 import com.pedrogm.tdtflow.domain.tracker.BrokenChannelTracker
 import com.pedrogm.tdtflow.domain.usecase.GetChannelsUseCase
-import com.pedrogm.tdtflow.player.PlayerState
 import com.pedrogm.tdtflow.player.TdtPlayer
 import com.pedrogm.tdtflow.util.Constants
 import com.pedrogm.tdtflow.util.TimeConstants
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
@@ -31,10 +30,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
@@ -49,9 +45,9 @@ class TdtViewModel(
     private val getChannelsUseCase: GetChannelsUseCase,
     private val brokenChannelTracker: BrokenChannelTracker,
     private val loadError: (Throwable) -> String,
-    private val playerFactory: () -> TdtPlayer,
-    private val onError: (Throwable) -> Unit = {},
-    private val ioDispatcher: kotlinx.coroutines.CoroutineDispatcher = Dispatchers.Default,
+    /** Factory receives the ViewModel's coroutine scope so PlayerController can launch jobs. */
+    private val playerControllerFactory: (CoroutineScope) -> PlayerController,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.Default,
     private val searchDebounceMs: Long = TimeConstants.SEARCH_DEBOUNCE_MS
 ) : ViewModel() {
 
@@ -65,24 +61,31 @@ class TdtViewModel(
         loadError = { e ->
             context.getString(R.string.error_loading_channels, e.localizedMessage ?: "Unknown")
         },
-        playerFactory = { TdtPlayer(context) },
-        onError = { e -> FirebaseCrashlytics.getInstance().recordException(e) }
+        playerControllerFactory = { scope ->
+            PlayerController(
+                playerFactory = { TdtPlayer(context) },
+                brokenChannelTracker = brokenChannelTracker,
+                scope = scope,
+                onError = { e -> FirebaseCrashlytics.getInstance().recordException(e) }
+            )
+        }
     )
 
     companion object {
         private const val TAG = "TdtViewModel"
     }
 
+    // PlayerController is created here so it receives the live viewModelScope
+    private val playerController: PlayerController = playerControllerFactory(viewModelScope)
+
     // ── Flujos fuente ───────────────────────────────────────────────
 
     private val _channels = MutableStateFlow<List<Channel>>(emptyList())
     private val _selectedCategory = MutableStateFlow<ChannelCategory?>(null)
     private val _searchQuery = MutableStateFlow(Constants.EMPTY_STRING)
-    private val _currentChannel = MutableStateFlow<Channel?>(null)
     private val _isLoading = MutableStateFlow(true)
     private val _error = MutableStateFlow<String?>(null)
     private val _showBrokenChannels = MutableStateFlow(false)
-    private val _playerState = MutableStateFlow(PlayerState.IDLE)
 
     private var loadJob: Job? = null
 
@@ -122,7 +125,7 @@ class TdtViewModel(
 
     private val _partialUiState: StateFlow<PartialState> = combine(
         _filteredChannels,
-        _currentChannel,
+        playerController.currentChannel,
         _selectedCategory,
         _searchQuery,
         _isLoading
@@ -139,7 +142,7 @@ class TdtViewModel(
         _error,
         brokenChannelTracker.brokenUrls,
         _showBrokenChannels,
-        _playerState
+        playerController.playerState
     ) { partial, error, brokenUrls, showBroken, playerState ->
         TdtUiState(
             channels = _channels.value,
@@ -160,11 +163,16 @@ class TdtViewModel(
         initialValue = TdtUiState()
     )
 
-    var player: TdtPlayer? = null
-        private set
+    /** Exposed so the UI can bind the ExoPlayer surface. */
+    val player: TdtPlayer? get() = playerController.player
 
     init {
         loadChannels()
+        // Forward player errors into the shared _error state
+        playerController.playerError
+            .filterNotNull()
+            .onEach { _error.value = it }
+            .launchIn(viewModelScope)
     }
 
     // ── Punto de entrada MVI ────────────────────────────────────────
@@ -174,14 +182,14 @@ class TdtViewModel(
             is TdtIntent.SelectChannel -> selectChannel(intent.channel)
             is TdtIntent.FilterByCategory -> filterByCategory(intent.category)
             is TdtIntent.Search -> search(intent.query)
-            is TdtIntent.StopPlayback -> stopPlayback()
+            is TdtIntent.StopPlayback -> playerController.stop()
             is TdtIntent.DismissError -> dismissError()
             is TdtIntent.Retry -> retry()
             is TdtIntent.ToggleShowBrokenChannels -> toggleShowBrokenChannels()
             is TdtIntent.RevalidateChannels -> revalidateChannels()
             is TdtIntent.RetryBrokenChannel -> retryBrokenChannel(intent.channel)
-            is TdtIntent.PausePlayer -> pausePlayer()
-            is TdtIntent.SeekRelative -> seekRelative(intent.offsetMs)
+            is TdtIntent.PausePlayer -> playerController.pause()
+            is TdtIntent.SeekRelative -> playerController.seekRelative(intent.offsetMs)
         }
     }
 
@@ -195,7 +203,6 @@ class TdtViewModel(
                 _error.value = null
             }
             .catch { e ->
-                onError(e)
                 _error.value = loadError(e)
             }
             .onCompletion {
@@ -207,60 +214,9 @@ class TdtViewModel(
             .launchIn(viewModelScope)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private fun observePlayerErrors() {
-        _currentChannel
-            .filterNotNull()
-            .flatMapLatest { player?.playerError ?: flowOf(null) }
-            .filterNotNull()
-            .distinctUntilChanged()
-            .onEach { errorMsg ->
-                val channelName = _currentChannel.value?.name
-                onError(Exception("Player error: $errorMsg (channel: $channelName)"))
-                _error.value = errorMsg
-                markCurrentChannelAsBroken()
-            }
-            .catch { e -> Log.e(TAG, "Error observing player errors", e) }
-            .launchIn(viewModelScope)
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private fun observeBufferingTimeout() {
-        _currentChannel
-            .filterNotNull()
-            .flatMapLatest { player?.bufferingTimeout ?: flowOf(false) }
-            .filter { it }
-            .distinctUntilChanged()
-            .onEach {
-                Log.d(TAG, "Buffering timeout detected, marking channel as broken")
-                markCurrentChannelAsBroken()
-            }
-            .catch { e -> Log.e(TAG, "Error observing buffering timeout", e) }
-            .launchIn(viewModelScope)
-    }
-
-    private fun markCurrentChannelAsBroken() {
-        val url = player?.getCurrentStreamUrl() ?: return
-        Log.d(TAG, "Marking channel as broken: $url")
-        brokenChannelTracker.markAsBroken(url)
-    }
-
-    private fun initPlayer() {
-        if (player == null) {
-            player = playerFactory()
-            player?.playerState
-                ?.onEach { _playerState.value = it }
-                ?.launchIn(viewModelScope)
-            observePlayerErrors()
-            observeBufferingTimeout()
-        }
-    }
-
     private fun selectChannel(channel: Channel) {
-        initPlayer()
-        player?.play(channel.url)
-        _currentChannel.value = channel
         _error.value = null
+        playerController.selectChannel(channel)
     }
 
     private fun filterByCategory(category: ChannelCategory?) {
@@ -269,20 +225,6 @@ class TdtViewModel(
 
     private fun search(query: String) {
         _searchQuery.value = query
-    }
-
-    private fun stopPlayback() {
-        player?.stop()
-        _currentChannel.value = null
-        _playerState.value = PlayerState.IDLE
-    }
-
-    private fun pausePlayer() {
-        player?.pause()
-    }
-
-    private fun seekRelative(offsetMs: Long) {
-        player?.seekRelative(offsetMs)
     }
 
     private fun dismissError() {
@@ -309,7 +251,7 @@ class TdtViewModel(
     override fun onCleared() {
         super.onCleared()
         loadJob?.cancel()
-        player?.release()
+        playerController.release()
     }
 }
 
