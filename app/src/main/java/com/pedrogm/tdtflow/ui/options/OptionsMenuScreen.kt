@@ -72,23 +72,26 @@ fun OptionsMenuScreen(
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
                         .fillMaxHeight()
-                        .width(400.dp)
+                        .width(dimensionResource(R.dimen.loading_animation_size) * 3) // Aproximadamente 360-400dp
                         .clickable(enabled = false) {},
                     color = Color(0xFF1A1A1A).copy(alpha = 0.92f), // Negro translúcido premium
-                    shape = RoundedCornerShape(start = 24.dp),
-                    tonalElevation = 8.dp
+                    shape = RoundedCornerShape(
+                        topStart = dimensionResource(R.dimen.radius_extra_large),
+                        bottomStart = dimensionResource(R.dimen.radius_extra_large)
+                    ),
+                    tonalElevation = dimensionResource(R.dimen.elevation_high)
                 ) {
                     Column(
                         modifier = Modifier
-                            .padding(24.dp)
+                            .padding(dimensionResource(R.dimen.padding_extra_large))
                             .fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(24.dp)
+                        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_extra_large))
                     ) {
                         Text(
                             text = stringResource(R.string.options_title),
                             style = MaterialTheme.typography.headlineMedium,
                             color = Color.White,
-                            modifier = Modifier.padding(bottom = 16.dp)
+                            modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_large))
                         )
 
                         ThemeSection(
@@ -249,9 +252,9 @@ private fun LanguageSection(
                             onClick = { onSelectLanguage(language) },
                             role = Role.RadioButton
                         )
-                        .padding(vertical = 8.dp),
+                        .padding(vertical = dimensionResource(R.dimen.spacing_small)),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium))
                 ) {
                     RadioButton(
                         selected = selectedLanguage == language,
