@@ -40,3 +40,19 @@ google-services.json
 *.launch
 .settings/
 *.sublime-workspace
+
+# Gemini/Claude/AI
+.claude/*
+!.claude/skills/
+.kotlin/
+*_report.md
+audit_performance_errors.md
+code_quality_audit.md
+index.html
+script.js
+styles.css
+
+# Secrets
+*.jks
+*.keystore
+release-key.jks
