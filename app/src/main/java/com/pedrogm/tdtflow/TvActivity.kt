@@ -28,8 +28,9 @@ class TvActivity : ComponentActivity() {
     private val optionsViewModel: OptionsMenuViewModel by viewModels()
 
     override fun attachBaseContext(newBase: Context) {
-        val prefs = newBase.getSharedPreferences("tdtflow_prefs", Context.MODE_PRIVATE)
-        val languageName = prefs.getString("language", AppLanguage.SYSTEM.name) ?: AppLanguage.SYSTEM.name
+        // Usamos el mismo PREFS_NAME que en OptionsPreferences para consistencia
+        val prefs = newBase.getSharedPreferences("options_prefs", Context.MODE_PRIVATE)
+        val languageName = prefs.getString("selected_language", AppLanguage.SYSTEM.name) ?: AppLanguage.SYSTEM.name
         val language = try { AppLanguage.valueOf(languageName) } catch (e: Exception) { AppLanguage.SYSTEM }
         
         if (language == AppLanguage.SYSTEM) {
@@ -47,11 +48,16 @@ class TvActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val optionsState by optionsViewModel.uiState.collectAsStateWithLifecycle()
+            
+            // Forzar actualización de idioma si el estado cambia (para cambios en caliente)
+            val currentLanguage = optionsState.language
+            
             val darkTheme = when (optionsState.selectedTheme) {
                 AppTheme.DARK -> true
                 AppTheme.LIGHT -> false
                 AppTheme.SYSTEM -> isSystemInDarkTheme()
             }
+
             TDTFlowTheme(
                 darkTheme = darkTheme,
                 dynamicColor = optionsState.selectedTheme == AppTheme.SYSTEM

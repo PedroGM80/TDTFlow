@@ -1,20 +1,25 @@
 package com.pedrogm.tdtflow.ui.options
 
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.animation.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.unit.dp
 import androidx.core.os.LocaleListCompat
 import com.pedrogm.tdtflow.R
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -26,7 +31,8 @@ fun OptionsMenuScreen(
     viewModel: OptionsMenuViewModel,
     onDismiss: () -> Unit,
     showBrokenChannels: Boolean = false,
-    onToggleBroken: () -> Unit = {}
+    onToggleBroken: () -> Unit = {},
+    isTv: Boolean = false
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -49,13 +55,70 @@ fun OptionsMenuScreen(
         )
     }
 
-    if (uiState.isOpen) {
-        OptionsMenuContent(
-            uiState = uiState,
-            onIntent = viewModel::onIntent,
-            showBrokenChannels = showBrokenChannels,
-            onToggleBroken = onToggleBroken
-        )
+    if (isTv) {
+        // Versión TV: Panel lateral translúcido
+        AnimatedVisibility(
+            visible = uiState.isOpen,
+            enter = slideInHorizontally(initialOffsetX = { it }) + fadeIn(),
+            exit = slideOutHorizontally(targetOffsetX = { it }) + fadeOut()
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.4f))
+                    .clickable { viewModel.onIntent(OptionsMenuIntent.Dismiss) }
+            ) {
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .fillMaxHeight()
+                        .width(400.dp)
+                        .clickable(enabled = false) {},
+                    color = Color(0xFF1A1A1A).copy(alpha = 0.92f), // Negro translúcido premium
+                    shape = RoundedCornerShape(start = 24.dp),
+                    tonalElevation = 8.dp
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(24.dp)
+                            .fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(24.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.options_title),
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = Color.White,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+
+                        ThemeSection(
+                            selectedTheme = uiState.selectedTheme,
+                            onSelectTheme = { viewModel.onIntent(OptionsMenuIntent.SelectTheme(it)) }
+                        )
+
+                        BrokenChannelsSection(
+                            showBrokenChannels = showBrokenChannels,
+                            onToggle = onToggleBroken
+                        )
+
+                        LanguageSection(
+                            selectedLanguage = uiState.language,
+                            onSelectLanguage = { viewModel.onIntent(OptionsMenuIntent.SelectLanguage(it)) }
+                        )
+                    }
+                }
+            }
+        }
+    } else {
+        // Versión Móvil: Bottom Sheet estándar
+        if (uiState.isOpen) {
+            OptionsMenuContent(
+                uiState = uiState,
+                onIntent = viewModel::onIntent,
+                showBrokenChannels = showBrokenChannels,
+                onToggleBroken = onToggleBroken
+            )
+        }
     }
 }
 
@@ -115,9 +178,7 @@ private fun ThemeSection(
         )
 
         SingleChoiceSegmentedButtonRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("theme_segmented_button_row")
+            modifier = Modifier.fillMaxWidth()
         ) {
             AppTheme.entries.forEachIndexed { index, theme ->
                 SegmentedButton(
@@ -126,8 +187,7 @@ private fun ThemeSection(
                     shape = SegmentedButtonDefaults.itemShape(
                         index = index,
                         count = AppTheme.entries.size
-                    ),
-                    modifier = Modifier.testTag("theme_button_${theme.name}")
+                    )
                 ) {
                     Text(text = stringResource(theme.labelRes))
                 }
@@ -155,13 +215,13 @@ private fun BrokenChannelsSection(
         ) {
             Text(
                 text = stringResource(R.string.options_show_broken_channels),
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.White
             )
 
             Switch(
                 checked = showBrokenChannels,
-                onCheckedChange = { onToggle() },
-                modifier = Modifier.testTag("broken_channels_switch")
+                onCheckedChange = { onToggle() }
             )
         }
     }
@@ -189,37 +249,22 @@ private fun LanguageSection(
                             onClick = { onSelectLanguage(language) },
                             role = Role.RadioButton
                         )
-                        .padding(vertical = dimensionResource(R.dimen.spacing_small))
-                        .testTag("language_option_${language.name}"),
+                        .padding(vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium))
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     RadioButton(
                         selected = selectedLanguage == language,
                         onClick = null,
-                        modifier = Modifier.testTag("language_radio_${language.name}")
+                        colors = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary, unselectedColor = Color.White.copy(alpha = 0.6f))
                     )
                     Text(
                         text = stringResource(language.labelRes),
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White
                     )
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun OptionsMenuContentPreview() {
-    TDTFlowTheme {
-        OptionsMenuContent(
-            uiState = OptionsMenuState(
-                isOpen = true,
-                selectedTheme = AppTheme.SYSTEM,
-                language = AppLanguage.ES
-            ),
-            onIntent = {}
-        )
     }
 }
