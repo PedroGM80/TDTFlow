@@ -7,7 +7,7 @@ val androidCompileSdk: String by project
 val androidMinSdk: String by project
 val jvmVersion: String by project
 
-android {
+configure<com.android.build.api.dsl.LibraryExtension> {
     namespace = "com.pedrogm.tdtflow.data"
     compileSdk = androidCompileSdk.toInt()
 

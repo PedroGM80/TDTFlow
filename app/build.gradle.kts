@@ -13,7 +13,7 @@ val androidMinSdk: String by project
 val androidTargetSdk: String by project
 val jvmVersion: String by project
 
-android {
+configure<com.android.build.api.dsl.ApplicationExtension> {
     namespace = "com.pedrogm.tdtflow"
     compileSdk = androidCompileSdk.toInt()
 
@@ -61,6 +61,14 @@ android {
         compose = true
         buildConfig = true
     }
+}
+
+// In AGP 9.x+, renaming APKs via the new Variant API (androidComponents) 
+// is still being finalized. If outputFileName is unresolved, 
+// you can influence the name via archivesName or by opting into the legacy DSL.
+// For now, we'll use a project-level setting to influence the name.
+base {
+    archivesName.set("TDTFlow")
 }
 
 kotlin {
