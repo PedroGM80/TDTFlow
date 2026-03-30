@@ -1,5 +1,6 @@
 package com.pedrogm.tdtflow
 
+import android.content.Context
 import android.os.Bundle
 import android.view.KeyEvent
 import androidx.activity.ComponentActivity
@@ -14,8 +15,10 @@ import com.pedrogm.tdtflow.ui.options.AppTheme
 import com.pedrogm.tdtflow.ui.options.OptionsMenuViewModel
 import com.pedrogm.tdtflow.ui.theme.TDTFlowTheme
 import androidx.media3.common.util.UnstableApi
+import com.pedrogm.tdtflow.ui.options.AppLanguage
 import com.pedrogm.tdtflow.ui.tv.TvNavGraph
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.Locale
 
 @AndroidEntryPoint
 @androidx.annotation.OptIn(UnstableApi::class)
@@ -23,6 +26,22 @@ class TvActivity : ComponentActivity() {
 
     private val viewModel: TdtViewModel by viewModels()
     private val optionsViewModel: OptionsMenuViewModel by viewModels()
+
+    override fun attachBaseContext(newBase: Context) {
+        val prefs = newBase.getSharedPreferences("tdtflow_prefs", Context.MODE_PRIVATE)
+        val languageName = prefs.getString("language", AppLanguage.SYSTEM.name) ?: AppLanguage.SYSTEM.name
+        val language = try { AppLanguage.valueOf(languageName) } catch (e: Exception) { AppLanguage.SYSTEM }
+        
+        if (language == AppLanguage.SYSTEM) {
+            super.attachBaseContext(newBase)
+        } else {
+            val locale = Locale(language.name.lowercase())
+            Locale.setDefault(locale)
+            val config = newBase.resources.configuration
+            config.setLocale(locale)
+            super.attachBaseContext(newBase.createConfigurationContext(config))
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,9 +65,6 @@ class TvActivity : ComponentActivity() {
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        // Interceptar BACK solo cuando hay reproducción activa; el resto de la
-        // navegación (volver de Favoritos, etc.) lo gestiona el BackHandler de
-        // cada composable a través del onBackPressedDispatcher.
         if (keyCode == KeyEvent.KEYCODE_BACK && viewModel.uiState.value.isPlaying) {
             viewModel.onIntent(TdtIntent.StopPlayback)
             return true

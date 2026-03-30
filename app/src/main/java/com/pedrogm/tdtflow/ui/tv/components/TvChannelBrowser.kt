@@ -1,7 +1,16 @@
 package com.pedrogm.tdtflow.ui.tv.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -14,7 +23,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,6 +32,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -39,6 +50,7 @@ import com.pedrogm.tdtflow.ui.components.EmptyState
 import com.pedrogm.tdtflow.ui.components.ErrorState
 import com.pedrogm.tdtflow.ui.components.toLucideIcon
 import com.pedrogm.tdtflow.ui.components.toStringRes
+import com.pedrogm.tdtflow.ui.favorites.FavoritesIntent
 import com.pedrogm.tdtflow.ui.favorites.FavoritesViewModel
 import com.pedrogm.tdtflow.ui.options.OptionsMenuIntent
 import com.pedrogm.tdtflow.ui.options.OptionsMenuScreen
@@ -61,12 +73,13 @@ internal fun TvChannelBrowser(
             modifier = Modifier
                 .fillMaxSize()
                 .background(colorResource(R.color.tv_background))
-                .padding(dimensionResource(R.dimen.padding_tv))
         ) {
-            // ── Header ───────────────────────────────────────────────────
+            // ── Header (Añadido padding aquí) ──────────────────────────────
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_extra_large))
+                modifier = Modifier
+                    .padding(dimensionResource(R.dimen.padding_tv))
+                    .padding(bottom = dimensionResource(R.dimen.padding_extra_large))
             ) {
                 Icon(
                     imageVector = Lucide.Tv,
@@ -83,7 +96,7 @@ internal fun TvChannelBrowser(
                 )
                 Spacer(modifier = Modifier.weight(1f))
 
-                // Botón de favoritos
+                // Botón de favoritos mejorado
                 Surface(
                     onClick = onNavigateToFavorites,
                     shape = ClickableSurfaceDefaults.shape(
@@ -118,7 +131,7 @@ internal fun TvChannelBrowser(
 
                 Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_medium)))
 
-                // Botón de opciones
+                // Botón de opciones mejorado
                 Surface(
                     onClick = { optionsViewModel.onIntent(OptionsMenuIntent.Open) },
                     shape = ClickableSurfaceDefaults.shape(
@@ -153,7 +166,7 @@ internal fun TvChannelBrowser(
             }
 
             if (uiState.isLoading) {
-                ChannelGridSkeleton(modifier = Modifier.fillMaxSize())
+                ChannelGridSkeleton(modifier = Modifier.fillMaxSize().padding(horizontal = dimensionResource(R.dimen.padding_tv)))
                 return@Column
             }
 
@@ -167,8 +180,9 @@ internal fun TvChannelBrowser(
                 return@Column
             }
 
-            // ── Categorías ───────────────────────────────────────────────
+            // ── Categorías (Añadido contentPadding para evitar cortes) ─────
             LazyRow(
+                contentPadding = PaddingValues(horizontal = dimensionResource(R.dimen.padding_tv)),
                 horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium)),
                 modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_extra_large))
             ) {
@@ -198,6 +212,12 @@ internal fun TvChannelBrowser(
                 // ── Grid de canales ───────────────────────────────────────
                 LazyVerticalGrid(
                     columns = GridCells.Adaptive(dimensionResource(R.dimen.card_width_tv)),
+                    contentPadding = PaddingValues(
+                        start = dimensionResource(R.dimen.padding_tv),
+                        top = 0.dp,
+                        end = dimensionResource(R.dimen.padding_tv),
+                        bottom = dimensionResource(R.dimen.padding_tv)
+                    ),
                     horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_large)),
                     verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_large)),
                     modifier = Modifier.fillMaxSize()
@@ -207,7 +227,8 @@ internal fun TvChannelBrowser(
                             channel = channel,
                             isSelected = channel == uiState.currentChannel,
                             isFavorite = channel.url in favoritesState.favoriteIds,
-                            onClick = { viewModel.onIntent(TdtIntent.SelectChannel(channel)) }
+                            onClick = { viewModel.onIntent(TdtIntent.SelectChannel(channel)) },
+                            onLongClick = { favoritesViewModel.onIntent(FavoritesIntent.ToggleFavorite(channel.url)) }
                         )
                     }
                 }
@@ -233,7 +254,7 @@ internal fun TvChannelBrowser(
         // ── Opciones (mismo overlay que en la versión móvil) ──────────
         OptionsMenuScreen(
             viewModel = optionsViewModel,
-            onDismiss = {},
+            onDismiss = { optionsViewModel.onIntent(OptionsMenuIntent.Dismiss) },
             showBrokenChannels = uiState.showBrokenChannels,
             onToggleBroken = { viewModel.onIntent(TdtIntent.ToggleShowBrokenChannels) }
         )
