@@ -28,7 +28,8 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
     signingConfigs {
         create("release") {
             storeFile = file(System.getenv("RELEASE_KEYSTORE_PATH") ?: "release-key.jks")
-            storePassword = System.getenv("RELEASE_KEY_PASSWORD")
+            // Priorizamos RELEASE_KEYSTORE_PASSWORD para el almacén
+            storePassword = System.getenv("RELEASE_KEYSTORE_PASSWORD") ?: System.getenv("RELEASE_KEY_PASSWORD")
             keyAlias = System.getenv("RELEASE_KEY_ALIAS")
             keyPassword = System.getenv("RELEASE_KEY_PASSWORD")
         }
