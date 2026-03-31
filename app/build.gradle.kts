@@ -28,7 +28,6 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
     signingConfigs {
         create("release") {
             storeFile = file(System.getenv("RELEASE_KEYSTORE_PATH") ?: "release-key.jks")
-            // Priorizamos RELEASE_KEYSTORE_PASSWORD para el almacén
             storePassword = System.getenv("RELEASE_KEYSTORE_PASSWORD") ?: System.getenv("RELEASE_KEY_PASSWORD")
             keyAlias = System.getenv("RELEASE_KEY_ALIAS")
             keyPassword = System.getenv("RELEASE_KEY_PASSWORD")
@@ -46,7 +45,7 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
             )
         }
         debug {
-            // Crashlytics desactivado en debug para builds más rápidos
+            enableUnitTestCoverage = true
             configure<com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension> {
                 mappingFileUploadEnabled = false
             }
@@ -64,10 +63,6 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
     }
 }
 
-// In AGP 9.x+, renaming APKs via the new Variant API (androidComponents) 
-// is still being finalized. If outputFileName is unresolved, 
-// you can influence the name via archivesName or by opting into the legacy DSL.
-// For now, we'll use a project-level setting to influence the name.
 base {
     archivesName.set("TDTFlow")
 }
@@ -100,26 +95,22 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
 
-    // Lucide Icons (sustituye a material-icons-extended)
+    // Icons
     implementation(libs.lucide.icons)
 
-    // Compottie (Lottie animations)
+    // Animations
     implementation(libs.compottie)
     implementation(libs.compottie.dot)
     implementation(libs.compottie.network)
 
-    // Media3 (ExoPlayer)
+    // Media3
     implementation(libs.media3.exoplayer)
     implementation(libs.media3.exoplayer.hls)
     implementation(libs.media3.ui)
     implementation(libs.media3.session)
 
-    // TV Compose
+    // TV
     implementation(libs.tv.compose.material)
-
-    // Android Auto / Automotive
-    implementation(libs.androidx.car.app)
-
 
     // Images
     implementation(libs.coil.compose)
@@ -128,6 +119,9 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.analytics)
+
+    // DataStore
+    implementation(libs.androidx.datastore.preferences)
 
     // Hilt
     implementation(libs.hilt.android)
@@ -141,4 +135,28 @@ dependencies {
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+}
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn("testDebugUnitTest")
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+
+    val fileFilter = listOf(
+        "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*",
+        "**/*Test*.*", "android/**/*.*", "**/*$[0-9]*.*",
+        "**/*_HiltModules*.*", "**/*Hilt*.*", "**/dagger/hilt/**/*.*"
+    )
+    val debugTree = fileTree(layout.buildDirectory.dir("tmp/kotlin-classes/debug")) {
+        exclude(fileFilter)
+    }
+    val mainSrc = "${project.projectDir}/src/main/java"
+
+    sourceDirectories.setFrom(files(mainSrc))
+    classDirectories.setFrom(files(debugTree))
+    executionData.setFrom(fileTree(layout.buildDirectory) {
+        include("jacoco/testDebugUnitTest.exec", "outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec")
+    })
 }

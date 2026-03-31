@@ -58,17 +58,6 @@
     <string name="play_channel">Play %1$s</string>
     <string name="filter_category">Filter by %1$s</string>
 
-    <!-- Android Auto -->
-    <string name="audio_only_driving">Audio only mode</string>
-    <string name="audio_only_driving_desc">Video is hidden while the vehicle is in motion</string>
-    <string name="car_channels_title">TDTFlow — Radio</string>
-    <string name="car_loading_channels">Loading channels…</string>
-    <string name="car_now_playing">▶ Playing</string>
-    <string name="car_now_playing_title">Now playing</string>
-    <string name="car_stop">Stop</string>
-    <string name="car_buffering">Buffering…</string>
-    <string name="car_error">Connection error</string>
-
     <!-- Favorites -->
     <string name="favorites_title">Favorites</string>
     <string name="no_favorites">You have no favorite channels yet</string>

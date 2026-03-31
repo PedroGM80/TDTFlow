@@ -30,10 +30,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Paso 1: Codacy PRIMERO (mientras el repositorio está 100% limpio)
       - name: Run Codacy Analysis
         uses: codacy/codacy-analysis-cli-action@v4
-        continue-on-error: true # No detiene el CI si Codacy tiene problemas de licencia o API
+        continue-on-error: true
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
           verbose: true
@@ -42,7 +41,6 @@ jobs:
           upload: true
           directory: ${{ github.workspace }}
 
-      # Paso 2: Preparar entorno para Android Lint
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
@@ -59,25 +57,42 @@ jobs:
       - name: Run Android Lint
         run: bash gradlew lintDebug -Pandroid.lint.abortOnError=false
 
-  # ── 2. Tests Unitarios ──────────────────────────────────────────────────
+  # ── 2. Tests y Cobertura ────────────────────────────────────────────────
   unit-tests:
-    name: Unit Tests
+    name: Unit Tests & Coverage
     needs: lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
+          
       - uses: gradle/actions/setup-gradle@v4
       
       - name: Create Mock Google Services
         run: echo "$MOCK_GOOGLE_SERVICES" > app/google-services.json
 
-      - name: Run Unit Tests
-        run: bash gradlew test --continue
+      - name: Run Unit Tests with Coverage
+        run: bash gradlew jacocoTestReport
+
+      - name: Upload Coverage to Codacy
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        run: |
+          bash <(curl -Ls https://coverage.codacy.com/get.sh) report \
+            -l Kotlin \
+            -r app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
+            
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: '**/build/test-results/**/*.xml'
 
   # ── 3. Generación de Bundle de Release ──────────────────────────────────
   build-release:

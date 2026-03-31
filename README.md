@@ -4,7 +4,7 @@
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.3.20-blue.svg?style=flat&logo=kotlin)](https://kotlinlang.org)
 [![AGP](https://img.shields.io/badge/AGP-9.1.0-blue.svg?style=flat&logo=gradle)](https://developer.android.com/build)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-Phone%20·%20Tablet%20·%20TV%20·%20Auto-green.svg?logo=android)](https://www.android.com)
+[![Platform](https://img.shields.io/badge/Platform-Phone%20·%20Tablet%20·%20TV-green.svg?logo=android)](https://www.android.com)
 
 **TDTFlow** is a modern Android application for streaming Spanish free-to-air television (TDT) and radio stations — no subscription, no sign-up required. Built with **Jetpack Compose**, **Clean Architecture**, and **MVI**, it delivers a consistent, fluid experience across every Android form factor.
 
@@ -37,8 +37,6 @@
 - **Phone** — portrait & landscape layouts, fullscreen player with brightness/volume swipe gestures.
 - **Tablet** — adaptive grid, optimised for larger screens.
 - **Android TV** — D-pad/remote optimised with TV Material 3 (focus glow, scale animations, Leanback launcher).
-- **Android Auto** — music & radio channels exposed via `MediaLibraryService`; artwork, title and category shown on the car's display; steering-wheel controls via MediaSession.
-- **Automotive OS** — native car UI (`CarAppService`) with channel list, `NowPlayingScreen` and real-time player state.
 
 ### 🎨 Design
 - **Material Design 3** with dynamic colour on Android 12+.
@@ -53,7 +51,7 @@
 ```
 ┌─────────────────────────────────────────────────┐
 │  :app  (Presentation)                           │
-│  Compose UI · ViewModels · Hilt · Car services  │
+│  Compose UI · ViewModels · Hilt                 │
 ├─────────────────────────────────────────────────┤
 │  :domain  (Business Logic — pure Kotlin/JVM)    │
 │  UseCases · Domain Models · Repository interfaces│
@@ -71,15 +69,6 @@ viewModel.onIntent(TdtIntent.FilterByCategory(ChannelCategory.MUSIC))
 viewModel.onIntent(TdtIntent.Search("cope"))
 ```
 
-**Android Auto / Automotive OS** — a `MediaLibraryService` bridges the shared `ExoPlayer` instance to the car host. A separate `CarAppService` provides the native Automotive OS UI using Car App Library templates.
-
-```
-TdtPlayer (singleton)
-    ├── Phone / TV  →  Compose PlayerView
-    ├── Android Auto  →  TdtMediaService (MediaLibrarySession)
-    └── Automotive OS →  TdtCarScreen / NowPlayingScreen (CarAppService)
-```
-
 ---
 
 ## 🛠 Tech Stack
@@ -91,7 +80,6 @@ TdtPlayer (singleton)
 | DI | Hilt 2.59 |
 | Networking | Ktor 3 |
 | Media | AndroidX Media3 1.10 / ExoPlayer |
-| Car | AndroidX Car App Library 1.7 |
 | Image loading | Coil 2 |
 | Persistence | DataStore Preferences |
 | Serialization | Kotlinx Serialization |
@@ -115,15 +103,6 @@ cd tdtflow
 ./gradlew assembleDebug        # build
 ./gradlew installDebug         # install on connected device
 ./gradlew test                 # unit tests
-```
-
-### Testing Android Auto
-Use the **Desktop Head Unit (DHU)** included in the Android SDK:
-```bash
-# 1. Enable Developer options in the Android Auto phone app
-# 2. Connect phone via USB
-# 3. Launch DHU from Android Studio's "Running Devices" or:
-$ANDROID_HOME/extras/google/auto/desktop-head-unit
 ```
 
 ---
