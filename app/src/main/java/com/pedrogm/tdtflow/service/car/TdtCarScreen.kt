@@ -3,7 +3,6 @@ package com.pedrogm.tdtflow.service.car
 import androidx.car.app.CarContext
 import androidx.car.app.Screen
 import androidx.car.app.model.Action
-import androidx.car.app.model.CarIcon
 import androidx.car.app.model.Header
 import androidx.car.app.model.ItemList
 import androidx.car.app.model.ListTemplate
@@ -11,7 +10,6 @@ import androidx.car.app.model.Pane
 import androidx.car.app.model.PaneTemplate
 import androidx.car.app.model.Row
 import androidx.car.app.model.Template
-import androidx.core.graphics.drawable.IconCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.pedrogm.tdtflow.R
@@ -30,8 +28,10 @@ import kotlinx.coroutines.launch
 /**
  * Lista de canales de música para Automotive OS.
  *
- * Muestra únicamente [ChannelCategory.MUSIC] porque Android Auto no puede
- * renderizar vídeo. Al seleccionar un canal navega a [NowPlayingScreen].
+ * Muestra únicamente [ChannelCategory.MUSIC]. Al seleccionar un canal
+ * inicia la reproducción y navega a [NowPlayingScreen].
+ * Los logos se cargan de forma asíncrona con [CarArtworkLoader] para
+ * mantener la misma coherencia visual que el móvil y la TV.
  */
 class TdtCarScreen(carContext: CarContext) : Screen(carContext), DefaultLifecycleObserver {
 
@@ -47,6 +47,12 @@ class TdtCarScreen(carContext: CarContext) : Screen(carContext), DefaultLifecycl
     private var playerState: PlayerState = PlayerState.IDLE
     private val screenScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
+    private val artworkLoader = CarArtworkLoader(
+        context = carContext.applicationContext,
+        scope = screenScope,
+        onLoaded = { invalidate() }
+    )
+
     init {
         lifecycle.addObserver(this)
         loadMusicChannels()
@@ -57,6 +63,7 @@ class TdtCarScreen(carContext: CarContext) : Screen(carContext), DefaultLifecycl
         screenScope.launch {
             musicChannels = getChannelsUseCase().first()
                 .filter { it.category == ChannelCategory.MUSIC }
+            musicChannels.forEach { artworkLoader.load(it.logo, it.name) }
             invalidate()
         }
     }
@@ -78,52 +85,38 @@ class TdtCarScreen(carContext: CarContext) : Screen(carContext), DefaultLifecycl
                     .addRow(Row.Builder().setTitle(carContext.getString(R.string.car_loading_channels)).build())
                     .build()
             )
-                .setHeader(
-                    Header.Builder()
-                        .setTitle(carContext.getString(R.string.car_channels_title))
-                        .setStartHeaderAction(Action.APP_ICON)
-                        .build()
-                )
+                .setHeader(header(carContext.getString(R.string.car_channels_title), Action.APP_ICON))
                 .build()
         }
-
-        val appIcon = CarIcon.Builder(
-            IconCompat.createWithResource(carContext, R.mipmap.ic_launcher)
-        ).build()
 
         val listBuilder = ItemList.Builder()
         musicChannels.forEach { channel ->
             val isActive = channel.url == currentUrl && playerState == PlayerState.PLAYING
-            val subtitle = if (isActive)
-                carContext.getString(R.string.car_now_playing)
-            else
-                ""
+            val icon = artworkLoader.get(channel.logo, channel.name)
 
             val rowBuilder = Row.Builder()
                 .setTitle(channel.name)
-                .setImage(appIcon)
                 .setOnClickListener {
                     tdtPlayer.play(channel.url)
                     screenManager.push(NowPlayingScreen(carContext, channel))
                 }
 
-            if (subtitle.isNotEmpty()) rowBuilder.addText(subtitle)
+            icon?.let { rowBuilder.setImage(it) }
+            if (isActive) rowBuilder.addText(carContext.getString(R.string.car_now_playing))
 
             listBuilder.addItem(rowBuilder.build())
         }
 
         return ListTemplate.Builder()
             .setSingleList(listBuilder.build())
-            .setHeader(
-                Header.Builder()
-                    .setTitle(carContext.getString(R.string.car_channels_title))
-                    .setStartHeaderAction(Action.APP_ICON)
-                    .build()
-            )
+            .setHeader(header(carContext.getString(R.string.car_channels_title), Action.APP_ICON))
             .build()
     }
 
     override fun onDestroy(owner: LifecycleOwner) {
         screenScope.cancel()
     }
+
+    private fun header(title: String, startAction: Action) =
+        Header.Builder().setTitle(title).setStartHeaderAction(startAction).build()
 }

@@ -3,13 +3,11 @@ package com.pedrogm.tdtflow.service.car
 import androidx.car.app.CarContext
 import androidx.car.app.Screen
 import androidx.car.app.model.Action
-import androidx.car.app.model.CarIcon
 import androidx.car.app.model.Header
 import androidx.car.app.model.Pane
 import androidx.car.app.model.PaneTemplate
 import androidx.car.app.model.Row
 import androidx.car.app.model.Template
-import androidx.core.graphics.drawable.IconCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.pedrogm.tdtflow.R
@@ -26,9 +24,10 @@ import kotlinx.coroutines.launch
 /**
  * Pantalla "Reproduciendo ahora" para Automotive OS.
  *
- * Se muestra al seleccionar un canal en [TdtCarScreen]. Observa el estado
- * del player en tiempo real para reflejar buffering, reproducción y errores.
- * El botón Detener para la reproducción y vuelve a la lista de canales.
+ * Observa el estado del [TdtPlayer] en tiempo real y refleja buffering,
+ * reproducción activa y errores. El botón Detener para la reproducción
+ * y vuelve automáticamente a la lista de canales.
+ * El logo del canal se carga con [CarArtworkLoader], igual que en TV y móvil.
  */
 class NowPlayingScreen(
     carContext: CarContext,
@@ -42,8 +41,15 @@ class NowPlayingScreen(
     private var playerState: PlayerState = PlayerState.BUFFERING
     private val screenScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
+    private val artworkLoader = CarArtworkLoader(
+        context = carContext.applicationContext,
+        scope = screenScope,
+        onLoaded = { invalidate() }
+    )
+
     init {
         lifecycle.addObserver(this)
+        artworkLoader.load(channel.logo, channel.name)
         screenScope.launch {
             tdtPlayer.playerState.collect { state ->
                 playerState = state
@@ -53,10 +59,6 @@ class NowPlayingScreen(
     }
 
     override fun onGetTemplate(): Template {
-        val appIcon = CarIcon.Builder(
-            IconCompat.createWithResource(carContext, R.mipmap.ic_launcher)
-        ).build()
-
         val statusText = when (playerState) {
             PlayerState.PLAYING -> carContext.getString(R.string.car_now_playing)
             PlayerState.BUFFERING -> carContext.getString(R.string.car_buffering)
@@ -64,11 +66,9 @@ class NowPlayingScreen(
             else -> ""
         }
 
-        val rowBuilder = Row.Builder()
-            .setTitle(channel.name)
-            .setImage(appIcon)
-
+        val rowBuilder = Row.Builder().setTitle(channel.name)
         if (statusText.isNotEmpty()) rowBuilder.addText(statusText)
+        artworkLoader.get(channel.logo, channel.name)?.let { rowBuilder.setImage(it) }
 
         val stopAction = Action.Builder()
             .setTitle(carContext.getString(R.string.car_stop))
