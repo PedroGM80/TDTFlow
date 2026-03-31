@@ -117,6 +117,9 @@ dependencies {
     // TV Compose
     implementation(libs.tv.compose.material)
 
+    // Android Auto / Automotive
+    implementation(libs.androidx.car.app)
+
 
     // Images
     implementation(libs.coil.compose)
