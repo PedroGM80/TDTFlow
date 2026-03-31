@@ -1,4 +1,4 @@
-name: TDTFlow CI & Quality Pipeline
+name: TDTFlow CI
 
 on:
   push:
@@ -9,47 +9,37 @@ on:
 
 permissions:
   contents: read
-  security-events: write # Permite subir reportes de seguridad a GitHub si fuera necesario
+  security-events: write
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  static-analysis:
-    name: Security & Quality Analysis
+  lint:
+    name: Lint & Security Analysis
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # Required by Codacy
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: 'gradle'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v4
 
       - name: Create Mock Google Services
         run: |
-          mkdir -p app/
           echo '{"project_info":{"project_number":"0","project_id":"tdtflow-mock","storage_bucket":"dummy.appspot.com"},"client":[{"client_info":{"mobilesdk_app_id":"1:0:android:0","android_client_info":{"package_name":"com.pedrogm.tdtflow"}},"api_key":[{"current_key":"dummy"}]}]}' > app/google-services.json
 
       - name: Run Android Lint
-        run: bash gradlew lintDebug -Pandroid.lint.abortOnError=false
-
-      - name: Clean Workspace for Codacy
-        run: |
-          rm app/google-services.json || true
-          git checkout gradlew || true
+        run: ./gradlew lintDebug -Pandroid.lint.abortOnError=false
 
       - name: Run Codacy Analysis
         uses: codacy/codacy-analysis-cli-action@v4
-        continue-on-error: true # <--- CLAVE: Si Codacy falla por configuración externa, el CI NO se detiene
+        continue-on-error: true
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
           verbose: true
@@ -60,37 +50,37 @@ jobs:
 
   unit-tests:
     name: Unit Tests
-    needs: static-analysis
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+
+      - uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
+
       - uses: gradle/actions/setup-gradle@v4
-      
+
       - name: Create Mock Google Services
         run: |
-          mkdir -p app/
           echo '{"project_info":{"project_number":"0","project_id":"tdtflow-mock","storage_bucket":"dummy.appspot.com"},"client":[{"client_info":{"mobilesdk_app_id":"1:0:android:0","android_client_info":{"package_name":"com.pedrogm.tdtflow"}},"api_key":[{"current_key":"dummy"}]}]}' > app/google-services.json
 
       - name: Run Tests
-        run: bash gradlew test
+        run: ./gradlew test
 
   build-release:
     name: Build Release
-    needs: unit-tests
+    needs: [ lint, unit-tests ]
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/develop_last_ok' || startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+
+      - uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
+
       - uses: gradle/actions/setup-gradle@v4
 
       - name: Create Google Services
@@ -106,8 +96,7 @@ jobs:
       - name: Decode Keystore
         env:
           ENCODED_STRING: ${{ secrets.RELEASE_KEYSTORE }}
-        run: |
-          echo "$ENCODED_STRING" | base64 --decode > app/release.jks
+        run: echo "$ENCODED_STRING" | base64 --decode > app/release.jks
 
       - name: Build Release Bundle
         env:
@@ -115,10 +104,9 @@ jobs:
           RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
           RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
-        run: bash gradlew bundleRelease
+        run: ./gradlew bundleRelease
 
-      - name: Upload Release Bundle
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: release-bundle
           path: app/build/outputs/bundle/release/*.aab
