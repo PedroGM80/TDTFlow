@@ -52,7 +52,7 @@ jobs:
           output: results.sarif
           format: sarif
           upload: true
-          directory: .
+          directory: ${{ github.workspace }}
 
   unit-tests:
     name: Unit Tests
