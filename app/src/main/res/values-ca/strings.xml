@@ -58,17 +58,6 @@
     <string name="play_channel">Reprodueix %1$s</string>
     <string name="filter_category">Filtra per %1$s</string>
 
-    <!-- Android Auto -->
-    <string name="audio_only_driving">Mode només àudio</string>
-    <string name="audio_only_driving_desc">El vídeo s\'oculta mentre el vehicle està en marxa</string>
-    <string name="car_channels_title">TDTFlow — Ràdio</string>
-    <string name="car_loading_channels">Carregant canals…</string>
-    <string name="car_now_playing">▶ Reproduint</string>
-    <string name="car_now_playing_title">Reproduint ara</string>
-    <string name="car_stop">Atura</string>
-    <string name="car_buffering">Carregant…</string>
-    <string name="car_error">Error de connexió</string>
-
     <!-- Preferits -->
     <string name="favorites_title">Preferits</string>
     <string name="no_favorites">Encara no tens canals preferits</string>

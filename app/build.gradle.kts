@@ -109,9 +109,8 @@ dependencies {
     implementation(libs.media3.ui)
     implementation(libs.media3.session)
 
-    // TV & Car
+    // TV
     implementation(libs.tv.compose.material)
-    implementation(libs.androidx.car.app)
 
     // Images
     implementation(libs.coil.compose)
