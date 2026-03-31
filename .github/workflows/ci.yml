@@ -33,23 +33,25 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Grant execute permission to gradlew
-        run: chmod +x gradlew
-
       - name: Create Mock Google Services
         run: |
           mkdir -p app/
           echo '{"project_info":{"project_number":"0","project_id":"tdtflow-mock","storage_bucket":"dummy.appspot.com"},"client":[{"client_info":{"mobilesdk_app_id":"1:0:android:0","android_client_info":{"package_name":"com.pedrogm.tdtflow"}},"api_key":[{"current_key":"dummy"}]}]}' > app/google-services.json
 
       - name: Run Android Lint
-        run: ./gradlew lintDebug -Pandroid.lint.abortOnError=false
+        run: bash gradlew lintDebug -Pandroid.lint.abortOnError=false
+
+      - name: Clean Workspace for Codacy
+        run: |
+          rm app/google-services.json || true
+          git checkout gradlew || true
 
       - name: Run Codacy Analysis
         uses: codacy/codacy-analysis-cli-action@v4
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
           verbose: true
-          output: results.sarif
+          output: ${{ runner.temp }}/results.sarif
           format: sarif
           upload: true
           directory: ${{ github.workspace }}
@@ -67,16 +69,13 @@ jobs:
           distribution: 'temurin'
       - uses: gradle/actions/setup-gradle@v4
       
-      - name: Grant execute permission to gradlew
-        run: chmod +x gradlew
-
       - name: Create Mock Google Services
         run: |
           mkdir -p app/
           echo '{"project_info":{"project_number":"0","project_id":"tdtflow-mock","storage_bucket":"dummy.appspot.com"},"client":[{"client_info":{"mobilesdk_app_id":"1:0:android:0","android_client_info":{"package_name":"com.pedrogm.tdtflow"}},"api_key":[{"current_key":"dummy"}]}]}' > app/google-services.json
 
       - name: Run Tests
-        run: ./gradlew test
+        run: bash gradlew test
 
   build-release:
     name: Build Release
@@ -91,9 +90,6 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
       - uses: gradle/actions/setup-gradle@v4
-
-      - name: Grant execute permission to gradlew
-        run: chmod +x gradlew
 
       - name: Create Google Services
         env:
@@ -117,7 +113,7 @@ jobs:
           RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
           RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
-        run: ./gradlew bundleRelease
+        run: bash gradlew bundleRelease
 
       - name: Upload Release Bundle
         uses: actions/upload-artifact@v4
