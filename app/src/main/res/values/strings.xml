@@ -58,6 +58,17 @@
     <string name="play_channel">Reproducir %1$s</string>
     <string name="filter_category">Filtrar por %1$s</string>
 
+    <!-- Android Auto -->
+    <string name="audio_only_driving">Modo sólo audio</string>
+    <string name="audio_only_driving_desc">El vídeo se oculta mientras el vehículo está en marcha</string>
+    <string name="car_channels_title">TDTFlow — Radio</string>
+    <string name="car_loading_channels">Cargando canales…</string>
+    <string name="car_now_playing">▶ Reproduciendo</string>
+    <string name="car_now_playing_title">Reproduciendo ahora</string>
+    <string name="car_stop">Detener</string>
+    <string name="car_buffering">Cargando…</string>
+    <string name="car_error">Error de conexión</string>
+
     <!-- Favoritos -->
     <string name="favorites_title">Favoritos</string>
     <string name="no_favorites">Aún no tienes canales favoritos</string>
