@@ -85,7 +85,7 @@ jobs:
         run: |
           bash <(curl -Ls https://coverage.codacy.com/get.sh) report \
             -l Kotlin \
-            -r app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
+            -r build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
             
       - name: Upload Test Results
         if: always()
