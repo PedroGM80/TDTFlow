@@ -33,6 +33,9 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Grant execute permission to gradlew
+        run: chmod +x gradlew
+
       - name: Create Mock Google Services
         run: |
           mkdir -p app/
@@ -64,6 +67,9 @@ jobs:
           distribution: 'temurin'
       - uses: gradle/actions/setup-gradle@v4
       
+      - name: Grant execute permission to gradlew
+        run: chmod +x gradlew
+
       - name: Create Mock Google Services
         run: |
           mkdir -p app/
@@ -85,6 +91,9 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
       - uses: gradle/actions/setup-gradle@v4
+
+      - name: Grant execute permission to gradlew
+        run: chmod +x gradlew
 
       - name: Create Google Services
         env:
