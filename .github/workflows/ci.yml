@@ -18,23 +18,23 @@ jobs:
     name: Security & Quality Analysis
     runs-on: ubuntu-latest
     steps:
-      # v4.2.2
+      # actions/checkout@v4.2.2
       - name: Checkout Code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
 
-      # v4.7.0
+      # actions/setup-java@v4.5.0
       - name: Set up JDK 21
-        uses: actions/setup-java@3a4f96417a44a3a301bcdd2bb7ad2f1def3a9e38
+        uses: actions/setup-java@7a6d8a8234af8ebbc0e0f5d4df54d0717e3d2aa5
         with:
           java-version: '21'
           distribution: 'temurin'
           cache: 'gradle'
 
-      # v4.3.2
+      # gradle/actions/setup-gradle@v4.2.1
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@0734c373a27081757031fcfcef40384871f333ac
+        uses: gradle/actions/setup-gradle@d1563f17f3068da4122bcc9081ec28beec58d144
 
       - name: Create Mock Google Services
         run: |
@@ -45,9 +45,9 @@ jobs:
         run: ./gradlew lintDebug
         continue-on-error: true
 
-      # v4.4.5
+      # codacy/codacy-analysis-cli-action@v4.4.0
       - name: Run Codacy Analysis
-        uses: codacy/codacy-analysis-cli-action@d1f351da8bbda75cc28771bc2227a110292f203b
+        uses: codacy/codacy-analysis-cli-action@973060f30961337f219b08ca5ca27ad7e1e901b1
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
           verbose: true
@@ -61,13 +61,16 @@ jobs:
     needs: static-analysis
     runs-on: ubuntu-latest
     steps:
+      # actions/checkout@v4.2.2
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      # actions/setup-java@v4.5.0
       - name: Set up JDK 21
-        uses: actions/setup-java@3a4f96417a44a3a301bcdd2bb7ad2f1def3a9e38
+        uses: actions/setup-java@7a6d8a8234af8ebbc0e0f5d4df54d0717e3d2aa5
         with:
           java-version: '21'
           distribution: 'temurin'
-      - uses: gradle/actions/setup-gradle@0734c373a27081757031fcfcef40384871f333ac
+      # gradle/actions/setup-gradle@v4.2.1
+      - uses: gradle/actions/setup-gradle@d1563f17f3068da4122bcc9081ec28beec58d144
       
       - name: Create Mock Google Services
         run: |
@@ -83,13 +86,16 @@ jobs:
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/develop_last_ok' || startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
+      # actions/checkout@v4.2.2
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      # actions/setup-java@v4.5.0
       - name: Set up JDK 21
-        uses: actions/setup-java@3a4f96417a44a3a301bcdd2bb7ad2f1def3a9e38
+        uses: actions/setup-java@7a6d8a8234af8ebbc0e0f5d4df54d0717e3d2aa5
         with:
           java-version: '21'
           distribution: 'temurin'
-      - uses: gradle/actions/setup-gradle@0734c373a27081757031fcfcef40384871f333ac
+      # gradle/actions/setup-gradle@v4.2.1
+      - uses: gradle/actions/setup-gradle@d1563f17f3068da4122bcc9081ec28beec58d144
 
       - name: Create Google Services
         env:
@@ -115,8 +121,9 @@ jobs:
           RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
         run: ./gradlew bundleRelease
 
+      # actions/upload-artifact@v4.6.0
       - name: Upload Release Bundle
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
         with:
           name: release-bundle
           path: app/build/outputs/bundle/release/*.aab
