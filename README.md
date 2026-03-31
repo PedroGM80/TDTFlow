@@ -1,117 +1,150 @@
 # 📺 TDTFlow — Spanish TV & Radio Streaming
 
 [![CI](https://github.com/pedrogm/tdtflow/actions/workflows/ci.yml/badge.svg)](https://github.com/pedrogm/tdtflow/actions/workflows/ci.yml)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.1.10-blue.svg?style=flat&logo=kotlin)](https://kotlinlang.org)
-[![Gradle](https://img.shields.io/badge/Gradle-9.4-blue.svg?style=flat&logo=gradle)](https://gradle.org)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.3.20-blue.svg?style=flat&logo=kotlin)](https://kotlinlang.org)
+[![AGP](https://img.shields.io/badge/AGP-9.1.0-blue.svg?style=flat&logo=gradle)](https://developer.android.com/build)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-Android%20%2F%20Android%20TV-green.svg?logo=android)](https://www.android.com)
+[![Platform](https://img.shields.io/badge/Platform-Phone%20·%20Tablet%20·%20TV%20·%20Auto-green.svg?logo=android)](https://www.android.com)
 
-**TDTFlow** is a modern Android application designed for streaming Spanish TDT (Television Digital Terrestre) channels and radio stations. Built from the ground up using **Jetpack Compose**, **Clean Architecture**, and the **MVI (Model-View-Intent)** pattern, it offers a seamless experience across both mobile and TV devices.
+**TDTFlow** is a modern Android application for streaming Spanish free-to-air television (TDT) and radio stations — no subscription, no sign-up required. Built with **Jetpack Compose**, **Clean Architecture**, and **MVI**, it delivers a consistent, fluid experience across every Android form factor.
+
+---
+
+## 📸 Screenshots
+
+| Phone | Tablet | Android TV |
+|:---:|:---:|:---:|
+| ![Phone](app/screens/phone_portrait.png) | ![Tablet](app/screens/tablet.png) | ![TV](app/screens/tv.png) |
 
 ---
 
 ## ✨ Features
 
 ### 📡 Content & Streaming
-- **Full TDT Access**: Includes national (RTVE: La 1, La 2, 24h, Clan, Teledeporte), regional (TV3, ETB, Canal Sur, Aragón TV), and thematic channels.
-- **Radio Stations**: 40+ high-quality stations (LOS40, Cadena SER, COPE, Rock FM, Europa FM, Flaix FM, etc.).
-- **High Performance**: Optimized HLS and MP3/AAC streaming powered by **AndroidX Media3 (ExoPlayer)**.
+- **100+ TDT channels** — national (La 1, La 2, TRECE, 24h, Clan, Teledeporte), regional (TV3, ETB, Canal Sur, Aragón TV) and thematic channels.
+- **40+ radio stations** — LOS40, Cadena SER, COPE, Rock FM, Europa FM, Flaix FM and more.
+- **HLS & MP3/AAC streaming** powered by **AndroidX Media3 / ExoPlayer**.
+- **Offline resilience** — 50+ hardcoded fallback channels when the remote source is unreachable.
 
 ### 🧠 Smart Functionality
-- **Dynamic Filtering**: Category-based navigation (General, News, Sports, Kids, Music, Regional).
-- **Intelligent Search**: Real-time search with debounce to minimize UI overhead.
-- **Broken Channel Detection**: Automatic detection of unplayable streams with auto-marking and easy retry mechanisms.
-- **Favorites Management**: Save and manage your preferred channels across sessions.
-- **Resilient Design**: Offline fallback with 50+ hardcoded channels for when the API is unreachable.
+- **Category filtering** — General, News, Sports, Kids, Entertainment, Regional, Music.
+- **Real-time search** with debounce to minimise recompositions.
+- **Broken channel detection** — automatic marking of unplayable streams, easy retry.
+- **Persistent favourites** — saved with DataStore, restored across sessions.
+- **Persistent preferences** — theme (Light / Dark / System) and language (ES / EN / CA) backed by DataStore.
 
-### 🎨 Modern UI/UX
-- **Multi-Platform**: Fully adaptive UI for phones (Portrait/Landscape) and Android TV (D-pad optimized).
-- **Material Design 3**: Modern aesthetics with dynamic colors and fluid animations.
-- **Theming**: Full support for Light, Dark, and System themes.
-- **Multilingual**: Localized in Spanish, English, and Catalan.
+### 🖥 Multi-Platform UI
+- **Phone** — portrait & landscape layouts, fullscreen player with brightness/volume swipe gestures.
+- **Tablet** — adaptive grid, optimised for larger screens.
+- **Android TV** — D-pad/remote optimised with TV Material 3 (focus glow, scale animations, Leanback launcher).
+- **Android Auto** — music & radio channels exposed via `MediaLibraryService`; artwork, title and category shown on the car's display; steering-wheel controls via MediaSession.
+- **Automotive OS** — native car UI (`CarAppService`) with channel list, `NowPlayingScreen` and real-time player state.
+
+### 🎨 Design
+- **Material Design 3** with dynamic colour on Android 12+.
+- **Consistent artwork** across all surfaces — Coil loads channel logos everywhere; letter-avatar fallback when no logo is available.
+- **Smooth transitions** — `AnimatedContent` / `AnimatedVisibility` throughout.
+- **Multilingual** — Spanish, English, Catalan.
 
 ---
 
 ## 🏗 Architecture
 
-The project follows **Clean Architecture** principles, ensuring a clear separation of concerns across three specialized modules.
+```
+┌─────────────────────────────────────────────────┐
+│  :app  (Presentation)                           │
+│  Compose UI · ViewModels · Hilt · Car services  │
+├─────────────────────────────────────────────────┤
+│  :domain  (Business Logic — pure Kotlin/JVM)    │
+│  UseCases · Domain Models · Repository interfaces│
+├─────────────────────────────────────────────────┤
+│  :data  (Data Layer)                            │
+│  Ktor · RepositoryImpl · DataStore · Fallback   │
+└─────────────────────────────────────────────────┘
+```
 
-### Module Breakdown
-- **`:app` (Presentation)**: Jetpack Compose UI, ViewModels implementing MVI, and Hilt DI modules.
-- **`:domain` (Business Logic)**: Pure Kotlin/JVM module containing UseCases, Domain Models, and Repository interfaces.
-- **`:data` (Data Layer)**: Implementation of repositories, Ktor networking, caching logic, and local preferences.
-
-### MVI (Model-View-Intent)
-We use a strict MVI pattern where each ViewModel exposes a single `StateFlow` and handles actions through a single `onIntent()` entry point.
+**MVI pattern** — every ViewModel exposes a single `StateFlow<UiState>` and accepts actions through `onIntent()`:
 
 ```kotlin
-// Example Contract
-interface MviViewModel<S, I> {
-    val uiState: StateFlow<S>
-    fun onIntent(intent: I)
-}
+viewModel.onIntent(TdtIntent.SelectChannel(channel))
+viewModel.onIntent(TdtIntent.FilterByCategory(ChannelCategory.MUSIC))
+viewModel.onIntent(TdtIntent.Search("cope"))
+```
+
+**Android Auto / Automotive OS** — a `MediaLibraryService` bridges the shared `ExoPlayer` instance to the car host. A separate `CarAppService` provides the native Automotive OS UI using Car App Library templates.
+
+```
+TdtPlayer (singleton)
+    ├── Phone / TV  →  Compose PlayerView
+    ├── Android Auto  →  TdtMediaService (MediaLibrarySession)
+    └── Automotive OS →  TdtCarScreen / NowPlayingScreen (CarAppService)
 ```
 
 ---
 
-## 🛠 Technical Stack
+## 🛠 Tech Stack
 
 | Category | Technology |
 |---|---|
-| **Language** | Kotlin 2.x (K2 Compiler) |
-| **UI Framework** | Jetpack Compose (Material 3) |
-| **DI** | Hilt |
-| **Networking** | Ktor Client |
-| **Media** | AndroidX Media3 / ExoPlayer |
-| **Image Loading** | Coil |
-| **Serialization** | Kotlinx Serialization |
-| **Architecture** | Clean Architecture + MVI |
-| **Testing** | JUnit 4, Turbine, Coroutines Test |
+| Language | Kotlin 2.3.20 (K2 compiler) |
+| UI | Jetpack Compose · Material 3 · TV Material 3 |
+| DI | Hilt 2.59 |
+| Networking | Ktor 3 |
+| Media | AndroidX Media3 1.10 / ExoPlayer |
+| Car | AndroidX Car App Library 1.7 |
+| Image loading | Coil 2 |
+| Persistence | DataStore Preferences |
+| Serialization | Kotlinx Serialization |
+| Architecture | Clean Architecture · MVI |
+| Testing | JUnit 4 · Turbine · Coroutines Test |
+| CI | GitHub Actions |
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- **Android Studio** (Ladybug or newer)
-- **JDK 21** (Required for Gradle 9)
-- **Android Device/Emulator**: API 24 (Nougat) or higher
+- **Android Studio** Ladybug or newer
+- **JDK 21** (required by Gradle 9)
+- **Android device / emulator**: API 24+
 
-### Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/pedrogm/tdtflow.git
-   ```
-2. Build the project:
-   ```bash
-   ./gradlew assembleDebug
-   ```
-3. Run unit tests to verify the setup:
-   ```bash
-   ./gradlew test
-   ```
+### Build & run
+```bash
+git clone https://github.com/pedrogm/tdtflow.git
+cd tdtflow
+./gradlew assembleDebug        # build
+./gradlew installDebug         # install on connected device
+./gradlew test                 # unit tests
+```
+
+### Testing Android Auto
+Use the **Desktop Head Unit (DHU)** included in the Android SDK:
+```bash
+# 1. Enable Developer options in the Android Auto phone app
+# 2. Connect phone via USB
+# 3. Launch DHU from Android Studio's "Running Devices" or:
+$ANDROID_HOME/extras/google/auto/desktop-head-unit
+```
 
 ---
 
-## 🧪 Testing & CI/CD
+## 🧪 Testing & CI
 
-### Local Testing
-The project maintains a high test coverage for business logic and state transitions:
 ```bash
-# Run all module tests
-./gradlew :app:test :domain:test :data:test
+./gradlew :app:test            # ViewModel + UI logic tests
+./gradlew :domain:test         # UseCase tests
+./gradlew :data:test           # Repository tests
+./gradlew lint                 # static analysis
 ```
 
-### GitHub Actions (CI)
-Our CI pipeline ensures code quality on every push:
-- **Linting**: Static analysis across all modules.
-- **Unit Tests**: Verification of all UseCases and ViewModels.
-- **Build**: Automated debug APK generation.
+The GitHub Actions pipeline runs on every push: lint → unit tests → debug build.
 
 ---
 
 ## 📝 License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+MIT License — see [LICENSE](LICENSE) for details.
 
 ---
-*Developed with ❤️ for the Android & Open Source community.*
+
+*Developed with ❤️ for the Android & open-source community.*
