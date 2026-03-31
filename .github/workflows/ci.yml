@@ -20,7 +20,7 @@ env:
     {"package_name":"com.pedrogm.tdtflow"}},"api_key":[{"current_key":"dummy"}]}]}
 
 jobs:
-  # ── 1. Análisis de Calidad y Seguridad ──────────────────────────────────
+  # ── 1. Calidad y Seguridad (Codacy + Lint) ──────────────────────────────
   lint:
     name: Lint & Static Analysis
     runs-on: ubuntu-latest
@@ -30,6 +30,19 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Paso 1: Codacy PRIMERO (mientras el repositorio está 100% limpio)
+      - name: Run Codacy Analysis
+        uses: codacy/codacy-analysis-cli-action@v4
+        continue-on-error: true # No detiene el CI si Codacy tiene problemas de licencia o API
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          verbose: true
+          output: ${{ runner.temp }}/results.sarif
+          format: sarif
+          upload: true
+          directory: ${{ github.workspace }}
+
+      # Paso 2: Preparar entorno para Android Lint
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
@@ -40,82 +53,55 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Grant execute permission
-        run: chmod +x gradlew
-
       - name: Create Mock Google Services
         run: echo "$MOCK_GOOGLE_SERVICES" > app/google-services.json
 
       - name: Run Android Lint
-        run: ./gradlew lintDebug -Pandroid.lint.abortOnError=false
-
-      - name: Clean Workspace for Codacy
-        run: |
-          rm app/google-services.json || true
-          git checkout gradlew || true
-
-      - name: Run Codacy Analysis
-        uses: codacy/codacy-analysis-cli-action@v4
-        continue-on-error: true
-        with:
-          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          verbose: true
-          output: ${{ runner.temp }}/results.sarif
-          format: sarif
-          upload: true
-          directory: ${{ github.workspace }}
+        run: bash gradlew lintDebug -Pandroid.lint.abortOnError=false
 
   # ── 2. Tests Unitarios ──────────────────────────────────────────────────
   unit-tests:
     name: Unit Tests
+    needs: lint
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        
+      - uses: actions/checkout@v4
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-          
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v4
       
-      - name: Grant execute permission
-        run: chmod +x gradlew
-
       - name: Create Mock Google Services
         run: echo "$MOCK_GOOGLE_SERVICES" > app/google-services.json
 
       - name: Run Unit Tests
-        run: ./gradlew test --continue
+        run: bash gradlew test --continue
 
   # ── 3. Generación de Bundle de Release ──────────────────────────────────
   build-release:
     name: Build Release
     needs: [ lint, unit-tests ]
     if: |
-      github.ref == 'refs/heads/master' || 
-      github.ref == 'refs/heads/develop' || 
-      github.ref == 'refs/heads/develop_last_ok' || 
-      startsWith(github.ref, 'refs/tags/v')
+      always() &&
+      (needs.lint.result == 'success' || needs.lint.result == 'skipped') &&
+      (needs.unit-tests.result == 'success') &&
+      (
+        github.ref == 'refs/heads/master' || 
+        github.ref == 'refs/heads/develop' || 
+        github.ref == 'refs/heads/develop_last_ok' || 
+        startsWith(github.ref, 'refs/tags/v')
+      )
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        
+      - uses: actions/checkout@v4
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-          
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: Grant execute permission
-        run: chmod +x gradlew
+      - uses: gradle/actions/setup-gradle@v4
 
       - name: Create Google Services
         env:
@@ -143,7 +129,7 @@ jobs:
           RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
           RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
-        run: ./gradlew bundleRelease
+        run: bash gradlew bundleRelease
 
       - name: Upload Release Bundle
         uses: actions/upload-artifact@v4
