@@ -1,16 +1,23 @@
+# Android Studio / IntelliJ
 *.iml
 .gradle
 /local.properties
-/.idea/caches/
-/.idea/libraries/
-/build
-/app/build
-/data/build
-/domain/build
+/.idea/
+/.kotlin/
+/build/
+/app/build/
+/data/build/
+/domain/build/
 .DS_Store
 /captures
 .externalNativeBuild
 .cxx
-local.properties
+
+# Project specific
 /app/google-services.json
+/app/release.jks
 results.sarif
+
+# Audit reports (optional, keep if you want them in the repo)
+# *_audit_report.md
+# audit_*.md
