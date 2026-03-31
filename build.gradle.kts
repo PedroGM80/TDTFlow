@@ -44,15 +44,19 @@ tasks.register<JacocoReport>("jacocoTestReport") {
 
     val subprojects = listOf(project(":app"), project(":data"), project(":domain"))
     
-    // Forzamos la ejecución de los tests
-    dependsOn(":domain:test")
-    dependsOn(":app:testDebugUnitTest")
-    dependsOn(":data:testDebugUnitTest")
+    // Obtenemos las tareas de test de cada módulo (Android y Kotlin puro)
+    val testTasks = subprojects.flatMap { sub ->
+        sub.tasks.withType<Test>().matching { 
+            it.name == "test" || it.name == "testDebugUnitTest" 
+        }
+    }
+    
+    // Dependemos directamente de las tareas de test
+    dependsOn(testTasks)
 
     reports {
         xml.required.set(true)
         html.required.set(true)
-        // Esta es la ruta que Codacy busca por defecto
         xml.outputLocation.set(file("${project.layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml"))
     }
 
@@ -75,13 +79,23 @@ tasks.register<JacocoReport>("jacocoTestReport") {
         listOf("${sub.projectDir}/src/main/java", "${sub.projectDir}/src/main/kotlin")
     }))
 
-    executionData.setFrom(files(subprojects.flatMap { sub ->
-        fileTree(sub.layout.buildDirectory) {
-            include(
-                "jacoco/*.exec",
-                "outputs/unit_test_code_coverage/**/*.exec",
-                "outputs/unit_test_code_coverage/debugUnitTest/*.exec"
-            )
-        }.files
+    // FIX: Usamos los archivos de destino exactos de cada tarea de test
+    // Esto evita escanear directorios ajenos y elimina el error de dependencia implícita
+    executionData.setFrom(files(testTasks.map { 
+        it.extensions.getByType<JacocoTaskExtension>().destinationFile 
     }))
+
+    // Evitamos conflictos con tareas de reporte homónimas en subproyectos
+    mustRunAfter(subprojects.flatMap { sub -> 
+        sub.tasks.matching { it.name == "jacocoTestReport" }
+    })
+
+    doLast {
+        val reportFile = reports.xml.outputLocation.get().asFile
+        if (reportFile.exists()) {
+            println("Jacoco XML report generated at: ${reportFile.absolutePath}")
+        } else {
+            println("WARNING: Jacoco XML report NOT generated. Check if .exec files exist.")
+        }
+    }
 }
