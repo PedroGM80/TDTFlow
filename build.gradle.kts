@@ -44,7 +44,7 @@ tasks.register<JacocoReport>("jacocoTestReport") {
 
     val subprojects = listOf(project(":app"), project(":data"), project(":domain"))
     
-    // Ensure all tests are run before generating the report
+    // Forzamos la ejecución de los tests
     dependsOn(":domain:test")
     dependsOn(":app:testDebugUnitTest")
     dependsOn(":data:testDebugUnitTest")
@@ -52,14 +52,15 @@ tasks.register<JacocoReport>("jacocoTestReport") {
     reports {
         xml.required.set(true)
         html.required.set(true)
-        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/jacocoTestReport/jacocoTestReport.xml"))
+        // Esta es la ruta que Codacy busca por defecto
+        xml.outputLocation.set(file("${project.layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml"))
     }
 
     val fileFilter = listOf(
         "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*",
         "**/*Test*.*", "android/**/*.*", "**/*$[0-9]*.*",
         "**/*_HiltModules*.*", "**/*Hilt*.*", "**/dagger/hilt/**/*.*",
-        "**/*_Factory*.*", "**/*_MembersInjector*.*"
+        "**/*_Factory*.*", "**/*_MembersInjector*.*", "**/*_ViewBinding*.*"
     )
 
     classDirectories.setFrom(files(subprojects.flatMap { sub ->
@@ -78,7 +79,8 @@ tasks.register<JacocoReport>("jacocoTestReport") {
         fileTree(sub.layout.buildDirectory) {
             include(
                 "jacoco/*.exec",
-                "outputs/unit_test_code_coverage/*/*.exec"
+                "outputs/unit_test_code_coverage/**/*.exec",
+                "outputs/unit_test_code_coverage/debugUnitTest/*.exec"
             )
         }.files
     }))
