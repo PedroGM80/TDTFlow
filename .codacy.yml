@@ -1,0 +1,19 @@
+# Codacy configuration file
+---
+exclude_paths:
+  - '**/build/**'
+  - 'build/**'
+  - '**/test/**'
+  - '**/androidTest/**'
+  - 'gradle/**'
+  - '.gradle/**'
+  - '**/google-services.json'
+  - '**/*.jks'
+  - '**/res/raw/**'
+  - '**/res/drawable/**'
+  - '**/res/mipmap/**'
+  - '.github/**'
+  - '.idea/**'
+  - 'local.properties'
+  - 'gradlew'
+  - 'gradlew.bat'
