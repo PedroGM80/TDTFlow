@@ -44,9 +44,8 @@ tasks.register<JacocoReport>("jacocoTestReport") {
 
     val subprojects = listOf(project(":app"), project(":data"), project(":domain"))
     
-    // Dependencies: wait for tests to finish in all modules
-    dependsOn(subprojects.map { "${it.path}:test" })
-    // For Android modules, specifically run the debug unit tests
+    // Ensure all tests are run before generating the report
+    dependsOn(":domain:test")
     dependsOn(":app:testDebugUnitTest")
     dependsOn(":data:testDebugUnitTest")
 
@@ -63,31 +62,24 @@ tasks.register<JacocoReport>("jacocoTestReport") {
         "**/*_Factory*.*", "**/*_MembersInjector*.*"
     )
 
-    val classDirs = subprojects.flatMap { sub ->
+    classDirectories.setFrom(files(subprojects.flatMap { sub ->
         listOf(
             fileTree(sub.layout.buildDirectory.dir("tmp/kotlin-classes/debug")) { exclude(fileFilter) },
             fileTree(sub.layout.buildDirectory.dir("intermediates/javac/debug/classes")) { exclude(fileFilter) },
-            fileTree(sub.layout.buildDirectory.dir("classes/kotlin/main")) { exclude(fileFilter) } // For pure Kotlin modules
+            fileTree(sub.layout.buildDirectory.dir("classes/kotlin/main")) { exclude(fileFilter) }
         )
-    }
+    }))
 
-    val sourceDirs = subprojects.flatMap { sub ->
-        listOf(
-            "${sub.projectDir}/src/main/java",
-            "${sub.projectDir}/src/main/kotlin"
-        )
-    }
+    sourceDirectories.setFrom(files(subprojects.flatMap { sub ->
+        listOf("${sub.projectDir}/src/main/java", "${sub.projectDir}/src/main/kotlin")
+    }))
 
-    val execData = subprojects.flatMap { sub ->
+    executionData.setFrom(files(subprojects.flatMap { sub ->
         fileTree(sub.layout.buildDirectory) {
             include(
                 "jacoco/*.exec",
                 "outputs/unit_test_code_coverage/*/*.exec"
             )
         }.files
-    }
-
-    sourceDirectories.setFrom(files(sourceDirs))
-    classDirectories.setFrom(files(classDirs))
-    executionData.setFrom(files(execData))
+    }))
 }

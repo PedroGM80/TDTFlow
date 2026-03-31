@@ -136,38 +136,3 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
-
-tasks.register<JacocoReport>("jacocoTestReport") {
-    dependsOn("testDebugUnitTest")
-    reports {
-        xml.required.set(true)
-        html.required.set(true)
-    }
-
-    val fileFilter = listOf(
-        "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*",
-        "**/*Test*.*", "android/**/*.*", "**/*$[0-9]*.*",
-        "**/*_HiltModules*.*", "**/*Hilt*.*", "**/dagger/hilt/**/*.*"
-    )
-    
-    // Search for classes in both Kotlin and Java output locations
-    val debugTree = fileTree(layout.buildDirectory.dir("tmp/kotlin-classes/debug")) {
-        exclude(fileFilter)
-    }
-    val javaTree = fileTree(layout.buildDirectory.dir("intermediates/javac/debug/classes")) {
-        exclude(fileFilter)
-    }
-
-    // Add both src/main/java and src/main/kotlin if they exist
-    val mainSrc = files("$projectDir/src/main/java", "$projectDir/src/main/kotlin")
-
-    sourceDirectories.setFrom(mainSrc)
-    classDirectories.setFrom(files(debugTree, javaTree))
-    
-    executionData.setFrom(fileTree(layout.buildDirectory) {
-        include(
-            "jacoco/testDebugUnitTest.exec", 
-            "outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec"
-        )
-    })
-}
