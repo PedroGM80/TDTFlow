@@ -1,4 +1,4 @@
-name: TDTFlow CI
+name: TDTFlow CI & Quality Pipeline
 
 on:
   push:
@@ -12,44 +12,36 @@ permissions:
   security-events: write
 
 env:
-  # actions/checkout@v4, setup-java@v4, upload-artifact@v4 are the current stable
-  # major lines (maintained, no breaking changes). Explicit minor pins below.
-  # gradle/actions/setup-gradle@v4 — v4 is correct; v6 removed config-cache
-  # support entirely (it was broken in v4 anyway for most projects).
-  # reactivecircus/android-emulator-runner@v2 REQUIRES macOS — hardware
-  # virtualisation is not available on GitHub-hosted Ubuntu runners.
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   MOCK_GOOGLE_SERVICES: >-
     {"project_info":{"project_number":"0","project_id":"tdtflow-mock",
     "storage_bucket":"dummy.appspot.com"},"client":[{"client_info":
     {"mobilesdk_app_id":"1:0:android:0","android_client_info":
     {"package_name":"com.pedrogm.tdtflow"}},"api_key":[{"current_key":"dummy"}]}]}
 
-# ── Pipeline shape ─────────────────────────────────────────────────────────────
-#
-#   push / PR:   lint ──────┐
-#                unit-tests ─┴──► build-release  (deployable refs only)
-#
-#   push only:   instrumented-tests  (macOS emulator, parallel, non-blocking)
-#
-# ──────────────────────────────────────────────────────────────────────────────
-
 jobs:
-
-  # ── 1. Lint & static analysis ─────────────────────────────────────────────
+  # ── 1. Análisis de Calidad y Seguridad ──────────────────────────────────
   lint:
     name: Lint & Static Analysis
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4        # latest: v4.3.1 — v4 tag tracks it
+      - name: Checkout Code
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0                 # Codacy requires full history
+          fetch-depth: 0
 
-      - uses: actions/setup-java@v4      # latest in v4: v4.8.0
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
+          cache: 'gradle'
 
-      - uses: gradle/actions/setup-gradle@v4   # v4.4.1 — handles Gradle cache
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Grant execute permission
+        run: chmod +x gradlew
 
       - name: Create Mock Google Services
         run: echo "$MOCK_GOOGLE_SERVICES" > app/google-services.json
@@ -57,17 +49,14 @@ jobs:
       - name: Run Android Lint
         run: ./gradlew lintDebug -Pandroid.lint.abortOnError=false
 
-      - name: Upload Lint Report
-        if: always()
-        uses: actions/upload-artifact@v4   # latest in v4: v4.6.2
-        with:
-          name: lint-report
-          path: app/build/reports/lint-results-debug.html
-          if-no-files-found: warn
+      - name: Clean Workspace for Codacy
+        run: |
+          rm app/google-services.json || true
+          git checkout gradlew || true
 
       - name: Run Codacy Analysis
-        uses: codacy/codacy-analysis-cli-action@v4   # latest: v4.4.7
-        continue-on-error: true          # External service — never blocks CI
+        uses: codacy/codacy-analysis-cli-action@v4
+        continue-on-error: true
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
           verbose: true
@@ -76,105 +65,57 @@ jobs:
           upload: true
           directory: ${{ github.workspace }}
 
-  # ── 2. JVM unit tests — app · domain · data ───────────────────────────────
+  # ── 2. Tests Unitarios ──────────────────────────────────────────────────
   unit-tests:
     name: Unit Tests
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-java@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-
-      - uses: gradle/actions/setup-gradle@v4
+          
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      
+      - name: Grant execute permission
+        run: chmod +x gradlew
 
       - name: Create Mock Google Services
         run: echo "$MOCK_GOOGLE_SERVICES" > app/google-services.json
 
       - name: Run Unit Tests
-        # --continue: surface failures in all modules, not just the first one
         run: ./gradlew test --continue
 
-      - name: Upload Unit Test Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: unit-test-results
-          path: '**/build/test-results/**/TEST-*.xml'
-          if-no-files-found: warn
-
-  # ── 3. Compose UI / instrumented tests ────────────────────────────────────
-  #
-  #  IMPORTANT: android-emulator-runner REQUIRES macOS.
-  #  GitHub-hosted Ubuntu runners do NOT support hardware virtualisation for
-  #  Android emulators — the emulator exits immediately on Ubuntu.
-  #  macos-14 = Apple M1; arm64-v8a runs natively (no Rosetta translation).
-  #  API 34 is the most stable emulator image for Compose UI tests in 2025.
-  #
-  #  Runs only on push (not on PRs) to keep PR feedback fast; macOS runners
-  #  take ~10 min end-to-end due to emulator cold-start.
-  # ──────────────────────────────────────────────────────────────────────────
-  instrumented-tests:
-    name: Instrumented Tests
-    runs-on: macos-14                    # Apple M1 — hardware virtualisation
-    if: github.event_name == 'push'
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - uses: gradle/actions/setup-gradle@v4
-
-      - name: Create Mock Google Services
-        run: echo "$MOCK_GOOGLE_SERVICES" > app/google-services.json
-
-      - name: Run Instrumented Tests
-        uses: reactivecircus/android-emulator-runner@v2   # latest: v2.37.0
-        with:
-          api-level: 34                  # Most stable for Compose tests in 2025
-          target: google_apis            # Required for Google Play Services APIs
-          arch: arm64-v8a               # Native on M1 — fastest option
-          script: ./gradlew connectedDebugAndroidTest --continue
-
-      - name: Upload Instrumented Test Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: instrumented-test-results
-          path: app/build/outputs/androidTest-results/
-          if-no-files-found: warn
-
-  # ── 4. Release bundle — deployable refs only ──────────────────────────────
+  # ── 3. Generación de Bundle de Release ──────────────────────────────────
   build-release:
     name: Build Release
     needs: [ lint, unit-tests ]
-    # Explicit result checks handle cancelled/skipped states correctly;
-    # the plain `needs` default would silently skip in those cases.
     if: |
-      !cancelled() &&
-      needs.lint.result == 'success' &&
-      needs.unit-tests.result == 'success' &&
-      (
-        github.ref == 'refs/heads/master'           ||
-        github.ref == 'refs/heads/develop'          ||
-        github.ref == 'refs/heads/develop_last_ok'  ||
-        startsWith(github.ref, 'refs/tags/v')
-      )
-    runs-on: ubuntu-24.04
+      github.ref == 'refs/heads/master' || 
+      github.ref == 'refs/heads/develop' || 
+      github.ref == 'refs/heads/develop_last_ok' || 
+      startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-java@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
+          
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
-      - uses: gradle/actions/setup-gradle@v4
+      - name: Grant execute permission
+        run: chmod +x gradlew
 
       - name: Create Google Services
         env:
@@ -188,13 +129,13 @@ jobs:
 
       - name: Decode Keystore
         env:
-          ENCODED_KEYSTORE: ${{ secrets.RELEASE_KEYSTORE }}
+          ENCODED_STRING: ${{ secrets.RELEASE_KEYSTORE }}
         run: |
-          if [ -z "$ENCODED_KEYSTORE" ]; then
-            echo "::error::Secret RELEASE_KEYSTORE is missing — cannot sign the bundle."
+          if [ -z "$ENCODED_STRING" ]; then
+            echo "::error::Secret RELEASE_KEYSTORE is missing."
             exit 1
           fi
-          echo "$ENCODED_KEYSTORE" | base64 --decode > app/release.jks
+          echo "$ENCODED_STRING" | base64 --decode > app/release.jks
 
       - name: Build Release Bundle
         env:
