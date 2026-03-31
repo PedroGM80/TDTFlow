@@ -19,7 +19,6 @@ import com.pedrogm.tdtflow.domain.usecase.RemoveFavoriteUseCase
 import com.pedrogm.tdtflow.player.TdtPlayer
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
@@ -71,11 +70,4 @@ object AppModule {
     @Provides
     @Singleton
     fun provideTdtPlayer(@ApplicationContext context: Context): TdtPlayer = TdtPlayer(context)
-}
-
-@EntryPoint
-@InstallIn(SingletonComponent::class)
-interface CarEntryPoint {
-    fun getChannelsUseCase(): GetChannelsUseCase
-    fun getTdtPlayer(): TdtPlayer
 }

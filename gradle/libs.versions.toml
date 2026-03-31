@@ -1,6 +1,7 @@
 [versions]
 # Android & Kotlin
 androidGradlePlugin = "9.1.0"
+hiltAndroidGradlePlugin = "2.59.2"
 kotlin = "2.3.20"
 ksp = "2.3.6"
 
@@ -23,7 +24,6 @@ androidxComposeBom = "2026.03.01"
 androidxMedia3 = "1.10.0"
 androidxCarApp = "1.7.0"
 androidxDataStore = "1.2.1"
-tvFoundation = "1.0.0-beta01"
 tvMaterial = "1.1.0-beta01"
 
 # Kotlin
@@ -40,14 +40,14 @@ coil = "2.7.0"
 compottie = "2.1.0"
 lucideIcons = "1.1.0"
 
-# Testing
+# Testing & Quality
 junit = "4.13.2"
 turbine = "1.2.1"
+jacoco = "0.8.12"
 
 [libraries]
 # Core
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCore" }
-androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "androidxActivity" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidxAppCompat" }
 
@@ -66,7 +66,6 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidxNavigation" }
 
 # TV Compose
-tv-compose-foundation = { group = "androidx.tv", name = "tv-foundation", version.ref = "tvFoundation" }
 tv-compose-material = { group = "androidx.tv", name = "tv-material", version.ref = "tvMaterial" }
 
 # Media3
@@ -105,14 +104,14 @@ coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coi
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
-hilt-android-gradle-plugin = { group = "com.google.dagger", name = "hilt-android-gradle-plugin", version.ref = "hilt" }
+hilt-android-gradle-plugin = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hiltAndroidGradlePlugin" }
 
 # Firebase
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 
-# Testing
+# Testing & Coverage
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
@@ -122,7 +121,6 @@ androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
