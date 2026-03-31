@@ -1,58 +1,16 @@
-# Gradle
-.gradle
-build/
-*.apk
-*.ap_
-
-# IDE
-.idea/
 *.iml
-out/
-.vscode/
-.classpath
-.project
-.settings/
-
-# OS
+.gradle
+/local.properties
+/.idea/caches/
+/.idea/libraries/
+/build
+/app/build
+/data/build
+/domain/build
 .DS_Store
-thumbs.db
-
-# Local properties
+/captures
+.externalNativeBuild
+.cxx
 local.properties
-
-# Build outputs
-bin/
-gen/
-
-# Native
-.cxx/
-.externalNativeBuild/
-
-# Firebase
-google-services.json
-
-# Other
-*.swp
-*.swo
-*~
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
-
-# Gemini/Claude/AI
-.claude/*
-!.claude/skills/
-.kotlin/
-*_report.md
-audit_performance_errors.md
-code_quality_audit.md
-# index.html  <-- No ignorar
-# script.js   <-- No ignorar
-# styles.css  <-- No ignorar
-
-# Secrets
-*.jks
-*.keystore
-release-key.jks
+/app/google-services.json
+results.sarif
