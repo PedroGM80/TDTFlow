@@ -39,8 +39,7 @@ jobs:
           echo '{"project_info":{"project_number":"0","project_id":"tdtflow-mock","storage_bucket":"dummy.appspot.com"},"client":[{"client_info":{"mobilesdk_app_id":"1:0:android:0","android_client_info":{"package_name":"com.pedrogm.tdtflow"}},"api_key":[{"current_key":"dummy"}]}]}' > app/google-services.json
 
       - name: Run Android Lint
-        run: ./gradlew lintDebug
-        continue-on-error: true
+        run: ./gradlew lintDebug -Pandroid.lint.abortOnError=false
 
       - name: Run Codacy Analysis
         uses: codacy/codacy-analysis-cli-action@v4
