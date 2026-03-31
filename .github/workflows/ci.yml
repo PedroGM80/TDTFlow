@@ -12,37 +12,44 @@ permissions:
   security-events: write
 
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  # Single source of truth for the mock — reused in every job that needs it
+  # actions/checkout@v4, setup-java@v4, upload-artifact@v4 are the current stable
+  # major lines (maintained, no breaking changes). Explicit minor pins below.
+  # gradle/actions/setup-gradle@v4 — v4 is correct; v6 removed config-cache
+  # support entirely (it was broken in v4 anyway for most projects).
+  # reactivecircus/android-emulator-runner@v2 REQUIRES macOS — hardware
+  # virtualisation is not available on GitHub-hosted Ubuntu runners.
   MOCK_GOOGLE_SERVICES: >-
-    {"project_info":{"project_number":"0","project_id":"tdtflow-mock","storage_bucket":"dummy.appspot.com"},
-    "client":[{"client_info":{"mobilesdk_app_id":"1:0:android:0","android_client_info":
+    {"project_info":{"project_number":"0","project_id":"tdtflow-mock",
+    "storage_bucket":"dummy.appspot.com"},"client":[{"client_info":
+    {"mobilesdk_app_id":"1:0:android:0","android_client_info":
     {"package_name":"com.pedrogm.tdtflow"}},"api_key":[{"current_key":"dummy"}]}]}
 
-# ─────────────────────────────────────────────────────────────────────────────
-# lint  and  unit-tests  run in parallel.
-# instrumented-tests  runs in parallel on push events (emulator is slow/flaky
-#   on PR workflows — keeps PR feedback fast).
-# build-release  waits for lint + unit-tests and only triggers on deployable refs.
-# ─────────────────────────────────────────────────────────────────────────────
+# ── Pipeline shape ─────────────────────────────────────────────────────────────
+#
+#   push / PR:   lint ──────┐
+#                unit-tests ─┴──► build-release  (deployable refs only)
+#
+#   push only:   instrumented-tests  (macOS emulator, parallel, non-blocking)
+#
+# ──────────────────────────────────────────────────────────────────────────────
 
 jobs:
 
-  # ── 1. Static analysis ──────────────────────────────────────────────────────
+  # ── 1. Lint & static analysis ─────────────────────────────────────────────
   lint:
     name: Lint & Static Analysis
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4        # latest: v4.3.1 — v4 tag tracks it
         with:
-          fetch-depth: 0   # Codacy needs full history
+          fetch-depth: 0                 # Codacy requires full history
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4      # latest in v4: v4.8.0
         with:
           java-version: '21'
           distribution: 'temurin'
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v4   # v4.4.1 — handles Gradle cache
 
       - name: Create Mock Google Services
         run: echo "$MOCK_GOOGLE_SERVICES" > app/google-services.json
@@ -50,18 +57,17 @@ jobs:
       - name: Run Android Lint
         run: ./gradlew lintDebug -Pandroid.lint.abortOnError=false
 
-      # Always upload report so failures are inspectable in the Actions UI
       - name: Upload Lint Report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4   # latest in v4: v4.6.2
         with:
           name: lint-report
           path: app/build/reports/lint-results-debug.html
           if-no-files-found: warn
 
       - name: Run Codacy Analysis
-        uses: codacy/codacy-analysis-cli-action@v4
-        continue-on-error: true   # External service — never blocks the pipeline
+        uses: codacy/codacy-analysis-cli-action@v4   # latest: v4.4.7
+        continue-on-error: true          # External service — never blocks CI
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
           verbose: true
@@ -70,10 +76,10 @@ jobs:
           upload: true
           directory: ${{ github.workspace }}
 
-  # ── 2. JVM unit tests (app + domain + data) ─────────────────────────────────
+  # ── 2. JVM unit tests — app · domain · data ───────────────────────────────
   unit-tests:
     name: Unit Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
@@ -87,11 +93,10 @@ jobs:
       - name: Create Mock Google Services
         run: echo "$MOCK_GOOGLE_SERVICES" > app/google-services.json
 
-      # --continue: run every module even if one fails, so all failures surface
       - name: Run Unit Tests
+        # --continue: surface failures in all modules, not just the first one
         run: ./gradlew test --continue
 
-      # JUnit XML results → visible in the Actions test summary on failure
       - name: Upload Unit Test Results
         if: always()
         uses: actions/upload-artifact@v4
@@ -100,11 +105,20 @@ jobs:
           path: '**/build/test-results/**/TEST-*.xml'
           if-no-files-found: warn
 
-  # ── 3. Compose UI / instrumented tests (push only — emulator is slow) ───────
+  # ── 3. Compose UI / instrumented tests ────────────────────────────────────
+  #
+  #  IMPORTANT: android-emulator-runner REQUIRES macOS.
+  #  GitHub-hosted Ubuntu runners do NOT support hardware virtualisation for
+  #  Android emulators — the emulator exits immediately on Ubuntu.
+  #  macos-14 = Apple M1; arm64-v8a runs natively (no Rosetta translation).
+  #  API 34 is the most stable emulator image for Compose UI tests in 2025.
+  #
+  #  Runs only on push (not on PRs) to keep PR feedback fast; macOS runners
+  #  take ~10 min end-to-end due to emulator cold-start.
+  # ──────────────────────────────────────────────────────────────────────────
   instrumented-tests:
     name: Instrumented Tests
-    runs-on: ubuntu-latest
-    # Skip on pull_request to keep PR checks fast; runs on every push
+    runs-on: macos-14                    # Apple M1 — hardware virtualisation
     if: github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
@@ -116,23 +130,15 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      # Required for hardware-accelerated emulator on GitHub-hosted runners
-      - name: Enable KVM
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' \
-            | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-
       - name: Create Mock Google Services
         run: echo "$MOCK_GOOGLE_SERVICES" > app/google-services.json
 
       - name: Run Instrumented Tests
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@v2   # latest: v2.37.0
         with:
-          api-level: 29        # Lowest API with stable Compose support; above minSdk 24
-          target: default
-          arch: x86_64
+          api-level: 34                  # Most stable for Compose tests in 2025
+          target: google_apis            # Required for Google Play Services APIs
+          arch: arm64-v8a               # Native on M1 — fastest option
           script: ./gradlew connectedDebugAndroidTest --continue
 
       - name: Upload Instrumented Test Results
@@ -143,22 +149,23 @@ jobs:
           path: app/build/outputs/androidTest-results/
           if-no-files-found: warn
 
-  # ── 4. Release bundle (deployable refs only) ─────────────────────────────────
+  # ── 4. Release bundle — deployable refs only ──────────────────────────────
   build-release:
     name: Build Release
     needs: [ lint, unit-tests ]
-    # Run only when both gates pass AND we are on a deployable ref
+    # Explicit result checks handle cancelled/skipped states correctly;
+    # the plain `needs` default would silently skip in those cases.
     if: |
       !cancelled() &&
       needs.lint.result == 'success' &&
       needs.unit-tests.result == 'success' &&
       (
-        github.ref == 'refs/heads/master' ||
-        github.ref == 'refs/heads/develop' ||
-        github.ref == 'refs/heads/develop_last_ok' ||
+        github.ref == 'refs/heads/master'           ||
+        github.ref == 'refs/heads/develop'          ||
+        github.ref == 'refs/heads/develop_last_ok'  ||
         startsWith(github.ref, 'refs/tags/v')
       )
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
@@ -184,7 +191,7 @@ jobs:
           ENCODED_KEYSTORE: ${{ secrets.RELEASE_KEYSTORE }}
         run: |
           if [ -z "$ENCODED_KEYSTORE" ]; then
-            echo "::error::Secret RELEASE_KEYSTORE is not set. Cannot sign the release bundle."
+            echo "::error::Secret RELEASE_KEYSTORE is missing — cannot sign the bundle."
             exit 1
           fi
           echo "$ENCODED_KEYSTORE" | base64 --decode > app/release.jks
