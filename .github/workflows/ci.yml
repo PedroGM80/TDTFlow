@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: read
+  security-events: write # Permite subir reportes de seguridad a GitHub si fuera necesario
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -48,6 +49,7 @@ jobs:
 
       - name: Run Codacy Analysis
         uses: codacy/codacy-analysis-cli-action@v4
+        continue-on-error: true # <--- CLAVE: Si Codacy falla por configuración externa, el CI NO se detiene
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
           verbose: true
