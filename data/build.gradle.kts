@@ -38,6 +38,9 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.android)
 
+    // DataStore
+    implementation(libs.androidx.datastore.preferences)
+
     // Android
     implementation(libs.androidx.core.ktx)
 

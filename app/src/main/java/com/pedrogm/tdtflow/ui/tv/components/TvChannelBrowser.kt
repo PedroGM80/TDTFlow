@@ -11,14 +11,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme as M3Theme
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -45,7 +47,6 @@ import com.pedrogm.tdtflow.ui.favorites.FavoritesViewModel
 import com.pedrogm.tdtflow.ui.options.OptionsMenuIntent
 import com.pedrogm.tdtflow.ui.options.OptionsMenuScreen
 import com.pedrogm.tdtflow.ui.options.OptionsMenuViewModel
-import androidx.compose.material3.MaterialTheme as M3Theme
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -58,29 +59,45 @@ internal fun TvChannelBrowser(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val favoritesState by favoritesViewModel.uiState.collectAsStateWithLifecycle()
 
+    // Refactorización de Dimensiones para rendimiento
+    val paddingTv = dimensionResource(R.dimen.padding_tv)
+    val paddingExtraLarge = dimensionResource(R.dimen.padding_extra_large)
+    val spacingMedium = dimensionResource(R.dimen.spacing_medium)
+    val spacingLarge = dimensionResource(R.dimen.spacing_large)
+    val spacingSmall = dimensionResource(R.dimen.spacing_small)
+    val radiusExtraLarge = dimensionResource(R.dimen.radius_extra_large)
+    val chipPaddingH = dimensionResource(R.dimen.chip_padding_horizontal)
+    val chipPaddingV = dimensionResource(R.dimen.chip_padding_vertical)
+    val iconSizeSmall = dimensionResource(R.dimen.icon_size_small)
+    val iconSizeLarge = dimensionResource(R.dimen.icon_size_large)
+    val cardWidth = dimensionResource(R.dimen.card_width_tv)
+    val paddingLarge = dimensionResource(R.dimen.padding_large)
+
+    val surfaceShape = remember(radiusExtraLarge) { RoundedCornerShape(radiusExtraLarge) }
+
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(colorResource(R.color.tv_background))
+                .background(M3Theme.colorScheme.background)
         ) {
             // ── Header ───────────────────────────────────────────────────
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .padding(dimensionResource(R.dimen.padding_tv))
-                    .padding(bottom = dimensionResource(R.dimen.padding_extra_large))
+                    .padding(paddingTv)
+                    .padding(bottom = paddingExtraLarge)
             ) {
                 Icon(
                     imageVector = Lucide.Tv,
                     contentDescription = stringResource(R.string.app_logo),
-                    tint = colorResource(R.color.primary_dark),
-                    modifier = Modifier.size(dimensionResource(R.dimen.icon_size_large))
+                    tint = M3Theme.colorScheme.primary,
+                    modifier = Modifier.size(iconSizeLarge)
                 )
-                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_medium)))
+                Spacer(modifier = Modifier.width(spacingMedium))
                 Text(
                     text = stringResource(R.string.app_name),
-                    color = Color.White,
+                    color = M3Theme.colorScheme.onBackground,
                     style = M3Theme.typography.headlineLarge,
                     fontWeight = FontWeight.Bold
                 )
@@ -89,27 +106,22 @@ internal fun TvChannelBrowser(
                 // Botón de favoritos mejorado
                 Surface(
                     onClick = onNavigateToFavorites,
-                    shape = ClickableSurfaceDefaults.shape(
-                        RoundedCornerShape(dimensionResource(R.dimen.radius_extra_large))
-                    ),
+                    shape = ClickableSurfaceDefaults.shape(surfaceShape),
                     colors = ClickableSurfaceDefaults.colors(
-                        containerColor = colorResource(R.color.tv_surface),
-                        focusedContainerColor = colorResource(R.color.tv_surface_focused)
+                        containerColor = M3Theme.colorScheme.surfaceVariant,
+                        focusedContainerColor = M3Theme.colorScheme.primary
                     )
                 ) {
                     Row(
-                        modifier = Modifier.padding(
-                            horizontal = dimensionResource(R.dimen.chip_padding_horizontal),
-                            vertical = dimensionResource(R.dimen.chip_padding_vertical)
-                        ),
+                        modifier = Modifier.padding(horizontal = chipPaddingH, vertical = chipPaddingV),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small))
+                        horizontalArrangement = Arrangement.spacedBy(spacingSmall)
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
                             tint = Color.White,
-                            modifier = Modifier.size(dimensionResource(R.dimen.chip_padding_horizontal))
+                            modifier = Modifier.size(iconSizeSmall)
                         )
                         Text(
                             text = stringResource(R.string.favorites_title),
@@ -119,32 +131,27 @@ internal fun TvChannelBrowser(
                     }
                 }
 
-                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_medium)))
+                Spacer(modifier = Modifier.width(spacingMedium))
 
                 // Botón de opciones mejorado
                 Surface(
                     onClick = { optionsViewModel.onIntent(OptionsMenuIntent.Open) },
-                    shape = ClickableSurfaceDefaults.shape(
-                        RoundedCornerShape(dimensionResource(R.dimen.radius_extra_large))
-                    ),
+                    shape = ClickableSurfaceDefaults.shape(surfaceShape),
                     colors = ClickableSurfaceDefaults.colors(
-                        containerColor = colorResource(R.color.tv_surface),
-                        focusedContainerColor = colorResource(R.color.tv_surface_focused)
+                        containerColor = M3Theme.colorScheme.surfaceVariant,
+                        focusedContainerColor = M3Theme.colorScheme.primary
                     )
                 ) {
                     Row(
-                        modifier = Modifier.padding(
-                            horizontal = dimensionResource(R.dimen.chip_padding_horizontal),
-                            vertical = dimensionResource(R.dimen.chip_padding_vertical)
-                        ),
+                        modifier = Modifier.padding(horizontal = chipPaddingH, vertical = chipPaddingV),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small))
+                        horizontalArrangement = Arrangement.spacedBy(spacingSmall)
                     ) {
                         Icon(
                             imageVector = Lucide.Settings,
                             contentDescription = null,
                             tint = Color.White,
-                            modifier = Modifier.size(dimensionResource(R.dimen.chip_padding_horizontal))
+                            modifier = Modifier.size(iconSizeSmall)
                         )
                         Text(
                             text = stringResource(R.string.options_title),
@@ -156,7 +163,7 @@ internal fun TvChannelBrowser(
             }
 
             if (uiState.isLoading) {
-                ChannelGridSkeleton(modifier = Modifier.fillMaxSize().padding(horizontal = dimensionResource(R.dimen.padding_tv)))
+                ChannelGridSkeleton(modifier = Modifier.fillMaxSize().padding(horizontal = paddingTv))
                 return@Column
             }
 
@@ -172,9 +179,9 @@ internal fun TvChannelBrowser(
 
             // ── Categorías (Añadido contentPadding para evitar cortes) ─────
             LazyRow(
-                contentPadding = PaddingValues(horizontal = dimensionResource(R.dimen.padding_tv)),
-                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium)),
-                modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_extra_large))
+                contentPadding = PaddingValues(horizontal = paddingTv),
+                horizontalArrangement = Arrangement.spacedBy(spacingMedium),
+                modifier = Modifier.padding(bottom = paddingExtraLarge)
             ) {
                 item(key = "category_all") {
                     TvCategoryChip(
@@ -201,15 +208,15 @@ internal fun TvChannelBrowser(
             } else {
                 // ── Grid de canales ───────────────────────────────────────
                 LazyVerticalGrid(
-                    columns = GridCells.Adaptive(dimensionResource(R.dimen.card_width_tv)),
+                    columns = GridCells.Adaptive(cardWidth),
                     contentPadding = PaddingValues(
-                        start = dimensionResource(R.dimen.padding_tv),
+                        start = paddingTv,
                         top = 0.dp,
-                        end = dimensionResource(R.dimen.padding_tv),
-                        bottom = dimensionResource(R.dimen.padding_tv)
+                        end = paddingTv,
+                        bottom = paddingTv
                     ),
-                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_large)),
-                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_large)),
+                    horizontalArrangement = Arrangement.spacedBy(spacingLarge),
+                    verticalArrangement = Arrangement.spacedBy(spacingLarge),
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(items = uiState.filteredChannels, key = { it.url }) { channel ->
@@ -230,7 +237,7 @@ internal fun TvChannelBrowser(
             Snackbar(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
-                    .padding(dimensionResource(R.dimen.padding_large)),
+                    .padding(paddingLarge),
                 action = {
                     TextButton(onClick = { viewModel.onIntent(TdtIntent.DismissError) }) {
                         Text(stringResource(R.string.close))

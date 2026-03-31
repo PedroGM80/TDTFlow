@@ -1,6 +1,5 @@
 package com.pedrogm.tdtflow.ui.tv.components
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -8,30 +7,26 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme as M3Theme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.tv.material3.*
 import coil.compose.AsyncImage
-import coil.compose.AsyncImagePainter
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.ui.components.LiveIndicator
 import com.pedrogm.tdtflow.ui.components.toLucideIcon
 import com.pedrogm.tdtflow.ui.theme.AppColors
-import androidx.compose.material3.MaterialTheme as M3Theme
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -42,44 +37,55 @@ internal fun TvChannelCard(
     onClick: () -> Unit,
     onLongClick: () -> Unit
 ) {
-    var isFocused by remember { mutableStateOf(false) }
+    // Refactorización de Dimensiones: Centralizamos para mejorar rendimiento y legibilidad
+    val radiusLarge = dimensionResource(R.dimen.radius_large)
+    val radiusSmall = dimensionResource(R.dimen.radius_small)
+    val strokeThin = dimensionResource(R.dimen.stroke_thin)
+    val spacingSmall = dimensionResource(R.dimen.spacing_small)
+    val spacingMedium = dimensionResource(R.dimen.spacing_medium)
+    val spacingTiny = dimensionResource(R.dimen.spacing_tiny)
+    val cardWidth = dimensionResource(R.dimen.card_width_tv)
+    val logoSize = dimensionResource(R.dimen.card_logo_size_tv)
+    val liveIndicatorSize = dimensionResource(R.dimen.size_live_indicator)
+    val favoriteIconSize = dimensionResource(R.dimen.icon_size_small)
 
+    val shape = remember(radiusLarge) { RoundedCornerShape(radiusLarge) }
+    val logoShape = remember(radiusSmall) { RoundedCornerShape(radiusSmall) }
+    
     Surface(
         onClick = onClick,
         onLongClick = onLongClick,
-        shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(dimensionResource(R.dimen.radius_large))),
+        shape = ClickableSurfaceDefaults.shape(shape = shape),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = if (isSelected) colorResource(R.color.primary_container_dark) else colorResource(R.color.tv_card),
-            focusedContainerColor = colorResource(R.color.tv_card_focused),
-            pressedContainerColor = colorResource(R.color.primary_dark)
+            containerColor = if (isSelected) M3Theme.colorScheme.primaryContainer else M3Theme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+            focusedContainerColor = M3Theme.colorScheme.primary,
+            pressedContainerColor = M3Theme.colorScheme.primary
         ),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.12f, pressedScale = 0.95f),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.1f),
         glow = ClickableSurfaceDefaults.glow(
             focusedGlow = Glow(
-                elevationColor = colorResource(R.color.primary_dark).copy(alpha = 0.5f),
-                elevation = 15.dp
+                elevationColor = M3Theme.colorScheme.primary.copy(alpha = 0.4f),
+                elevation = spacingMedium
             )
         ),
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
-                border = BorderStroke(3.dp, Color.White),
-                shape = RoundedCornerShape(dimensionResource(R.dimen.radius_large))
+                border = BorderStroke(strokeThin, Color.White),
+                shape = shape
             )
         ),
-        modifier = Modifier
-            .onFocusChanged { isFocused = it.isFocused }
-            .padding(dimensionResource(R.dimen.spacing_small))
+        modifier = Modifier.padding(spacingSmall)
     ) {
         Column(
             modifier = Modifier
-                .width(dimensionResource(R.dimen.card_width_tv))
-                .padding(dimensionResource(R.dimen.spacing_medium)),
+                .width(cardWidth)
+                .padding(spacingMedium),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
                 modifier = Modifier
-                    .size(dimensionResource(R.dimen.card_logo_size_tv))
-                    .clip(RoundedCornerShape(dimensionResource(R.dimen.radius_small)))
+                    .size(logoSize)
+                    .clip(logoShape)
                     .background(Color.White.copy(alpha = 0.05f)),
                 contentAlignment = Alignment.Center
             ) {
@@ -87,28 +93,28 @@ internal fun TvChannelCard(
                     AsyncImage(
                         model = channel.logo,
                         contentDescription = null,
-                        modifier = Modifier.fillMaxSize().padding(dimensionResource(R.dimen.spacing_small)),
+                        modifier = Modifier.fillMaxSize().padding(spacingSmall),
                         contentScale = ContentScale.Fit
                     )
                 } else {
                     Icon(
                         imageVector = channel.category.toLucideIcon(),
                         contentDescription = null,
-                        tint = Color.White.copy(alpha = 0.6f),
-                        modifier = Modifier.size(40.dp)
+                        tint = Color.White.copy(alpha = 0.5f),
+                        modifier = Modifier.size(dimensionResource(R.dimen.icon_size_card_logo))
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_medium)))
+            Spacer(modifier = Modifier.height(spacingSmall))
 
             Text(
                 text = channel.name,
-                color = if (isFocused) Color.Black else Color.White,
+                color = Color.White,
                 style = M3Theme.typography.titleMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                fontWeight = if (isFocused) FontWeight.ExtraBold else FontWeight.Bold
+                fontWeight = FontWeight.Bold
             )
 
             Row(
@@ -117,8 +123,8 @@ internal fun TvChannelCard(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 if (isSelected) {
-                    LiveIndicator(size = 8.dp)
-                    Spacer(modifier = Modifier.width(4.dp))
+                    LiveIndicator(size = liveIndicatorSize)
+                    Spacer(modifier = Modifier.width(spacingTiny))
                     Text(
                         text = stringResource(R.string.live_indicator),
                         color = AppColors.liveIndicator,
@@ -126,12 +132,12 @@ internal fun TvChannelCard(
                     )
                 }
                 if (isFavorite) {
-                    if (isSelected) Spacer(modifier = Modifier.width(8.dp))
+                    if (isSelected) Spacer(modifier = Modifier.width(spacingSmall))
                     Icon(
                         imageVector = Icons.Filled.Favorite,
                         contentDescription = null,
-                        tint = if (isFocused) Color.Red else colorResource(R.color.primary_dark),
-                        modifier = Modifier.size(14.dp)
+                        tint = if (isSelected) Color.White else Color.Red.copy(alpha = 0.7f),
+                        modifier = Modifier.size(favoriteIconSize)
                     )
                 }
             }

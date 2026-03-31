@@ -1,10 +1,12 @@
 package com.pedrogm.tdtflow.di
 
 import android.content.Context
+import androidx.annotation.OptIn
+import androidx.media3.common.util.UnstableApi
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.pedrogm.tdtflow.data.BrokenChannelTrackerImpl
 import com.pedrogm.tdtflow.data.IOptionsPreferences
-import com.pedrogm.tdtflow.data.OptionsPreferences
+import com.pedrogm.tdtflow.data.OptionsDataStore
 import com.pedrogm.tdtflow.data.repository.ChannelRepositoryImpl
 import com.pedrogm.tdtflow.data.repository.FavoritesRepositoryImpl
 import com.pedrogm.tdtflow.domain.repository.ChannelRepository
@@ -14,8 +16,10 @@ import com.pedrogm.tdtflow.domain.usecase.AddFavoriteUseCase
 import com.pedrogm.tdtflow.domain.usecase.GetChannelsUseCase
 import com.pedrogm.tdtflow.domain.usecase.GetFavoritesUseCase
 import com.pedrogm.tdtflow.domain.usecase.RemoveFavoriteUseCase
+import com.pedrogm.tdtflow.player.TdtPlayer
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
@@ -61,5 +65,17 @@ object AppModule {
     @Provides
     @Singleton
     fun provideOptionsPreferences(@ApplicationContext ctx: Context): IOptionsPreferences =
-        OptionsPreferences(ctx)
+        OptionsDataStore(ctx)
+
+    @OptIn(UnstableApi::class)
+    @Provides
+    @Singleton
+    fun provideTdtPlayer(@ApplicationContext context: Context): TdtPlayer = TdtPlayer(context)
+}
+
+@EntryPoint
+@InstallIn(SingletonComponent::class)
+interface CarEntryPoint {
+    fun getChannelsUseCase(): GetChannelsUseCase
+    fun getTdtPlayer(): TdtPlayer
 }

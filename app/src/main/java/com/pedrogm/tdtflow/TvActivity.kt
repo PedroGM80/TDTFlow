@@ -3,9 +3,9 @@ package com.pedrogm.tdtflow
 import android.content.Context
 import android.os.Bundle
 import android.view.KeyEvent
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -22,13 +22,12 @@ import java.util.Locale
 
 @AndroidEntryPoint
 @androidx.annotation.OptIn(UnstableApi::class)
-class TvActivity : ComponentActivity() {
+class TvActivity : AppCompatActivity() {
 
     private val viewModel: TdtViewModel by viewModels()
     private val optionsViewModel: OptionsMenuViewModel by viewModels()
 
     override fun attachBaseContext(newBase: Context) {
-        // Usamos el mismo PREFS_NAME que en OptionsPreferences para consistencia
         val prefs = newBase.getSharedPreferences("options_prefs", Context.MODE_PRIVATE)
         val languageName = prefs.getString("selected_language", AppLanguage.SYSTEM.name) ?: AppLanguage.SYSTEM.name
         val language = try { AppLanguage.valueOf(languageName) } catch (e: Exception) { AppLanguage.SYSTEM }
@@ -48,9 +47,6 @@ class TvActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val optionsState by optionsViewModel.uiState.collectAsStateWithLifecycle()
-            
-            // Forzar actualización de idioma si el estado cambia (para cambios en caliente)
-            val currentLanguage = optionsState.language
             
             val darkTheme = when (optionsState.selectedTheme) {
                 AppTheme.DARK -> true

@@ -32,12 +32,12 @@ class MainActivity : AppCompatActivity() {
     override fun attachBaseContext(newBase: Context) {
         val prefs = newBase.getSharedPreferences("options_prefs", Context.MODE_PRIVATE)
         val languageName = prefs.getString("selected_language", AppLanguage.SYSTEM.name) ?: AppLanguage.SYSTEM.name
-        val language = try { AppLanguage.valueOf(languageName) } catch (e: Exception) { AppLanguage.SYSTEM }
-        
+        val language = try { AppLanguage.valueOf(languageName) } catch (ignored: Exception) { AppLanguage.SYSTEM }
+
         if (language == AppLanguage.SYSTEM) {
             super.attachBaseContext(newBase)
         } else {
-            val locale = Locale(language.name.lowercase())
+            val locale = Locale.forLanguageTag(language.name.lowercase())
             Locale.setDefault(locale)
             val config = newBase.resources.configuration
             config.setLocale(locale)
