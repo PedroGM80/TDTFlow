@@ -54,7 +54,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -300,7 +299,6 @@ private fun LandscapeBrowserLayout(
     onShowOptions: () -> Unit
 ) {
     val favoritesState by favoritesViewModel.uiState.collectAsStateWithLifecycle()
-    var showOverlay by remember { mutableStateOf(true) }
     var showSearch by remember { mutableStateOf(false) }
 
     // En horizontal móvil, usamos un tamaño de celda más pequeño para aprovechar el espacio

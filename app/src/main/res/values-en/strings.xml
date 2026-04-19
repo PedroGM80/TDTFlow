@@ -58,6 +58,9 @@
     <string name="play_channel">Play %1$s</string>
     <string name="filter_category">Filter by %1$s</string>
 
+    <!-- Separator -->
+    <string name="radio_section_separator">Radio Channels</string>
+
     <!-- Favorites -->
     <string name="favorites_title">Favorites</string>
     <string name="no_favorites">You have no favorite channels yet</string>
