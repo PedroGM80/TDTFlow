@@ -8,7 +8,8 @@ data class Channel(
     val url: String,
     val logo: String = "",
     val category: ChannelCategory = ChannelCategory.GENERAL,
-    val epgId: String = ""
+    val epgId: String = "",
+    val isRadio: Boolean = false
 ) {
     init {
         require(name.isNotBlank()) { "Channel name cannot be blank" }
