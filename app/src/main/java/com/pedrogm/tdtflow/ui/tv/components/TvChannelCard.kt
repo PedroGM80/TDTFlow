@@ -4,18 +4,18 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme as M3Theme
 import androidx.compose.material3.Text
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -44,15 +44,12 @@ internal fun TvChannelCard(
     onLongClick: () -> Unit
 ) {
     val radiusLarge = dimensionResource(R.dimen.radius_large)
-    val radiusSmall = dimensionResource(R.dimen.radius_small)
     val spacingMedium = dimensionResource(R.dimen.spacing_medium)
-    val spacingSmall = dimensionResource(R.dimen.spacing_small)
     val spacingTiny = dimensionResource(R.dimen.spacing_tiny)
-    val cardWidth = dimensionResource(R.dimen.card_width_tv)
-    val logoSize = dimensionResource(R.dimen.card_logo_size_tv)
-    
+    val logoSize = dimensionResource(R.dimen.card_logo_size_tv) + 16.dp
+
     val shape = remember(radiusLarge) { RoundedCornerShape(radiusLarge) }
-    val logoShape = remember(radiusSmall) { RoundedCornerShape(radiusSmall) }
+    var isFocused by remember { mutableStateOf(false) }
 
     // Animación de pulso para el indicador de directo
     val infiniteTransition = rememberInfiniteTransition(label = "live_pulse")
@@ -69,6 +66,8 @@ internal fun TvChannelCard(
     Surface(
         onClick = onClick,
         onLongClick = onLongClick,
+        modifier = Modifier
+            .onFocusChanged { isFocused = it.isFocused },
         shape = ClickableSurfaceDefaults.shape(shape = shape),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = if (isSelected) M3Theme.colorScheme.primary.copy(alpha = 0.2f) 
@@ -92,24 +91,23 @@ internal fun TvChannelCard(
                 border = BorderStroke(1.dp, M3Theme.colorScheme.primary.copy(alpha = 0.5f)),
                 shape = shape
             ) else Border.None
-        ),
-        modifier = Modifier.padding(spacingSmall)
+        )
     ) {
         Column(
             modifier = Modifier
-                .width(cardWidth)
+                .fillMaxWidth()
                 .background(
                     if (isSelected) Brush.verticalGradient(
                         listOf(M3Theme.colorScheme.primary.copy(alpha = 0.15f), Color.Transparent)
                     ) else Brush.linearGradient(listOf(Color.Transparent, Color.Transparent))
-                )
-                .padding(spacingMedium),
+                ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // El logo ocupa todo el ancho superior sin padding
             Box(
                 modifier = Modifier
-                    .size(logoSize)
-                    .clip(logoShape)
+                    .fillMaxWidth()
+                    .height(logoSize)
                     .background(Color.White.copy(alpha = 0.08f)),
                 contentAlignment = Alignment.Center
             ) {
@@ -117,7 +115,9 @@ internal fun TvChannelCard(
                     AsyncImage(
                         model = channel.logo,
                         contentDescription = null,
-                        modifier = Modifier.fillMaxSize().padding(spacingSmall),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(dimensionResource(R.dimen.spacing_small)),
                         contentScale = ContentScale.Fit
                     )
                 } else {
@@ -128,60 +128,76 @@ internal fun TvChannelCard(
                         modifier = Modifier.size(40.dp)
                     )
                 }
+            }
 
-                if (isFavorite) {
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(4.dp)
-                            .size(20.dp)
-                            .background(Color.Black.copy(alpha = 0.4f), CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
+            // El resto del contenido sí tiene padding
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = spacingMedium)
+                    .padding(bottom = spacingMedium + 4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(spacingMedium))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = channel.name,
+                        color = Color.White,
+                        style = M3Theme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        fontWeight = FontWeight.ExtraBold,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.weight(1f, fill = false)
+                    )
+
+                    if (isFavorite) {
+                        Spacer(modifier = Modifier.width(6.dp))
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
-                            tint = Color.Red,
-                            modifier = Modifier.size(12.dp)
+                            tint = Color(0xFFEF5350), // Rojo sutil
+                            modifier = Modifier.size(16.dp)
+                        )
+                    } else if (isFocused) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Icon(
+                            imageVector = Icons.Outlined.FavoriteBorder,
+                            contentDescription = null,
+                            tint = Color.White.copy(alpha = 0.4f),
+                            modifier = Modifier.size(16.dp)
                         )
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(spacingSmall))
-
-            Text(
-                text = channel.name,
-                color = Color.White,
-                style = M3Theme.typography.titleMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                fontWeight = FontWeight.ExtraBold,
-                textAlign = TextAlign.Center
-            )
-
-            if (isSelected) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.alpha(liveAlpha)
-                ) {
-                    LiveIndicator(size = 8.dp)
-                    Spacer(modifier = Modifier.width(spacingTiny))
+                if (isSelected) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.alpha(liveAlpha)
+                    ) {
+                        LiveIndicator(size = 8.dp)
+                        Spacer(modifier = Modifier.width(spacingTiny))
+                        Text(
+                            text = stringResource(R.string.live_indicator),
+                            color = AppColors.liveIndicator,
+                            style = M3Theme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 11.sp
+                        )
+                    }
+                } else {
                     Text(
-                        text = stringResource(R.string.live_indicator),
-                        color = AppColors.liveIndicator,
+                        text = channel.category.name.lowercase().replaceFirstChar { it.uppercase() },
+                        color = Color.White.copy(alpha = 0.6f),
                         style = M3Theme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 10.sp
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 }
-            } else {
-                Text(
-                    text = channel.category.name.lowercase().replaceFirstChar { it.uppercase() },
-                    color = Color.White.copy(alpha = 0.5f),
-                    style = M3Theme.typography.labelSmall,
-                    fontSize = 10.sp
-                )
             }
         }
     }

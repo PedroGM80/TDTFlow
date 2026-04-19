@@ -18,7 +18,6 @@ import com.pedrogm.tdtflow.ui.options.OptionsMenuViewModel
 
 private const val TV_ROUTE_CHANNELS  = "tv_channels"
 private const val TV_ROUTE_FAVORITES = "tv_favorites"
-private const val TV_ROUTE_OPTIONS   = "tv_options"
 
 @UnstableApi
 @Composable
@@ -42,8 +41,7 @@ fun TvNavGraph(
                 viewModel = viewModel,
                 favoritesViewModel = favoritesViewModel,
                 optionsViewModel = optionsViewModel,
-                onNavigateToFavorites = { navController.navigate(TV_ROUTE_FAVORITES) },
-                onNavigateToOptions = { navController.navigate(TV_ROUTE_OPTIONS) }
+                onNavigateToFavorites = { navController.navigate(TV_ROUTE_FAVORITES) }
             )
         }
         composable(TV_ROUTE_FAVORITES) {
@@ -56,12 +54,6 @@ fun TvNavGraph(
                     viewModel.onIntent(TdtIntent.SelectChannel(channel))
                     navController.popBackStack()
                 },
-                onBack = { navController.popBackStack() }
-            )
-        }
-        composable(TV_ROUTE_OPTIONS) {
-            com.pedrogm.tdtflow.ui.options.OptionsScreen(
-                viewModel = optionsViewModel,
                 onBack = { navController.popBackStack() }
             )
         }

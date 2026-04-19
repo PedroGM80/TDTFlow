@@ -27,8 +27,7 @@ fun TvScreen(
     viewModel: TdtViewModel,
     favoritesViewModel: FavoritesViewModel,
     optionsViewModel: OptionsMenuViewModel,
-    onNavigateToFavorites: () -> Unit,
-    onNavigateToOptions: () -> Unit
+    onNavigateToFavorites: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isPlaying = uiState.isPlaying && uiState.currentChannel != null && viewModel.player != null

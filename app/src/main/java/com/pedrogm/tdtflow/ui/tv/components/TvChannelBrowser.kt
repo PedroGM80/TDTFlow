@@ -208,14 +208,14 @@ internal fun TvChannelBrowser(
             } else {
                 // ── Grid de canales ───────────────────────────────────────
                 LazyVerticalGrid(
-                    columns = GridCells.Adaptive(cardWidth),
+                    columns = GridCells.Adaptive(minSize = cardWidth),
                     contentPadding = PaddingValues(
                         start = paddingTv,
                         top = 0.dp,
                         end = paddingTv,
                         bottom = paddingTv
                     ),
-                    horizontalArrangement = Arrangement.spacedBy(spacingLarge),
+                    horizontalArrangement = Arrangement.spacedBy(spacingLarge, Alignment.CenterHorizontally),
                     verticalArrangement = Arrangement.spacedBy(spacingLarge),
                     modifier = Modifier.fillMaxSize()
                 ) {
