@@ -54,6 +54,7 @@ class TdtViewModel(
     @Inject constructor(
         getChannelsUseCase: GetChannelsUseCase,
         brokenChannelTracker: BrokenChannelTracker,
+        tdtPlayer: TdtPlayer,
         @ApplicationContext context: Context
     ) : this(
         getChannelsUseCase = getChannelsUseCase,
@@ -63,8 +64,9 @@ class TdtViewModel(
         },
         playerControllerFactory = { scope ->
             PlayerController(
-                playerFactory = { TdtPlayer(context) },
+                playerFactory = { tdtPlayer },
                 brokenChannelTracker = brokenChannelTracker,
+                context = context,
                 scope = scope,
                 onError = { e -> FirebaseCrashlytics.getInstance().recordException(e) }
             )

@@ -80,6 +80,5 @@ class TvActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        viewModel.onIntent(TdtIntent.PausePlayer)
     }
 }

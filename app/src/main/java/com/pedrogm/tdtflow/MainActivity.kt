@@ -16,7 +16,6 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import com.pedrogm.tdtflow.navigation.AppNavGraph
-import com.pedrogm.tdtflow.ui.TdtIntent
 import com.pedrogm.tdtflow.ui.TdtViewModel
 import com.pedrogm.tdtflow.ui.options.AppLanguage
 import com.pedrogm.tdtflow.ui.options.AppTheme
@@ -76,6 +75,5 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        viewModel.onIntent(TdtIntent.PausePlayer)
     }
 }
