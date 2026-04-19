@@ -1,6 +1,6 @@
 # 📺 TDTFlow — Spanish TV & Radio Streaming
 
-[![CI](https://github.com/pedrogm/tdtflow/actions/workflows/ci.yml/badge.svg)](https://github.com/pedrogm/tdtflow/actions/workflows/ci.yml)
+[![CI](https://github.com/PedroGM80/TDTFlow/actions/workflows/ci.yml/badge.svg)](https://github.com/PedroGM80/TDTFlow/actions/workflows/ci.yml)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.3.20-blue.svg?style=flat&logo=kotlin)](https://kotlinlang.org)
 [![AGP](https://img.shields.io/badge/AGP-9.1.0-blue.svg?style=flat&logo=gradle)](https://developer.android.com/build)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -21,26 +21,33 @@
 ## ✨ Features
 
 ### 📡 Content & Streaming
-- **100+ TDT channels** — national (La 1, La 2, TRECE, 24h, Clan, Teledeporte), regional (TV3, ETB, Canal Sur, Aragón TV) and thematic channels.
-- **40+ radio stations** — LOS40, Cadena SER, COPE, Rock FM, Europa FM, Flaix FM and more.
+- **100+ TDT channels** — national (La 1, La 2, TRECE, 24h, Clan, Teledeporte), regional (TV3, ETB, Canal Sur, Aragón TV…) and thematic channels.
+- **50+ radio stations** — national (Cadena SER, COPE, RNE, LOS40, Rock FM, Europa FM), sports radio (Marca Radio, Radio MARCA), news radio and regional stations.
 - **HLS & MP3/AAC streaming** powered by **AndroidX Media3 / ExoPlayer**.
-- **Offline resilience** — 50+ hardcoded fallback channels when the remote source is unreachable.
+- **Offline resilience** — hardcoded fallback channels (TV + Radio) when the remote source is unreachable.
 
 ### 🧠 Smart Functionality
 - **Category filtering** — General, News, Sports, Kids, Entertainment, Regional, Music.
+- **Radio / TV separation** — channels automatically identified as radio (AAC/MP3 stream) are grouped in a dedicated section with a visual separator in every category that contains mixed content.
 - **Real-time search** with debounce to minimise recompositions.
 - **Broken channel detection** — automatic marking of unplayable streams, easy retry.
 - **Persistent favourites** — saved with DataStore, restored across sessions.
 - **Persistent preferences** — theme (Light / Dark / System) and language (ES / EN / CA) backed by DataStore.
 
 ### 🖥 Multi-Platform UI
-- **Phone** — portrait & landscape layouts, fullscreen player with brightness/volume swipe gestures.
-- **Tablet** — adaptive grid, optimised for larger screens.
+- **Phone portrait** — TopAppBar with search, category filter chips, adaptive channel grid.
+- **Phone landscape** — two modes:
+  - *Playing*: fullscreen immersive player with brightness (left drag) and volume (right drag) gestures.
+  - *Browsing*: fullscreen channel grid with tap-to-show overlay (categories, search, options).
+- **Tablet** — same adaptive layouts scaled to the larger screen; landscape automatically uses the fullscreen browser.
 - **Android TV** — D-pad/remote optimised with TV Material 3 (focus glow, scale animations, Leanback launcher).
+- **Immersive mode** — system bars (clock, battery, signal) are hidden across the entire app; swipe from edge to peek temporarily.
 
 ### 🎨 Design
 - **Material Design 3** with dynamic colour on Android 12+.
-- **Consistent artwork** across all surfaces — Coil loads channel logos everywhere; letter-avatar fallback when no logo is available.
+- **Press-scale animation** on channel cards for tactile feedback.
+- **Favourites badge** — circular background that turns soft red when a channel is saved; heart icon always visible regardless of background colour.
+- **Consistent artwork** — Coil loads channel logos everywhere; letter-avatar fallback when no logo is available.
 - **Smooth transitions** — `AnimatedContent` / `AnimatedVisibility` throughout.
 - **Multilingual** — Spanish, English, Catalan.
 
@@ -67,6 +74,15 @@
 viewModel.onIntent(TdtIntent.SelectChannel(channel))
 viewModel.onIntent(TdtIntent.FilterByCategory(ChannelCategory.MUSIC))
 viewModel.onIntent(TdtIntent.Search("cope"))
+```
+
+**Radio detection** — streams are tagged at the data layer by format and ambit:
+
+```kotlin
+// ChannelMapper: aac/mp3 format → isRadio = true
+val isRadio = format == "aac" || format == "mp3"
+// Repository: explicit override for known radio ambits
+channel.toChannel(ambitName = ambit.name, isRadioManual = true)
 ```
 
 ---
@@ -98,8 +114,8 @@ viewModel.onIntent(TdtIntent.Search("cope"))
 
 ### Build & run
 ```bash
-git clone https://github.com/pedrogm/tdtflow.git
-cd tdtflow
+git clone https://github.com/PedroGM80/TDTFlow.git
+cd TDTFlow
 ./gradlew assembleDebug        # build
 ./gradlew installDebug         # install on connected device
 ./gradlew test                 # unit tests
@@ -112,7 +128,7 @@ cd tdtflow
 ```bash
 ./gradlew :app:test            # ViewModel + UI logic tests
 ./gradlew :domain:test         # UseCase tests
-./gradlew :data:test           # Repository tests
+./gradlew :data:test           # Repository + mapper tests
 ./gradlew lint                 # static analysis
 ```
 
