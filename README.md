@@ -1,16 +1,17 @@
-# 📺 TDTFlow — Spanish TV & Radio Streaming
+# TDTFlow — Spanish Free-to-Air TV & Radio
 
 [![CI](https://github.com/PedroGM80/TDTFlow/actions/workflows/ci.yml/badge.svg)](https://github.com/PedroGM80/TDTFlow/actions/workflows/ci.yml)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.3.20-blue.svg?style=flat&logo=kotlin)](https://kotlinlang.org)
-[![AGP](https://img.shields.io/badge/AGP-9.1.0-blue.svg?style=flat&logo=gradle)](https://developer.android.com/build)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-Phone%20·%20Tablet%20·%20TV-green.svg?logo=android)](https://www.android.com)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.3.20-7F52FF.svg?style=flat&logo=kotlin&logoColor=white)](https://kotlinlang.org)
+[![AGP](https://img.shields.io/badge/AGP-9.1.0-02303A.svg?style=flat&logo=gradle)](https://developer.android.com/build)
+[![Media3](https://img.shields.io/badge/Media3-1.10.0-4285F4.svg?style=flat&logo=android&logoColor=white)](https://developer.android.com/media/media3)
+[![License](https://img.shields.io/badge/License-MIT-22C55E.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Phone%20·%20Tablet%20·%20TV-3DDC84.svg?logo=android&logoColor=white)](https://www.android.com)
 
-**TDTFlow** is a modern Android application for streaming Spanish free-to-air television (TDT) and radio stations — no subscription, no sign-up required. Built with **Jetpack Compose**, **Clean Architecture**, and **MVI**, it delivers a consistent, fluid experience across every Android form factor.
+**TDTFlow** is a production-quality Android app for streaming Spanish free-to-air television and radio — no account, no subscription. Built with **Jetpack Compose**, **Clean Architecture**, and **MVI**, it delivers a native, fluid experience on every Android form factor: phone, tablet, and Android TV.
 
 ---
 
-## 📸 Screenshots
+## Screenshots
 
 | Phone | Tablet | Android TV |
 |:---:|:---:|:---:|
@@ -18,128 +19,230 @@
 
 ---
 
-## ✨ Features
+## Features
 
-### 📡 Content & Streaming
-- **100+ TDT channels** — national (La 1, La 2, TRECE, 24h, Clan, Teledeporte), regional (TV3, ETB, Canal Sur, Aragón TV…) and thematic channels.
-- **50+ radio stations** — national (Cadena SER, COPE, RNE, LOS40, Rock FM, Europa FM), sports radio (Marca Radio, Radio MARCA), news radio and regional stations.
-- **HLS & MP3/AAC streaming** powered by **AndroidX Media3 / ExoPlayer**.
-- **Offline resilience** — hardcoded fallback channels (TV + Radio) when the remote source is unreachable.
+### Content & Streaming
 
-### 🧠 Smart Functionality
-- **Category filtering** — General, News, Sports, Kids, Entertainment, Regional, Music.
-- **Radio / TV separation** — channels automatically identified as radio (AAC/MP3 stream) are grouped in a dedicated section with a visual separator in every category that contains mixed content.
-- **Real-time search** with debounce to minimise recompositions.
-- **Broken channel detection** — automatic marking of unplayable streams, easy retry.
-- **Persistent favourites** — saved with DataStore, restored across sessions.
-- **Persistent preferences** — theme (Light / Dark / System) and language (ES / EN / CA) backed by DataStore.
+- **100+ TDT channels** — national (La 1, La 2, 24h, Clan, Teledeporte, TRECE), regional (TV3, ETB, Canal Sur, Aragón TV, IB3…) and thematic.
+- **50+ radio stations** — Cadena SER, COPE, RNE, Onda Cero, LOS40, Rock FM, Kiss FM, Europa FM, Cadena Dial, Radio Marca, regional Catalan and Andalusian stations and more.
+- **HLS & MP3/AAC streaming** via AndroidX Media3 / ExoPlayer with custom HTTP timeouts and cross-protocol redirect support.
+- **Background playback** — `PlaybackService` (Media3 `MediaSessionService`) keeps audio running when the app is minimised or the screen turns off, with a persistent notification and media controls.
+- **Offline resilience** — 50+ hardcoded fallback channels (TV + radio) automatically used when the remote API is unreachable.
 
-### 🖥 Multi-Platform UI
-- **Phone portrait** — TopAppBar with search, category filter chips, adaptive channel grid.
-- **Phone landscape** — two modes:
-  - *Playing*: fullscreen immersive player with brightness (left drag) and volume (right drag) gestures.
-  - *Browsing*: fullscreen channel grid with tap-to-show overlay (categories, search, options).
-- **Tablet** — same adaptive layouts scaled to the larger screen; landscape automatically uses the fullscreen browser.
-- **Android TV** — D-pad/remote optimised with TV Material 3 (focus glow, scale animations, Leanback launcher).
-- **Immersive mode** — system bars (clock, battery, signal) are hidden across the entire app; swipe from edge to peek temporarily.
+### Smart Functionality
 
-### 🎨 Design
-- **Material Design 3** with dynamic colour on Android 12+.
-- **Press-scale animation** on channel cards for tactile feedback.
-- **Favourites badge** — circular background that turns soft red when a channel is saved; heart icon always visible regardless of background colour.
-- **Consistent artwork** — Coil loads channel logos everywhere; letter-avatar fallback when no logo is available.
+- **8 category filters** — General, News, Sports, Kids, Entertainment, Regional, Music, Other.
+- **Radio / TV visual separator** — channels are automatically classified as radio (by stream format, ambit name, or channel name) and displayed in a clearly separated section within each mixed-content category.
+- **Real-time search** with 300 ms debounce to minimise recompositions.
+- **Broken channel detection** — automatic marking after an 8-second buffering timeout or a playback error; counter shown in the UI with options to retry individual channels or revalidate all.
+- **Persistent favourites** — stored in SharedPreferences, restored across sessions, accessible from a dedicated screen.
+- **Persistent preferences** — theme (Light / Dark / System) and app language (ES / EN / CA / System) backed by DataStore.
+
+### Multi-Platform UI
+
+| Form factor | Layout |
+|---|---|
+| Phone portrait | TopAppBar · search · category chips · adaptive grid · player overlay |
+| Phone landscape (playing) | Fullscreen immersive player · brightness drag (left) · volume drag (right) |
+| Phone landscape (browsing) | Fullscreen channel grid · tap-to-reveal overlay |
+| Tablet | Scaled portrait / landscape layout identical to phone |
+| Android TV | TV Material 3 · D-pad focus glow · scale animations · Leanback launcher |
+
+- **Immersive mode** — system bars hidden across the entire app; swipe from edge to peek temporarily (`BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE`).
+- **Options panel** — accessible on every form factor: theme selector, language selector, broken channel toggle, revalidation action.
+
+### Design
+
+- **Material Design 3** with dynamic colour (Monet) on Android 12+.
+- **Press-scale animation** on every channel card for tactile feedback.
+- **Favourites badge** — circular background turns soft red when a channel is saved, ensuring the heart icon is always visible regardless of background colour.
+- **Channel logos** via Coil 2; category icon fallback when no logo is available.
 - **Smooth transitions** — `AnimatedContent` / `AnimatedVisibility` throughout.
-- **Multilingual** — Spanish, English, Catalan.
+- **Multilingual** — Spanish, English, Catalan (+ System default).
 
 ---
 
-## 🏗 Architecture
+## Architecture
 
 ```
-┌─────────────────────────────────────────────────┐
-│  :app  (Presentation)                           │
-│  Compose UI · ViewModels · Hilt                 │
-├─────────────────────────────────────────────────┤
-│  :domain  (Business Logic — pure Kotlin/JVM)    │
-│  UseCases · Domain Models · Repository interfaces│
-├─────────────────────────────────────────────────┤
-│  :data  (Data Layer)                            │
-│  Ktor · RepositoryImpl · DataStore · Fallback   │
-└─────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│  :app  (Presentation)                                            │
+│  Jetpack Compose · ViewModels (MVI) · Hilt · PlaybackService     │
+├──────────────────────────────────────────────────────────────────┤
+│  :domain  (Business Logic — pure Kotlin/JVM, zero Android deps)  │
+│  UseCases · Domain Models · Repository interfaces · FilterLogic  │
+├──────────────────────────────────────────────────────────────────┤
+│  :data  (Data Layer)                                             │
+│  Ktor · RepositoryImpl · ChannelMapper · DataStore · Fallback    │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
-**MVI pattern** — every ViewModel exposes a single `StateFlow<UiState>` and accepts actions through `onIntent()`:
+### MVI Pattern
+
+Every ViewModel exposes a single `StateFlow<UiState>` and processes actions through `onIntent()`:
 
 ```kotlin
 viewModel.onIntent(TdtIntent.SelectChannel(channel))
-viewModel.onIntent(TdtIntent.FilterByCategory(ChannelCategory.MUSIC))
+viewModel.onIntent(TdtIntent.FilterByCategory(ChannelCategory.SPORTS))
 viewModel.onIntent(TdtIntent.Search("cope"))
+viewModel.onIntent(TdtIntent.ToggleShowBrokenChannels)
 ```
 
-**Radio detection** — streams are tagged at the data layer by format and ambit:
+State is composed reactively from multiple source flows using `combine()`:
 
 ```kotlin
-// ChannelMapper: aac/mp3 format → isRadio = true
-val isRadio = format == "aac" || format == "mp3"
-// Repository: explicit override for known radio ambits
-channel.toChannel(ambitName = ambit.name, isRadioManual = true)
+// Channels + category + search + brokenUrls + playerState → single TdtUiState
+combine(filteredChannels, playerController.currentChannel, selectedCategory, ...) { ... }
+    .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TdtUiState())
+```
+
+### Radio Detection
+
+Streams are classified at the data layer using a multi-layer heuristic:
+
+```kotlin
+// 1. Ambit name (e.g. "Musicales", "Populares")
+val isRadioAmbit = ambitName.contains("Music", ignoreCase = true) || ...
+
+// 2. Channel name patterns
+val isRadioName = name.contains("Radio", ignoreCase = true) || name == "LOS40" || ...
+
+// 3. Stream format
+val isRadioFormat = format == "aac" || format == "mp3"
+
+// 4. Manual override from repository (highest priority)
+val finalIsRadio = isRadioManual ?: (isRadioAmbit || isRadioName || isRadioFormat)
+```
+
+### Background Playback
+
+```
+User selects channel
+  → PlayerController.selectChannel(channel)
+  → TdtPlayer.play(url, channelName, channelLogo)   ← metadata for notification
+  → ExoPlayer.setMediaSource() + prepare()
+  → context.startService(PlaybackService)
+  → MediaSession wraps ExoPlayer singleton
+  → System notification with channel name + controls
+  → Audio continues when app is backgrounded
 ```
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
-| Category | Technology |
-|---|---|
-| Language | Kotlin 2.3.20 (K2 compiler) |
-| UI | Jetpack Compose · Material 3 · TV Material 3 |
-| DI | Hilt 2.59 |
-| Networking | Ktor 3 |
-| Media | AndroidX Media3 1.10 / ExoPlayer |
-| Image loading | Coil 2 |
-| Persistence | DataStore Preferences |
-| Serialization | Kotlinx Serialization |
-| Architecture | Clean Architecture · MVI |
-| Testing | JUnit 4 · Turbine · Coroutines Test |
-| CI | GitHub Actions |
+| Category | Technology | Version |
+|---|---|---|
+| Language | Kotlin (K2 compiler) | 2.3.20 |
+| Build | Android Gradle Plugin | 9.1.0 |
+| UI | Jetpack Compose + Material 3 | BOM 2026.03.01 |
+| TV UI | TV Material 3 | 1.1.0-beta01 |
+| DI | Hilt | 2.59.2 |
+| Media | AndroidX Media3 / ExoPlayer | 1.10.0 |
+| Networking | Ktor (client + serialization) | 3.4.2 |
+| Image loading | Coil | 2.7.0 |
+| Serialization | Kotlinx Serialization JSON | 1.10.0 |
+| Coroutines | Kotlinx Coroutines | 1.10.2 |
+| Persistence | DataStore Preferences | 1.2.1 |
+| Icons | Lucide Icons | 1.1.0 |
+| Crash reporting | Firebase Crashlytics | BOM 34.11.0 |
+| Architecture | Clean Architecture · MVI | — |
+| Testing | JUnit 4 · Turbine · Coroutines Test | — |
+| Coverage | JaCoCo | 0.8.12 |
+| CI | GitHub Actions | — |
+| Min / Target SDK | API 24 / 35 | — |
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
-- **Android Studio** Ladybug or newer
-- **JDK 21** (required by Gradle 9)
-- **Android device / emulator**: API 24+
 
-### Build & run
+- **Android Studio** Ladybug or newer
+- **JDK 21** (required by Gradle 9 / AGP 9)
+- **Android device / emulator** API 24+
+
+### Clone & run
+
 ```bash
 git clone https://github.com/PedroGM80/TDTFlow.git
 cd TDTFlow
-./gradlew assembleDebug        # build
-./gradlew installDebug         # install on connected device
-./gradlew test                 # unit tests
+./gradlew assembleDebug          # build APK
+./gradlew installDebug           # install on connected device / emulator
 ```
+
+### TV
+
+Connect an Android TV device or start an Android TV emulator (API 24+). The app auto-launches `TvActivity` when `UI_MODE_TYPE_TELEVISION` is detected.
 
 ---
 
-## 🧪 Testing & CI
+## Testing & CI
 
 ```bash
-./gradlew :app:test            # ViewModel + UI logic tests
-./gradlew :domain:test         # UseCase tests
-./gradlew :data:test           # Repository + mapper tests
-./gradlew lint                 # static analysis
+./gradlew :app:test              # ViewModel, filter logic, options
+./gradlew :domain:test           # UseCases
+./gradlew :data:test             # Repository, mapper, cache, merge
+./gradlew jacocoTestReport       # Aggregate JaCoCo XML + HTML report
+./gradlew lint                   # Android Lint + Codacy analysis
 ```
 
-The GitHub Actions pipeline runs on every push: lint → unit tests → debug build.
+**What's covered:**
+
+| Module | Test files | Highlights |
+|---|---|---|
+| :app | `TdtViewModelTest`, `ChannelFilterLogicTest`, `OptionsMenuViewModelTest`, `FavoritesViewModelTest` | MVI intent handling, reactive state, filter combinations |
+| :domain | `GetChannelsUseCaseTest`, `AddFavoriteUseCaseTest`, `RemoveFavoriteUseCaseTest`, `ChannelTest` | Use case contracts |
+| :data | `ChannelRepositoryImplTest`, `ChannelMapperTest`, `FavoritesRepositoryImplTest`, `ChannelCacheTest`, `ChannelMergeTest`, `FallbackChannelsTest` | Parallel fetch, radio classification, deduplication, fallback integrity |
+
+Test fakes (`FakeChannelsRepository`, `FakeFavoritesRepository`, `FakeBrokenChannelTracker`) and reusable fixtures (`TestChannels`) keep tests fast and deterministic.
+
+**CI pipeline (GitHub Actions):**
+
+```
+push / PR  →  Lint (Codacy SARIF + Android lint)
+           →  Unit tests + JaCoCo coverage upload
+           →  Release AAB (keystore signing, master/develop/tags only)
+```
 
 ---
 
-## 📝 License
+## Project Structure
+
+```
+TDTFlow/
+├── app/                        # Presentation layer
+│   └── src/main/java/.../
+│       ├── MainActivity.kt     # Phone entry point
+│       ├── TvActivity.kt       # TV entry point (auto-launched)
+│       ├── di/                 # Hilt AppModule
+│       ├── navigation/         # NavGraph
+│       ├── player/             # TdtPlayer, PlayerController, PlayerState
+│       ├── service/            # PlaybackService (MediaSessionService)
+│       └── ui/
+│           ├── components/     # Shared composables (ChannelCard, LogoImage, …)
+│           ├── favorites/      # FavoritesScreen + ViewModel
+│           ├── mobile/         # MobileScreen (portrait / landscape / tablet)
+│           ├── options/        # OptionsMenuScreen + ViewModel
+│           └── tv/             # TvScreen, TvChannelBrowser, TvChannelCard
+├── domain/                     # Pure Kotlin business logic
+│   └── src/main/java/.../
+│       ├── model/              # Channel, ChannelCategory
+│       ├── repository/         # Repository interfaces
+│       ├── usecase/            # GetChannels, AddFavorite, …
+│       ├── tracker/            # BrokenChannelTracker interface
+│       └── ChannelFilterLogic  # Filter + search algorithm
+└── data/                       # Data layer
+    └── src/main/java/.../
+        ├── remote/             # Ktor client, TdtApi, ChannelMapper
+        ├── repository/         # ChannelRepositoryImpl, FavoritesRepositoryImpl
+        ├── fallback/           # FallbackChannels (100+ hardcoded)
+        ├── BrokenChannelTrackerImpl
+        └── OptionsDataStore
+```
+
+---
+
+## License
 
 MIT License — see [LICENSE](LICENSE) for details.
-
----
-
-*Developed with ❤️ for the Android & open-source community.*
