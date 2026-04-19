@@ -1,6 +1,6 @@
 [versions]
 # Android & Kotlin
-androidGradlePlugin = "9.1.0"
+androidGradlePlugin = "9.1.1"
 hiltAndroidGradlePlugin = "2.59.2"
 kotlin = "2.3.20"
 ksp = "2.3.6"
@@ -11,8 +11,8 @@ hiltNavigationCompose = "1.3.0"
 
 # Firebase
 googleServices = "4.4.4"
-firebaseCrashlyticsPlugin = "3.0.6"
-firebaseBom = "34.11.0"
+firebaseCrashlyticsPlugin = "3.0.7"
+firebaseBom = "34.12.0"
 
 # AndroidX
 androidxCore = "1.18.0"
@@ -24,11 +24,11 @@ androidxComposeBom = "2026.03.01"
 androidxMedia3 = "1.10.0"
 androidxCarApp = "1.7.0"
 androidxDataStore = "1.2.1"
-tvMaterial = "1.1.0-beta01"
+tvMaterial = "1.1.0-rc01"
 
 # Kotlin
 kotlinxCoroutines = "1.10.2"
-kotlinxSerialization = "1.10.0"
+kotlinxSerialization = "1.11.0"
 
 # Ktor
 ktor = "3.4.2"

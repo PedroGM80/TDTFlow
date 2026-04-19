@@ -58,6 +58,9 @@
     <string name="play_channel">Reprodueix %1$s</string>
     <string name="filter_category">Filtra per %1$s</string>
 
+    <!-- Separador de ràdio -->
+    <string name="radio_section_separator">Canals de Ràdio</string>
+
     <!-- Preferits -->
     <string name="favorites_title">Preferits</string>
     <string name="no_favorites">Encara no tens canals preferits</string>

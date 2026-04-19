@@ -6,6 +6,9 @@ import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -13,7 +16,6 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import com.pedrogm.tdtflow.navigation.AppNavGraph
-import com.pedrogm.tdtflow.ui.TdtIntent
 import com.pedrogm.tdtflow.ui.TdtViewModel
 import com.pedrogm.tdtflow.ui.options.AppLanguage
 import com.pedrogm.tdtflow.ui.options.AppTheme
@@ -54,6 +56,10 @@ class MainActivity : AppCompatActivity() {
             return
         }
         enableEdgeToEdge()
+        WindowCompat.getInsetsController(window, window.decorView).apply {
+            hide(WindowInsetsCompat.Type.systemBars())
+            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
         setContent {
             val optionsState by optionsViewModel.uiState.collectAsStateWithLifecycle()
             val darkTheme = when (optionsState.selectedTheme) {
@@ -69,6 +75,5 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        viewModel.onIntent(TdtIntent.PausePlayer)
     }
 }

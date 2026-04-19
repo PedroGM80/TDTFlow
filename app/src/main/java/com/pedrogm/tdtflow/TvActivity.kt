@@ -71,11 +71,14 @@ class TvActivity : AppCompatActivity() {
             viewModel.onIntent(TdtIntent.StopPlayback)
             return true
         }
+        if (keyCode == KeyEvent.KEYCODE_MENU || keyCode == KeyEvent.KEYCODE_SETTINGS) {
+            optionsViewModel.onIntent(com.pedrogm.tdtflow.ui.options.OptionsMenuIntent.Open)
+            return true
+        }
         return super.onKeyDown(keyCode, event)
     }
 
     override fun onStop() {
         super.onStop()
-        viewModel.onIntent(TdtIntent.PausePlayer)
     }
 }

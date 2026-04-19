@@ -77,7 +77,7 @@ class ChannelRepositoryImpl(
         withContext(Dispatchers.Default) {
             response?.countries?.firstOrNull { it.name == SPAIN }?.ambits?.flatMap { ambit ->
                 ambit.channels.mapNotNull { channel ->
-                    channel.toChannel(ambitName = ambit.name)
+                    channel.toChannel(ambitName = ambit.name, isRadioManual = false)
                 }
             } ?: emptyList()
         }
@@ -85,12 +85,9 @@ class ChannelRepositoryImpl(
     private suspend fun mapRadioChannels(response: TdtChannelsResponse?): List<Channel> =
         withContext(Dispatchers.Default) {
             response?.countries?.firstOrNull { it.name == SPAIN }?.ambits
-                ?.filter { ambit ->
-                    ambit.name.equals(AmbitConstants.MUSICALES, ignoreCase = true)
-                }
                 ?.flatMap { ambit ->
                     ambit.channels.mapNotNull { channel ->
-                        channel.toChannel(ambitName = ambit.name)
+                        channel.toChannel(ambitName = ambit.name, isRadioManual = true)
                     }
                 } ?: emptyList()
         }

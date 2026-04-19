@@ -1,11 +1,14 @@
 package com.pedrogm.tdtflow.ui
 
+import android.content.Context
+import android.content.Intent
 import android.util.Log
 import androidx.media3.common.util.UnstableApi
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.tracker.BrokenChannelTracker
 import com.pedrogm.tdtflow.player.PlayerState
 import com.pedrogm.tdtflow.player.TdtPlayer
+import com.pedrogm.tdtflow.service.PlaybackService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,6 +33,7 @@ import kotlinx.coroutines.flow.onEach
 class PlayerController(
     private val playerFactory: () -> TdtPlayer,
     private val brokenChannelTracker: BrokenChannelTracker,
+    private val context: Context,
     private val scope: CoroutineScope,
     private val onError: (Throwable) -> Unit = {}
 ) {
@@ -55,14 +59,16 @@ class PlayerController(
     fun selectChannel(channel: Channel) {
         ensurePlayerInitialized()
         _playerError.value = null
-        player?.play(channel.url)
+        player?.play(channel.url, channel.name, channel.logo)
         _currentChannel.value = channel
+        context.startService(Intent(context, PlaybackService::class.java))
     }
 
     fun stop() {
         player?.stop()
         _currentChannel.value = null
         _playerState.value = PlayerState.IDLE
+        context.stopService(Intent(context, PlaybackService::class.java))
     }
 
     fun pause() {
@@ -74,8 +80,8 @@ class PlayerController(
     }
 
     fun release() {
-        player?.release()
         player = null
+        // ExoPlayer singleton lifecycle is managed by Hilt/PlaybackService — not released here
     }
 
     // ── Internal ────────────────────────────────────────────────────

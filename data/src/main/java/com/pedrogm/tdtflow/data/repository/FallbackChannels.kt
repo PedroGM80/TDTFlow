@@ -20,13 +20,15 @@ private class ChannelBuilder {
         name: String,
         url: String,
         category: ChannelCategory,
-        logo: String = ""
+        logo: String = "",
+        isRadio: Boolean = false
     ) {
         channels += Channel(
             name = name,
             url = url,
             logo = logo,
-            category = category
+            category = category,
+            isRadio = isRadio
         )
     }
 
@@ -44,7 +46,7 @@ private fun createChannels(block: ChannelBuilder.() -> Unit): List<Channel> =
  * - Radio General (5 stations)
  */
 internal fun fallbackChannels(): List<Channel> =
-    tvChannels() + radioMusicChannels() + radioGeneralChannels()
+    tvChannels() + radioNewsChannels() + radioSportsChannels() + radioRegionalChannels() + radioMusicChannels()
 
 /**
  * TV channels: RTVE and autonomous communities
@@ -87,6 +89,14 @@ private fun tvChannels(): List<Channel> = createChannels {
         fbLogo("teledeporteRTVE")
     )
 
+    // Entretenimiento
+    channel(
+        "TRECE",
+        "https://vcp.api.video/13tv/13tv.m3u8",
+        ChannelCategory.ENTERTAINMENT,
+        fbLogo("TRECE.es")
+    )
+
     // Autonómicos
     channel(
         "Canal Sur 2",
@@ -115,7 +125,109 @@ private fun tvChannels(): List<Channel> = createChannels {
 }
 
 /**
- * Radio musical channels: 30+ stations from various networks
+ * Radio news and general interest
+ */
+private fun radioNewsChannels(): List<Channel> = createChannels {
+    channel(
+        "Cadena SER",
+        "https://playerservices.streamtheworld.com/api/livestream-redirect/CADENASER.mp3",
+        ChannelCategory.NEWS,
+        fbLogo("cadenaser"),
+        isRadio = true
+    )
+    channel(
+        "COPE",
+        "https://flucast09-h-cloud.flumotion.com/cope/net1.mp3",
+        ChannelCategory.NEWS,
+        fbLogo("COPE"),
+        isRadio = true
+    )
+    channel(
+        "Onda Cero",
+        "https://radio-atres-live.ondacero.es/api/livestream-redirect/OCAAC.aac",
+        ChannelCategory.NEWS,
+        fbLogo("ondacero"),
+        isRadio = true
+    )
+    channel(
+        "Radio Nacional",
+        rne("rne_r1"),
+        ChannelCategory.NEWS,
+        fbLogo("radionacionalrne"),
+        isRadio = true
+    )
+    channel(
+        "esRadio",
+        "https://libertaddigital-radio-live1.flumotion.com/libertaddigital/ld-live1-high.mp3",
+        ChannelCategory.NEWS,
+        fbLogo("esradio"),
+        isRadio = true
+    )
+}
+
+/**
+ * Radio sports channels
+ */
+private fun radioSportsChannels(): List<Channel> = createChannels {
+    channel(
+        "Radio Marca",
+        "https://radiomarca.unity-streaming.com/radiomarca.mp3",
+        ChannelCategory.SPORTS,
+        fbLogo("radiomarca"),
+        isRadio = true
+    )
+}
+
+/**
+ * Regional radio stations
+ */
+private fun radioRegionalChannels(): List<Channel> = createChannels {
+    channel(
+        "Canal Sur Radio",
+        "https://rtva-live-radio.flumotion.com/rtva/csr.mp3",
+        ChannelCategory.REGIONAL,
+        fbLogo("canalsurradioytv"),
+        isRadio = true
+    )
+    channel(
+        "Canal Fiesta Radio",
+        "https://rtva-live-radio.flumotion.com/rtva/cfr.mp3",
+        ChannelCategory.REGIONAL,
+        twLogo("2014607361843793920/uKfZnuel_200x200.jpg"),
+        isRadio = true
+    )
+    channel(
+        "Flamenco Radio",
+        "https://rtva-live-radio.flumotion.com/rtva/flamenco.mp3",
+        ChannelCategory.REGIONAL,
+        fbLogo("FlamencoRadio"),
+        isRadio = true
+    )
+    channel(
+        "Catalunya Ràdio",
+        "https://directes-radio-cat.3catdirectes.cat/live-content/catradio-hls/master.m3u8",
+        ChannelCategory.REGIONAL,
+        fbLogo("catalunyaradio"),
+        isRadio = true
+    )
+    channel(
+        "Flaix FM",
+        "https://stream.flaixfm.cat/icecast",
+        ChannelCategory.REGIONAL,
+        twLogo("1051761197127745541/whMnn4_K_200x200.jpg"),
+        isRadio = true
+    )
+    channel(
+        "RAC 1",
+        "https://playerservices.streamtheworld.com/api/livestream-redirect/RAC1.mp3",
+        ChannelCategory.REGIONAL,
+        fbLogo("rac1oficial"),
+        isRadio = true
+    )
+}
+
+/**
+ * Purely musical radio channels
  */
 private fun radioMusicChannels(): List<Channel> = createChannels {
 
@@ -128,25 +240,29 @@ private fun radioMusicChannels(): List<Channel> = createChannels {
         "LOS40",
         "https://playerservices.streamtheworld.com/api/livestream-redirect/Los40.mp3",
         ChannelCategory.MUSIC,
-        fbLogo("los40")
+        fbLogo("los40"),
+        isRadio = true
     )
     channel(
         "LOS40 Classic",
         "https://playerservices.streamtheworld.com/api/livestream-redirect/LOS40_CLASSIC.mp3",
         ChannelCategory.MUSIC,
-        fbLogo("Los40Classic.Oficial")
+        fbLogo("Los40Classic.Oficial"),
+        isRadio = true
     )
     channel(
         "LOS40 Urban",
         "https://playerservices.streamtheworld.com/api/livestream-redirect/LOS40_URBAN.mp3",
         ChannelCategory.MUSIC,
-        fbLogo("los40urban")
+        fbLogo("los40urban"),
+        isRadio = true
     )
     channel(
         "LOS40 Dance",
         "https://playerservices.streamtheworld.com/api/livestream-redirect/LOS40_DANCE.mp3",
         ChannelCategory.MUSIC,
-        fbLogo("los40dance")
+        fbLogo("los40dance"),
+        isRadio = true
     )
 
     // Cadena Dial y variantes
@@ -154,19 +270,22 @@ private fun radioMusicChannels(): List<Channel> = createChannels {
         "Cadena Dial",
         "https://playerservices.streamtheworld.com/api/livestream-redirect/CADENADIAL.mp3",
         ChannelCategory.MUSIC,
-        fbLogo("cadenadial")
+        fbLogo("cadenadial"),
+        isRadio = true
     )
     channel(
         "Dial Baladas",
         "https://playerservices.streamtheworld.com/api/livestream-redirect/CADENADIAL_03.mp3",
         ChannelCategory.MUSIC,
-        "https://recursosweb.prisaradio.com/fotos/dest/010002743853.jpg"
+        "https://recursosweb.prisaradio.com/fotos/dest/010002743853.jpg",
+        isRadio = true
     )
     channel(
         "Dial Latino",
         "https://playerservices.streamtheworld.com/api/livestream-redirect/CADENADIAL_02.mp3",
         ChannelCategory.MUSIC,
-        "https://recursosweb.prisaradio.com/fotos/dest/010002743851.jpg"
+        "https://recursosweb.prisaradio.com/fotos/dest/010002743851.jpg",
+        isRadio = true
     )
 
     // COPE musicales
@@ -174,19 +293,22 @@ private fun radioMusicChannels(): List<Channel> = createChannels {
         "Cadena 100",
         "https://cadena100-cope.flumotion.com/chunks.m3u8",
         ChannelCategory.MUSIC,
-        fbLogo("CADENA100")
+        fbLogo("CADENA100"),
+        isRadio = true
     )
     channel(
         "Rock FM",
         "https://rockfm-cope.flumotion.com/playlist.m3u8",
         ChannelCategory.MUSIC,
-        fbLogo("RockFM")
+        fbLogo("RockFM"),
+        isRadio = true
     )
     channel(
         "MegaStar FM",
         "https://megastar-cope.flumotion.com/playlist.m3u8",
         ChannelCategory.MUSIC,
-        fbLogo("MegaStarFM")
+        fbLogo("MegaStarFM"),
+        isRadio = true
     )
 
     // Atresmedia musicales
@@ -194,13 +316,15 @@ private fun radioMusicChannels(): List<Channel> = createChannels {
         "Europa FM",
         "https://radio-atres-live.ondacero.es/api/livestream-redirect/EFMAAC.aac",
         ChannelCategory.MUSIC,
-        fbLogo("tueuropafm")
+        fbLogo("tueuropafm"),
+        isRadio = true
     )
     channel(
         "Melodía FM",
         "https://radio-atres-live.ondacero.es/api/livestream-redirect/MELODIA_FMAAC.aac",
         ChannelCategory.MUSIC,
-        fbLogo("tumelodiafm")
+        fbLogo("tumelodiafm"),
+        isRadio = true
     )
 
     // RTVE Radio
@@ -208,13 +332,15 @@ private fun radioMusicChannels(): List<Channel> = createChannels {
         "Radio 3 RNE",
         rne("rne_r3"),
         ChannelCategory.MUSIC,
-        fbLogo("radio3")
+        fbLogo("radio3"),
+        isRadio = true
     )
     channel(
         "Radio Clásica RNE",
         rne("rne_r2"),
         ChannelCategory.MUSIC,
-        fbLogo("radioclasicartve")
+        fbLogo("radioclasicartve"),
+        isRadio = true
     )
 
     // Kiss FM
@@ -222,13 +348,15 @@ private fun radioMusicChannels(): List<Channel> = createChannels {
         "Kiss FM",
         "https://kissfm.kissfmradio.cires21.com/kissfm.mp3",
         ChannelCategory.MUSIC,
-        fbLogo("kissfm.es")
+        fbLogo("kissfm.es"),
+        isRadio = true
     )
     channel(
         "Hit FM",
         "https://bbhitfm.kissfmradio.cires21.com/bbhitfm.mp3",
         ChannelCategory.MUSIC,
-        fbLogo("hitfm.es")
+        fbLogo("hitfm.es"),
+        isRadio = true
     )
 
     // Radiolé
@@ -236,7 +364,8 @@ private fun radioMusicChannels(): List<Channel> = createChannels {
         "Radiolé",
         "https://playerservices.streamtheworld.com/api/livestream-redirect/RADIOLE.mp3",
         ChannelCategory.MUSIC,
-        fbLogo("radiole")
+        fbLogo("radiole"),
+        isRadio = true
     )
 
     // Loca FM y variantes
@@ -244,49 +373,57 @@ private fun radioMusicChannels(): List<Channel> = createChannels {
         "Loca FM",
         "https://s3.we4stream.com:2020/stream/locafm",
         ChannelCategory.MUSIC,
-        fbLogo("LocaFmOficial")
+        fbLogo("LocaFmOficial"),
+        isRadio = true
     )
     channel(
         "Loca FM Dance",
         "https://s2.we4stream.com/listen/loca_dance/live",
         ChannelCategory.MUSIC,
-        fbLogo("LocaFmOficial")
+        fbLogo("LocaFmOficial"),
+        isRadio = true
     )
     channel(
         "Loca FM Remember",
         "https://s2.we4stream.com/listen/loca_remember/live",
         ChannelCategory.MUSIC,
-        fbLogo("LocaFmOficial")
+        fbLogo("LocaFmOficial"),
+        isRadio = true
     )
     channel(
         "Loca FM House",
         "https://s2.we4stream.com/listen/loca_house/live",
         ChannelCategory.MUSIC,
-        fbLogo("LocaFmOficial")
+        fbLogo("LocaFmOficial"),
+        isRadio = true
     )
     channel(
         "Loca FM Techno",
         "https://s2.we4stream.com/listen/loca_techo/live",
         ChannelCategory.MUSIC,
-        fbLogo("LocaFmOficial")
+        fbLogo("LocaFmOficial"),
+        isRadio = true
     )
     channel(
         "Loca FM Chill Out",
         "https://s2.we4stream.com/listen/loca_chill_out/live",
         ChannelCategory.MUSIC,
-        fbLogo("LocaFmOficial")
+        fbLogo("LocaFmOficial"),
+        isRadio = true
     )
     channel(
         "Loca FM 80s",
         "https://s2.we4stream.com/listen/loca_80s/live",
         ChannelCategory.MUSIC,
-        fbLogo("LocaFmOficial")
+        fbLogo("LocaFmOficial"),
+        isRadio = true
     )
     channel(
         "Loca FM 90s",
         "https://s2.we4stream.com/listen/loca_90s_/live",
         ChannelCategory.MUSIC,
-        fbLogo("LocaFmOficial")
+        fbLogo("LocaFmOficial"),
+        isRadio = true
     )
 
     // MDT Radio
@@ -294,25 +431,29 @@ private fun radioMusicChannels(): List<Channel> = createChannels {
         "MDT Radio Remember",
         "https://streams1.mdtradio.com:8443/mdtweb",
         ChannelCategory.MUSIC,
-        fbLogo("mdtradio")
+        fbLogo("mdtradio"),
+        isRadio = true
     )
     channel(
         "MDT Radio 80s",
         "https://streams1.mdtradio.com:8443/MDTradio80",
         ChannelCategory.MUSIC,
-        fbLogo("mdtradio")
+        fbLogo("mdtradio"),
+        isRadio = true
     )
     channel(
         "MDT Radio 90s",
         "https://streams1.mdtradio.com:8443/MDTradio90",
         ChannelCategory.MUSIC,
-        fbLogo("mdtradio")
+        fbLogo("mdtradio"),
+        isRadio = true
     )
     channel(
         "MDT Radio 2000",
         "https://streams1.mdtradio.com:8443/MDTradio2000",
         ChannelCategory.MUSIC,
-        fbLogo("mdtradio")
+        fbLogo("mdtradio"),
+        isRadio = true
     )
 
     // Élite Radio variantes
@@ -320,19 +461,22 @@ private fun radioMusicChannels(): List<Channel> = createChannels {
         "Élite Love",
         "https://streaming2.elitecomunicacion.es/proxy/elitelove/stream",
         ChannelCategory.MUSIC,
-        fbLogo("cadena.elitegranada")
+        fbLogo("cadena.elitegranada"),
+        isRadio = true
     )
     channel(
         "Élite Dance",
         "https://streaming2.elitecomunicacion.es/proxy/elitedance/stream",
         ChannelCategory.MUSIC,
-        fbLogo("cadena.elitegranada")
+        fbLogo("cadena.elitegranada"),
+        isRadio = true
     )
     channel(
         "Élite Oldies",
         "https://streaming2.elitecomunicacion.es/proxy/eliteoldies/stream",
         ChannelCategory.MUSIC,
-        fbLogo("cadena.elitegranada")
+        fbLogo("cadena.elitegranada"),
+        isRadio = true
     )
 
     // Cataluña
@@ -340,19 +484,22 @@ private fun radioMusicChannels(): List<Channel> = createChannels {
         "Flaix FM",
         "https://stream.flaixfm.cat/icecast",
         ChannelCategory.MUSIC,
-        twLogo("1051761197127745541/whMnn4_K_200x200.jpg")
+        twLogo("1051761197127745541/whMnn4_K_200x200.jpg"),
+        isRadio = true
     )
     channel(
         "Flaixbac",
         "https://stream.flaixbac.cat/icecast",
         ChannelCategory.MUSIC,
-        twLogo("1164926188307001344/PtDeZDOO_200x200.jpg")
+        twLogo("1164926188307001344/PtDeZDOO_200x200.jpg"),
+        isRadio = true
     )
     channel(
         "RAC 105",
         "https://playerservices.streamtheworld.com/api/livestream-redirect/RAC105.mp3",
         ChannelCategory.MUSIC,
-        fbLogo("rac105")
+        fbLogo("rac105"),
+        isRadio = true
     )
 
     // Andalucía
@@ -360,33 +507,38 @@ private fun radioMusicChannels(): List<Channel> = createChannels {
         "Flamenco Radio",
         "https://rtva-live-radio.flumotion.com/rtva/flamenco.mp3",
         ChannelCategory.MUSIC,
-        fbLogo("FlamencoRadio")
+        fbLogo("FlamencoRadio"),
+        isRadio = true
     )
     channel(
         "Canal Fiesta Radio",
         "https://rtva-live-radio.flumotion.com/rtva/cfr.mp3",
         ChannelCategory.MUSIC,
-        twLogo("2014607361843793920/uKfZnuel_200x200.jpg")
+        twLogo("2014607361843793920/uKfZnuel_200x200.jpg"),
+        isRadio = true
     )
 
     // Otras
     channel(
         "MariskalRock Radio",
         "https://media.profesionalhosting.com:8047/stream",
-        ChannelCategory.MUSIC,
-        fbLogo("mariskalrock")
+        ChannelCategory.OTHER,
+        fbLogo("mariskalrock"),
+        isRadio = true
     )
     channel(
         "La Urban Radio",
         "https://st1.urbanrevolution.es:8443/laurbanfm.mp3",
-        ChannelCategory.MUSIC,
-        fbLogo("urbanrevolution.es")
+        ChannelCategory.OTHER,
+        fbLogo("urbanrevolution.es"),
+        isRadio = true
     )
     channel(
         "digitalHits FM",
         "https://dhits.frilab.com:8443/dhits",
-        ChannelCategory.MUSIC,
-        fbLogo("digitalhits")
+        ChannelCategory.OTHER,
+        fbLogo("digitalhits"),
+        isRadio = true
     )
 }
 
@@ -402,31 +554,36 @@ private fun radioGeneralChannels(): List<Channel> = createChannels {
     channel(
         "Cadena SER",
         "https://playerservices.streamtheworld.com/api/livestream-redirect/CADENASER.mp3",
-        ChannelCategory.MUSIC,
-        fbLogo("cadenaser")
+        ChannelCategory.NEWS,
+        fbLogo("cadenaser"),
+        isRadio = true
     )
     channel(
         "COPE",
         "https://flucast09-h-cloud.flumotion.com/cope/net1.mp3",
-        ChannelCategory.MUSIC,
-        fbLogo("COPE")
+        ChannelCategory.NEWS,
+        fbLogo("COPE"),
+        isRadio = true
     )
     channel(
         "Onda Cero",
         "https://radio-atres-live.ondacero.es/api/livestream-redirect/OCAAC.aac",
-        ChannelCategory.MUSIC,
-        fbLogo("ondacero")
+        ChannelCategory.NEWS,
+        fbLogo("ondacero"),
+        isRadio = true
     )
     channel(
         "Radio Nacional",
         rne("rne_r1"),
-        ChannelCategory.MUSIC,
-        fbLogo("radionacionalrne")
+        ChannelCategory.NEWS,
+        fbLogo("radionacionalrne"),
+        isRadio = true
     )
     channel(
         "esRadio",
         "https://libertaddigital-radio-live1.flumotion.com/libertaddigital/ld-live1-high.mp3",
-        ChannelCategory.MUSIC,
-        fbLogo("esradio")
+        ChannelCategory.NEWS,
+        fbLogo("esradio"),
+        isRadio = true
     )
 }

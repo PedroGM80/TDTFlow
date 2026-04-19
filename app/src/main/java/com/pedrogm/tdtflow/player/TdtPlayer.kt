@@ -3,7 +3,9 @@ package com.pedrogm.tdtflow.player
 import android.content.Context
 import android.util.Log
 import androidx.annotation.OptIn
+import android.net.Uri
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
@@ -153,18 +155,25 @@ class TdtPlayer(context: Context) {
      * Reutiliza [mediaSourceFactory] para evitar recrear la factory cada vez.
      */
     @OptIn(UnstableApi::class)
-    fun play(streamUrl: String) {
+    fun play(streamUrl: String, channelName: String = "", channelLogo: String = "") {
         Log.d(TAG, "Playing: $streamUrl")
-        
-        // Reset estado
+
         cancelBufferingTimeout()
         _playerError.value = null
         _bufferingTimeout.value = false
         currentStreamUrl = streamUrl
 
-        val mediaSource = mediaSourceFactory.createMediaSource(MediaItem.fromUri(streamUrl))
+        val mediaItem = MediaItem.Builder()
+            .setUri(streamUrl)
+            .setMediaMetadata(
+                MediaMetadata.Builder()
+                    .setTitle(channelName.ifEmpty { null })
+                    .setArtworkUri(channelLogo.ifEmpty { null }?.let { Uri.parse(it) })
+                    .build()
+            )
+            .build()
 
-        exoPlayer.setMediaSource(mediaSource)
+        exoPlayer.setMediaSource(mediaSourceFactory.createMediaSource(mediaItem))
         exoPlayer.prepare()
     }
 

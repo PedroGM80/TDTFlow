@@ -211,4 +211,46 @@ class ChannelMapperTest {
         val result = tdtChannel().toChannel("generalistas")!!
         assertEquals(ChannelCategory.GENERAL, result.category)
     }
+
+    // ── toChannel: isRadio detection ────────────────────────────────────────
+
+    @Test
+    fun `m3u8 format sets isRadio false`() {
+        val channel = tdtChannel(options = listOf(option("m3u8", "https://stream.m3u8")))
+        val result = channel.toChannel("Generalistas")!!
+        assertEquals(false, result.isRadio)
+    }
+
+    @Test
+    fun `aac format sets isRadio true`() {
+        val channel = tdtChannel(options = listOf(option("aac", "https://audio.aac")))
+        val result = channel.toChannel("Musicales")!!
+        assertEquals(true, result.isRadio)
+    }
+
+    @Test
+    fun `mp3 format sets isRadio true`() {
+        val channel = tdtChannel(options = listOf(option("mp3", "https://audio.mp3")))
+        val result = channel.toChannel("Musicales")!!
+        assertEquals(true, result.isRadio)
+    }
+
+    @Test
+    fun `stream format sets isRadio false`() {
+        val channel = tdtChannel(options = listOf(option("stream", "https://live.stream")))
+        val result = channel.toChannel("Generalistas")!!
+        assertEquals(false, result.isRadio)
+    }
+
+    @Test
+    fun `m3u8 takes priority over aac and isRadio is false`() {
+        val channel = tdtChannel(
+            options = listOf(
+                option("aac", "https://audio.aac"),
+                option("m3u8", "https://stream.m3u8")
+            )
+        )
+        val result = channel.toChannel("Deportivos")!!
+        assertEquals(false, result.isRadio)
+    }
 }
