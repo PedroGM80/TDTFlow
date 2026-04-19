@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/PedroGM80/TDTFlow/actions/workflows/ci.yml/badge.svg)](https://github.com/PedroGM80/TDTFlow/actions/workflows/ci.yml)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.3.20-7F52FF.svg?style=flat&logo=kotlin&logoColor=white)](https://kotlinlang.org)
-[![AGP](https://img.shields.io/badge/AGP-9.1.0-02303A.svg?style=flat&logo=gradle)](https://developer.android.com/build)
+[![AGP](https://img.shields.io/badge/AGP-9.1.1-02303A.svg?style=flat&logo=gradle)](https://developer.android.com/build)
 [![Media3](https://img.shields.io/badge/Media3-1.10.0-4285F4.svg?style=flat&logo=android&logoColor=white)](https://developer.android.com/media/media3)
 [![License](https://img.shields.io/badge/License-MIT-22C55E.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Phone%20·%20Tablet%20·%20TV-3DDC84.svg?logo=android&logoColor=white)](https://www.android.com)
@@ -43,10 +43,10 @@
 | Form factor | Layout |
 |---|---|
 | Phone portrait | TopAppBar · search · category chips · adaptive grid · player overlay |
-| Phone landscape (playing) | Fullscreen immersive player · brightness drag (left) · volume drag (right) |
-| Phone landscape (browsing) | Fullscreen channel grid · tap-to-reveal overlay |
+| Phone landscape (playing) | Fullscreen immersive player · Aspect Ratio Fit (no cropping) · Brightness/Volume gestures |
+| Phone landscape (browsing) | Fullscreen channel grid · Minimalist tap-to-reveal overlay with transparency |
 | Tablet | Scaled portrait / landscape layout identical to phone |
-| Android TV | TV Material 3 · D-pad focus glow · scale animations · Leanback launcher |
+| Android TV | TV Material 3 · Adaptive grid with centered cards · Focus glow · Scale animations |
 
 - **Immersive mode** — system bars hidden across the entire app; swipe from edge to peek temporarily (`BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE`).
 - **Options panel** — accessible on every form factor: theme selector, language selector, broken channel toggle, revalidation action.
@@ -136,16 +136,16 @@ User selects channel
 | Language | Kotlin (K2 compiler) | 2.3.20 |
 | Build | Android Gradle Plugin | 9.1.0 |
 | UI | Jetpack Compose + Material 3 | BOM 2026.03.01 |
-| TV UI | TV Material 3 | 1.1.0-beta01 |
+| TV UI | TV Material 3 | 1.1.0-rc01 |
 | DI | Hilt | 2.59.2 |
 | Media | AndroidX Media3 / ExoPlayer | 1.10.0 |
 | Networking | Ktor (client + serialization) | 3.4.2 |
 | Image loading | Coil | 2.7.0 |
-| Serialization | Kotlinx Serialization JSON | 1.10.0 |
+| Serialization | Kotlinx Serialization JSON | 1.11.0 |
 | Coroutines | Kotlinx Coroutines | 1.10.2 |
 | Persistence | DataStore Preferences | 1.2.1 |
 | Icons | Lucide Icons | 1.1.0 |
-| Crash reporting | Firebase Crashlytics | BOM 34.11.0 |
+| Crash reporting | Firebase Crashlytics | BOM 34.12.0 |
 | Architecture | Clean Architecture · MVI | — |
 | Testing | JUnit 4 · Turbine · Coroutines Test | — |
 | Coverage | JaCoCo | 0.8.12 |
