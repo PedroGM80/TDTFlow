@@ -1,7 +1,14 @@
 package com.pedrogm.tdtflow.ui.components
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,15 +25,22 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -47,97 +61,133 @@ fun ChannelCard(
     isFavorite: Boolean = false,
     onToggleFavorite: (() -> Unit)? = null
 ) {
-    Box(modifier = modifier) {
-    Card(
-        modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}.clickable(onClick = onClick),
-        shape = RoundedCornerShape(dimensionResource(R.dimen.radius_large)),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) {
-                MaterialTheme.colorScheme.primaryContainer
-            } else {
-                MaterialTheme.colorScheme.surfaceVariant
-            }
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isSelected) dimensionResource(R.dimen.elevation_high) else dimensionResource(R.dimen.elevation_low)
-        )
-    ) {
-        Column(
+    val haptic = LocalHapticFeedback.current
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.96f else 1f,
+        animationSpec = tween(durationMillis = 100),
+        label = "card_scale"
+    )
+
+    Box(modifier = modifier.scale(scale)) {
+        Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(dimensionResource(R.dimen.spacing_medium)),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .semantics(mergeDescendants = true) {}
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        onClick()
+                    }
+                ),
+            shape = RoundedCornerShape(dimensionResource(R.dimen.radius_large)),
+            border = if (isSelected) BorderStroke(2.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)) else null,
+            colors = CardDefaults.cardColors(
+                containerColor = if (isSelected) {
+                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.9f)
+                } else {
+                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                }
+            ),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = if (isSelected) dimensionResource(R.dimen.elevation_high) else 2.dp
+            )
         ) {
-            // Logo using consolidated LogoImage component
-            LogoImage(
-                logo = channel.logo,
-                name = channel.name,
-                category = channel.category,
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(dimensionResource(R.dimen.radius_small))),
-                iconSize = dimensionResource(R.dimen.icon_size_card_logo)
-            )
-
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_small)))
-
-            // Channel name
-            Text(
-                text = channel.name,
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center,
-                fontSize = dimensionResource(R.dimen.text_size_channel_name).value.sp,
-                color = if (isSelected) {
-                    MaterialTheme.colorScheme.onPrimaryContainer
-                } else {
-                    MaterialTheme.colorScheme.onSurface
-                },
-                modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_extra_small))
-            )
-
-            // Live indicator when selected
-            if (isSelected) {
-                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_tiny)))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    .padding(dimensionResource(R.dimen.spacing_medium)),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(dimensionResource(R.dimen.radius_small)))
+                        .background(
+                            if (isSelected) Brush.verticalGradient(
+                                listOf(Color.White.copy(alpha = 0.1f), Color.Transparent)
+                            ) else Brush.linearGradient(listOf(Color.Transparent, Color.Transparent))
+                        )
                 ) {
-                    LiveIndicator(
-                        size = dimensionResource(R.dimen.icon_size_small),
-                        modifier = Modifier.padding(end = dimensionResource(R.dimen.spacing_tiny))
+                    LogoImage(
+                        logo = channel.logo,
+                        name = channel.name,
+                        category = channel.category,
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        iconSize = dimensionResource(R.dimen.icon_size_card_logo)
                     )
-                    Text(
-                        text = stringResource(R.string.live_indicator),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.tertiary,
-                        fontSize = dimensionResource(R.dimen.text_size_tiny).value.sp
-                    )
+                }
+
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_small)))
+
+                Text(
+                    text = channel.name,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.Center,
+                    fontSize = dimensionResource(R.dimen.text_size_channel_name).value.sp,
+                    color = if (isSelected) {
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
+                    },
+                    modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_extra_small))
+                )
+
+                if (isSelected) {
+                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_tiny)))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        LiveIndicator(
+                            size = 10.dp,
+                            modifier = Modifier.padding(end = dimensionResource(R.dimen.spacing_tiny))
+                        )
+                        Text(
+                            text = stringResource(R.string.live_indicator),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 10.sp
+                        )
+                    }
                 }
             }
         }
-    }
 
-    if (onToggleFavorite != null) {
-        IconButton(
-            onClick = onToggleFavorite,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .size(dimensionResource(R.dimen.icon_size_extra_large))
-        ) {
-            Icon(
-                imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                contentDescription = if (isFavorite) {
-                    stringResource(R.string.remove_from_favorites)
-                } else {
-                    stringResource(R.string.add_to_favorites)
+        if (onToggleFavorite != null) {
+            IconButton(
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onToggleFavorite()
                 },
-                tint = if (isFavorite) Color.Red else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                modifier = Modifier.size(dimensionResource(R.dimen.icon_size_favorite))
-            )
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(4.dp)
+                    .size(32.dp)
+                    .background(
+                        color = if (isFavorite) MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.8f)
+                                else MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
+                        shape = CircleShape
+                    )
+            ) {
+                Icon(
+                    imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                    contentDescription = if (isFavorite) {
+                        stringResource(R.string.remove_from_favorites)
+                    } else {
+                        stringResource(R.string.add_to_favorites)
+                    },
+                    tint = if (isFavorite) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
         }
-    }
     }
 }
 
