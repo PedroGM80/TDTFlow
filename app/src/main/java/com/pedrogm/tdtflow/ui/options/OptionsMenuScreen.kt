@@ -307,14 +307,83 @@ fun OptionsMenuContent(
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp)
                 .padding(bottom = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             Text(
                 text = stringResource(R.string.options_title),
                 style = MaterialTheme.typography.titleLarge
             )
-            LanguageSection(selectedLanguage = uiState.language, onSelectLanguage = { onIntent(OptionsMenuIntent.SelectLanguage(it)) })
+
+            ThemeSection(
+                selectedTheme = uiState.selectedTheme,
+                onSelectTheme = { onIntent(OptionsMenuIntent.SelectTheme(it)) }
+            )
+
+            HorizontalDivider()
+
+            BrokenChannelsSection(
+                showBrokenChannels = showBrokenChannels,
+                onToggle = onToggleBroken
+            )
+
+            HorizontalDivider()
+
+            LanguageSection(
+                selectedLanguage = uiState.language,
+                onSelectLanguage = { onIntent(OptionsMenuIntent.SelectLanguage(it)) }
+            )
         }
+    }
+}
+
+@Composable
+private fun ThemeSection(
+    selectedTheme: AppTheme,
+    onSelectTheme: (AppTheme) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = stringResource(R.string.options_appearance),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            AppTheme.entries.forEach { theme ->
+                FilterChip(
+                    selected = selectedTheme == theme,
+                    onClick = { onSelectTheme(theme) },
+                    label = { Text(stringResource(theme.labelRes)) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun BrokenChannelsSection(
+    showBrokenChannels: Boolean,
+    onToggle: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onToggle)
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.options_show_broken_channels),
+            style = MaterialTheme.typography.bodyLarge
+        )
+        Switch(
+            checked = showBrokenChannels,
+            onCheckedChange = { onToggle() }
+        )
     }
 }
 
@@ -323,16 +392,27 @@ private fun LanguageSection(
     selectedLanguage: AppLanguage,
     onSelectLanguage: (AppLanguage) -> Unit
 ) {
-    Column(modifier = Modifier.selectableGroup()) {
-        AppLanguage.entries.forEach { language ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                RadioButton(selected = selectedLanguage == language, onClick = { onSelectLanguage(language) })
-                Text(text = stringResource(language.labelRes))
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(
+            text = stringResource(R.string.options_language),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Column(modifier = Modifier.selectableGroup()) {
+            AppLanguage.entries.forEach { language ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onSelectLanguage(language) }
+                        .padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(selected = selectedLanguage == language, onClick = { onSelectLanguage(language) })
+                    Text(
+                        text = stringResource(language.labelRes),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
             }
         }
     }
