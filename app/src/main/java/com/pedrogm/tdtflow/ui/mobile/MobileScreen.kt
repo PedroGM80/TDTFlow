@@ -33,7 +33,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import com.pedrogm.tdtflow.ui.components.channelItemsWithRadioSeparator
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -131,13 +131,19 @@ fun MobileScreen(
     val isLandscape by remember { derivedStateOf { configuration.orientation == Configuration.ORIENTATION_LANDSCAPE } }
     val isPlaying = uiState.currentChannel != null
 
-    if (isLandscape && isPlaying) {
-        LandscapeFullscreenPlayer(
+    when {
+        isLandscape && isPlaying -> LandscapeFullscreenPlayer(
             viewModel = viewModel,
             uiState = uiState
         )
-    } else {
-        PortraitLayout(
+        isLandscape -> LandscapeBrowserLayout(
+            viewModel = viewModel,
+            favoritesViewModel = favoritesViewModel,
+            uiState = uiState,
+            onNavigateToFavorites = onNavigateToFavorites,
+            onShowOptions = { optionsViewModel.onIntent(OptionsMenuIntent.Open) }
+        )
+        else -> PortraitLayout(
             viewModel = viewModel,
             favoritesViewModel = favoritesViewModel,
             uiState = uiState,
@@ -173,10 +179,7 @@ private fun LandscapeFullscreenPlayer(
         controller.hide(WindowInsetsCompat.Type.systemBars())
         controller.systemBarsBehavior =
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-
-        onDispose {
-            controller.show(WindowInsetsCompat.Type.systemBars())
-        }
+        onDispose { }
     }
 
     LaunchedEffect(showOverlay) {
@@ -266,6 +269,132 @@ private fun LandscapeFullscreenPlayer(
             onCategorySelected = { viewModel.onIntent(TdtIntent.FilterByCategory(it)) },
             onChannelSelected = { viewModel.onIntent(TdtIntent.SelectChannel(it)) }
         )
+    }
+}
+
+@androidx.annotation.OptIn(UnstableApi::class)
+@Composable
+private fun LandscapeBrowserLayout(
+    viewModel: TdtViewModel,
+    favoritesViewModel: FavoritesViewModel,
+    uiState: TdtUiState,
+    onNavigateToFavorites: () -> Unit,
+    onShowOptions: () -> Unit
+) {
+    val favoritesState by favoritesViewModel.uiState.collectAsStateWithLifecycle()
+    var showOverlay by remember { mutableStateOf(true) }
+    var showSearch by remember { mutableStateOf(false) }
+
+    LaunchedEffect(showOverlay) {
+        if (showOverlay) {
+            delay(TimeConstants.OVERLAY_AUTO_HIDE_DELAY_MS)
+            showOverlay = false
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = { showOverlay = !showOverlay })
+            }
+    ) {
+        ChannelContent(
+            uiState = uiState,
+            viewModel = viewModel,
+            favoriteIds = favoritesState.favoriteIds,
+            onToggleFavorite = { url -> favoritesViewModel.onIntent(FavoritesIntent.ToggleFavorite(url)) },
+            modifier = Modifier.fillMaxSize()
+        )
+
+        AnimatedVisibility(
+            visible = showOverlay,
+            enter = fadeIn() + slideInVertically { -it },
+            exit = fadeOut() + slideOutVertically { -it },
+            modifier = Modifier.align(Alignment.TopCenter)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(AppColors.Overlay.gradientTop, Color.Transparent)
+                        )
+                    )
+                    .statusBarsPadding()
+                    .padding(horizontal = dimensionResource(R.dimen.spacing_large), vertical = dimensionResource(R.dimen.spacing_small)),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Lucide.Tv,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(dimensionResource(R.dimen.icon_size_medium))
+                )
+                Spacer(Modifier.width(dimensionResource(R.dimen.spacing_small)))
+                Text(
+                    text = stringResource(R.string.app_name),
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = dimensionResource(R.dimen.text_size_large).value.sp
+                )
+                Spacer(Modifier.weight(1f))
+                IconButton(onClick = onNavigateToFavorites) {
+                    Icon(Icons.Outlined.FavoriteBorder, contentDescription = stringResource(R.string.favorites_title), tint = Color.White)
+                }
+                IconButton(onClick = { showSearch = !showSearch; showOverlay = true }) {
+                    Icon(
+                        imageVector = if (showSearch) Lucide.X else Lucide.Search,
+                        contentDescription = stringResource(R.string.search_description),
+                        tint = Color.White
+                    )
+                }
+                IconButton(onClick = { viewModel.onIntent(TdtIntent.Retry) }) {
+                    Icon(Lucide.RefreshCw, contentDescription = stringResource(R.string.reload_description), tint = Color.White)
+                }
+                IconButton(onClick = onShowOptions) {
+                    Icon(Lucide.Settings, contentDescription = stringResource(R.string.options_title), tint = Color.White)
+                }
+            }
+        }
+
+        AnimatedVisibility(
+            visible = showOverlay,
+            enter = fadeIn() + slideInVertically { it },
+            exit = fadeOut() + slideOutVertically { it },
+            modifier = Modifier.align(Alignment.BottomCenter)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(Color.Transparent, AppColors.Overlay.gradientBottom)
+                        )
+                    )
+                    .navigationBarsPadding()
+                    .padding(bottom = dimensionResource(R.dimen.spacing_small))
+            ) {
+                if (showSearch) {
+                    SearchBar(
+                        query = uiState.searchQuery,
+                        onQueryChange = { viewModel.onIntent(TdtIntent.Search(it)) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = dimensionResource(R.dimen.spacing_medium), vertical = dimensionResource(R.dimen.spacing_tiny))
+                    )
+                }
+                CategoryFilter(
+                    selectedCategory = uiState.selectedCategory,
+                    onCategorySelected = { viewModel.onIntent(TdtIntent.FilterByCategory(it)) },
+                    brokenChannelsCount = uiState.brokenChannelsCount,
+                    showingBroken = uiState.showBrokenChannels,
+                    onToggleBroken = { viewModel.onIntent(TdtIntent.ToggleShowBrokenChannels) },
+                    onRevalidate = { viewModel.onIntent(TdtIntent.RevalidateChannels) }
+                )
+            }
+        }
     }
 }
 
@@ -676,10 +805,7 @@ private fun ChannelContent(
                             liveRegion = LiveRegionMode.Polite
                         }
                     ) {
-                        items(
-                            items = uiState.filteredChannels,
-                            key = { it.url }
-                        ) { channel ->
+                        channelItemsWithRadioSeparator(uiState.filteredChannels) { channel ->
                             ChannelCard(
                                 channel = channel,
                                 isSelected = channel == uiState.currentChannel,

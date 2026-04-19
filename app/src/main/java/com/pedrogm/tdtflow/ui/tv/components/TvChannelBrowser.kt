@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import com.pedrogm.tdtflow.ui.components.channelItemsWithRadioSeparator
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -219,7 +219,7 @@ internal fun TvChannelBrowser(
                     verticalArrangement = Arrangement.spacedBy(spacingLarge),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(items = uiState.filteredChannels, key = { it.url }) { channel ->
+                    channelItemsWithRadioSeparator(uiState.filteredChannels) { channel ->
                         TvChannelCard(
                             channel = channel,
                             isSelected = channel == uiState.currentChannel,
@@ -247,14 +247,5 @@ internal fun TvChannelBrowser(
                 Text(uiState.error.orEmpty())
             }
         }
-
-        // ── Opciones (Configurado como Panel Lateral para TV) ──────────
-        OptionsMenuScreen(
-            viewModel = optionsViewModel,
-            onDismiss = { optionsViewModel.onIntent(OptionsMenuIntent.Dismiss) },
-            showBrokenChannels = uiState.showBrokenChannels,
-            onToggleBroken = { viewModel.onIntent(TdtIntent.ToggleShowBrokenChannels) },
-            isTv = true
-        )
     }
 }

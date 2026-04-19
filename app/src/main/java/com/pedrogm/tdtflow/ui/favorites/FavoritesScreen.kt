@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import com.pedrogm.tdtflow.ui.components.channelItemsWithRadioSeparator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -75,10 +75,7 @@ fun FavoritesScreen(
                     .fillMaxSize()
                     .padding(padding)
             ) {
-                items(
-                    items = favoriteChannels,
-                    key = { it.url }
-                ) { channel ->
+                channelItemsWithRadioSeparator(favoriteChannels) { channel ->
                     ChannelCard(
                         channel = channel,
                         isSelected = channel.url == currentChannel?.url,
