@@ -177,9 +177,9 @@ class ChannelMapperTest {
     }
 
     @Test
-    fun `Populares maps to MUSIC`() {
+    fun `Populares maps to NEWS`() {
         val result = tdtChannel().toChannel("Populares")!!
-        assertEquals(ChannelCategory.MUSIC, result.category)
+        assertEquals(ChannelCategory.NEWS, result.category)
     }
 
     @Test

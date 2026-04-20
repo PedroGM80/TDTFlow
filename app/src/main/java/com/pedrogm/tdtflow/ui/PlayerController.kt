@@ -33,8 +33,8 @@ import kotlinx.coroutines.flow.onEach
 class PlayerController(
     private val playerFactory: () -> TdtPlayer,
     private val brokenChannelTracker: BrokenChannelTracker,
-    private val context: Context,
     private val scope: CoroutineScope,
+    private val context: Context? = null,
     private val onError: (Throwable) -> Unit = {}
 ) {
     companion object {
@@ -61,14 +61,14 @@ class PlayerController(
         _playerError.value = null
         player?.play(channel.url, channel.name, channel.logo)
         _currentChannel.value = channel
-        context.startService(Intent(context, PlaybackService::class.java))
+        context?.startService(Intent(context, PlaybackService::class.java))
     }
 
     fun stop() {
         player?.stop()
         _currentChannel.value = null
         _playerState.value = PlayerState.IDLE
-        context.stopService(Intent(context, PlaybackService::class.java))
+        context?.stopService(Intent(context, PlaybackService::class.java))
     }
 
     fun pause() {

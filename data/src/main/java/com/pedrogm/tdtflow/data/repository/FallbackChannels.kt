@@ -89,11 +89,10 @@ private fun tvChannels(): List<Channel> = createChannels {
         fbLogo("teledeporteRTVE")
     )
 
-    // Entretenimiento
     channel(
         "TRECE",
         "https://vcp.api.video/13tv/13tv.m3u8",
-        ChannelCategory.ENTERTAINMENT,
+        ChannelCategory.GENERAL,
         fbLogo("TRECE.es")
     )
 
@@ -190,31 +189,10 @@ private fun radioRegionalChannels(): List<Channel> = createChannels {
         isRadio = true
     )
     channel(
-        "Canal Fiesta Radio",
-        "https://rtva-live-radio.flumotion.com/rtva/cfr.mp3",
-        ChannelCategory.REGIONAL,
-        twLogo("2014607361843793920/uKfZnuel_200x200.jpg"),
-        isRadio = true
-    )
-    channel(
-        "Flamenco Radio",
-        "https://rtva-live-radio.flumotion.com/rtva/flamenco.mp3",
-        ChannelCategory.REGIONAL,
-        fbLogo("FlamencoRadio"),
-        isRadio = true
-    )
-    channel(
         "Catalunya Ràdio",
         "https://directes-radio-cat.3catdirectes.cat/live-content/catradio-hls/master.m3u8",
         ChannelCategory.REGIONAL,
         fbLogo("catalunyaradio"),
-        isRadio = true
-    )
-    channel(
-        "Flaix FM",
-        "https://stream.flaixfm.cat/icecast",
-        ChannelCategory.REGIONAL,
-        twLogo("1051761197127745541/whMnn4_K_200x200.jpg"),
         isRadio = true
     )
     channel(
@@ -518,25 +496,24 @@ private fun radioMusicChannels(): List<Channel> = createChannels {
         isRadio = true
     )
 
-    // Otras
     channel(
         "MariskalRock Radio",
         "https://media.profesionalhosting.com:8047/stream",
-        ChannelCategory.OTHER,
+        ChannelCategory.MUSIC,
         fbLogo("mariskalrock"),
         isRadio = true
     )
     channel(
         "La Urban Radio",
         "https://st1.urbanrevolution.es:8443/laurbanfm.mp3",
-        ChannelCategory.OTHER,
+        ChannelCategory.MUSIC,
         fbLogo("urbanrevolution.es"),
         isRadio = true
     )
     channel(
         "digitalHits FM",
         "https://dhits.frilab.com:8443/dhits",
-        ChannelCategory.OTHER,
+        ChannelCategory.MUSIC,
         fbLogo("digitalhits"),
         isRadio = true
     )
