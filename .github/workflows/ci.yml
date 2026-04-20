@@ -41,6 +41,13 @@ jobs:
           upload: true
           directory: ${{ github.workspace }}
 
+      - name: Upload SARIF to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        continue-on-error: true
+        with:
+          sarif_file: ${{ runner.temp }}/results.sarif
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
@@ -70,9 +77,10 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          
+          cache: 'gradle'
+
       - uses: gradle/actions/setup-gradle@v4
-      
+
       - name: Create Mock Google Services
         run: echo "$MOCK_GOOGLE_SERVICES" > app/google-services.json
 
@@ -80,6 +88,7 @@ jobs:
         run: bash gradlew jacocoTestReport
 
       - name: Upload Coverage to Codacy
+        continue-on-error: true
         env:
           CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
         run: |
