@@ -95,7 +95,10 @@ class TdtViewModel(
 
     @OptIn(FlowPreview::class)
     private val debouncedQuery: Flow<String> = _searchQuery
-        .debounce(searchDebounceMs)
+        .debounce { query ->
+            // No delay for empty query (initial state) to avoid showing "No channels found" flicker
+            if (query.isEmpty()) 0L else searchDebounceMs
+        }
         .distinctUntilChanged()
 
     // ── Flow derivado: canales filtrados ─────────────────────────────
