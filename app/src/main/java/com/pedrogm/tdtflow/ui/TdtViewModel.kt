@@ -195,6 +195,8 @@ class TdtViewModel(
             is TdtIntent.RetryBrokenChannel -> retryBrokenChannel(intent.channel)
             is TdtIntent.PausePlayer -> playerController.pause()
             is TdtIntent.SeekRelative -> playerController.seekRelative(intent.offsetMs)
+            is TdtIntent.NextChannel -> navigateChannel(1)
+            is TdtIntent.PreviousChannel -> navigateChannel(-1)
         }
     }
 
@@ -251,6 +253,23 @@ class TdtViewModel(
 
     private fun retryBrokenChannel(channel: Channel) {
         brokenChannelTracker.unmarkAsBroken(channel.url)
+    }
+
+    private fun navigateChannel(delta: Int) {
+        val currentList = uiState.value.filteredChannels
+        val currentChannel = uiState.value.currentChannel ?: return
+        if (currentList.isEmpty()) return
+
+        val currentIndex = currentList.indexOfFirst { it.url == currentChannel.url }
+        if (currentIndex == -1) return
+
+        val nextIndex = (currentIndex + delta).let {
+            if (it < 0) currentList.size - 1
+            else if (it >= currentList.size) 0
+            else it
+        }
+
+        selectChannel(currentList[nextIndex])
     }
 
     override fun onCleared() {

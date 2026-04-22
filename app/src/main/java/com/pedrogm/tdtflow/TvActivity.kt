@@ -65,6 +65,14 @@ class TvActivity : AppCompatActivity() {
             viewModel.onIntent(TdtIntent.StopPlayback)
             return true
         }
+        if (keyCode == KeyEvent.KEYCODE_DPAD_UP && viewModel.uiState.value.isPlaying) {
+            viewModel.onIntent(TdtIntent.PreviousChannel)
+            return true
+        }
+        if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN && viewModel.uiState.value.isPlaying) {
+            viewModel.onIntent(TdtIntent.NextChannel)
+            return true
+        }
         if (keyCode == KeyEvent.KEYCODE_MENU || keyCode == KeyEvent.KEYCODE_SETTINGS) {
             optionsViewModel.onIntent(OptionsMenuIntent.Open)
             return true
