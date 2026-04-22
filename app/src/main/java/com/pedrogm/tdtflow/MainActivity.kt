@@ -1,8 +1,11 @@
 package com.pedrogm.tdtflow
 
+import android.app.PictureInPictureParams
 import android.content.Intent
 import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
+import android.util.Rational
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.os.LocaleListCompat
@@ -63,6 +66,21 @@ class MainActivity : AppCompatActivity() {
             }
             TDTFlowTheme(darkTheme = darkTheme, dynamicColor = optionsState.selectedTheme == AppTheme.SYSTEM) {
                 AppNavGraph(viewModel = viewModel, optionsViewModel = optionsViewModel)
+            }
+        }
+    }
+
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        if (viewModel.uiState.value.isPlaying) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val params = PictureInPictureParams.Builder()
+                    .setAspectRatio(Rational(16, 9))
+                    .build()
+                enterPictureInPictureMode(params)
+            } else {
+                @Suppress("DEPRECATION")
+                enterPictureInPictureMode()
             }
         }
     }
