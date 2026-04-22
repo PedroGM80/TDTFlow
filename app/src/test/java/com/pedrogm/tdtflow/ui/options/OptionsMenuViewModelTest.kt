@@ -3,6 +3,7 @@ package com.pedrogm.tdtflow.ui.options
 import app.cash.turbine.test
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -169,7 +170,7 @@ class OptionsMenuViewModelTest {
     fun `SelectTheme persists theme name to prefs`() = runTest {
         val recorded = mutableListOf<String>()
         val spyPrefs = object : IOptionsPreferences by NoOpOptionsPreferences() {
-            override fun saveTheme(name: String) { recorded += name }
+            override suspend fun saveTheme(name: String) { recorded += name }
         }
         val vm = OptionsMenuViewModel(spyPrefs)
 
@@ -182,7 +183,7 @@ class OptionsMenuViewModelTest {
     fun `SelectLanguage persists language name to prefs`() = runTest {
         val recorded = mutableListOf<String>()
         val spyPrefs = object : IOptionsPreferences by NoOpOptionsPreferences() {
-            override fun saveLanguage(name: String) { recorded += name }
+            override suspend fun saveLanguage(name: String) { recorded += name }
         }
         val vm = OptionsMenuViewModel(spyPrefs)
 
@@ -194,7 +195,7 @@ class OptionsMenuViewModelTest {
     @Test
     fun `saved theme is restored on init`() = runTest {
         val prefsWithDark = object : IOptionsPreferences by NoOpOptionsPreferences() {
-            override fun loadTheme(): String = "DARK"
+            override val themeFlow = flowOf("DARK")
         }
         val vm = OptionsMenuViewModel(prefsWithDark)
 
@@ -206,7 +207,7 @@ class OptionsMenuViewModelTest {
     @Test
     fun `saved language is restored on init`() = runTest {
         val prefsWithEs = object : IOptionsPreferences by NoOpOptionsPreferences() {
-            override fun loadLanguage(): String = "ES"
+            override val languageFlow = flowOf("ES")
         }
         val vm = OptionsMenuViewModel(prefsWithEs)
 
@@ -218,7 +219,7 @@ class OptionsMenuViewModelTest {
     @Test
     fun `invalid saved theme falls back to SYSTEM`() = runTest {
         val corruptedPrefs = object : IOptionsPreferences by NoOpOptionsPreferences() {
-            override fun loadTheme(): String = "INVALID_VALUE"
+            override val themeFlow = flowOf("INVALID_VALUE")
         }
         val vm = OptionsMenuViewModel(corruptedPrefs)
 
@@ -230,7 +231,7 @@ class OptionsMenuViewModelTest {
     @Test
     fun `invalid saved language falls back to SYSTEM`() = runTest {
         val corruptedPrefs = object : IOptionsPreferences by NoOpOptionsPreferences() {
-            override fun loadLanguage(): String = "BOGUS"
+            override val languageFlow = flowOf("BOGUS")
         }
         val vm = OptionsMenuViewModel(corruptedPrefs)
 

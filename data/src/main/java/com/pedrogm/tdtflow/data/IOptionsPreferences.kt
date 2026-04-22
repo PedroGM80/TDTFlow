@@ -1,8 +1,10 @@
 package com.pedrogm.tdtflow.data
 
+import kotlinx.coroutines.flow.Flow
+
 interface IOptionsPreferences {
-    fun loadTheme(): String
-    fun saveTheme(name: String)
-    fun loadLanguage(): String
-    fun saveLanguage(name: String)
+    val themeFlow: Flow<String>
+    val languageFlow: Flow<String>
+    suspend fun saveTheme(name: String)
+    suspend fun saveLanguage(name: String)
 }
