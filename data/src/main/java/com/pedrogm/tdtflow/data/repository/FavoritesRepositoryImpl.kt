@@ -46,6 +46,16 @@ class FavoritesRepositoryImpl private constructor(
         ioScope.launch { save(_favoriteIds.value) }
     }
 
+    override fun addAll(urls: Set<String>) {
+        _favoriteIds.update { LinkedHashSet(it).apply { addAll(urls) } }
+        ioScope.launch { save(_favoriteIds.value) }
+    }
+
+    override fun clearAll() {
+        _favoriteIds.value = emptySet()
+        ioScope.launch { save(emptySet()) }
+    }
+
     private fun load(): LinkedHashSet<String> {
         val ordered = prefs?.getString(KEY_URLS_V2, null)
         if (ordered != null) {

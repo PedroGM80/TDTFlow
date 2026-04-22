@@ -13,8 +13,10 @@ import com.pedrogm.tdtflow.domain.repository.ChannelRepository
 import com.pedrogm.tdtflow.domain.repository.FavoritesRepository
 import com.pedrogm.tdtflow.domain.tracker.BrokenChannelTracker
 import com.pedrogm.tdtflow.domain.usecase.AddFavoriteUseCase
+import com.pedrogm.tdtflow.domain.usecase.ClearFavoritesUseCase
 import com.pedrogm.tdtflow.domain.usecase.GetChannelsUseCase
 import com.pedrogm.tdtflow.domain.usecase.GetFavoritesUseCase
+import com.pedrogm.tdtflow.domain.usecase.ImportFavoritesUseCase
 import com.pedrogm.tdtflow.domain.usecase.RemoveFavoriteUseCase
 import com.pedrogm.tdtflow.player.TdtPlayer
 import dagger.Module
@@ -61,6 +63,14 @@ object AppModule {
     @Provides
     fun provideGetFavoritesUseCase(repo: FavoritesRepository): GetFavoritesUseCase =
         GetFavoritesUseCase(repo)
+
+    @Provides
+    fun provideImportFavoritesUseCase(repo: FavoritesRepository): ImportFavoritesUseCase =
+        ImportFavoritesUseCase(repo)
+
+    @Provides
+    fun provideClearFavoritesUseCase(repo: FavoritesRepository): ClearFavoritesUseCase =
+        ClearFavoritesUseCase(repo)
 
     @Provides
     @Singleton
