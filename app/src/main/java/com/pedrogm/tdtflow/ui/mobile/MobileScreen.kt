@@ -50,7 +50,6 @@ import com.composables.icons.lucide.Sun
 import com.composables.icons.lucide.Volume2
 import com.pedrogm.tdtflow.ui.components.GestureOverlay
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Surface
@@ -62,6 +61,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -83,7 +83,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -196,8 +195,8 @@ private fun LandscapeFullscreenPlayer(
     var showOverlay by remember { mutableStateOf(false) }
     var showBrightnessOverlay by remember { mutableStateOf(false) }
     var showVolumeOverlay by remember { mutableStateOf(false) }
-    var brightnessValue by remember { mutableStateOf(0) }
-    var volumeValue by remember { mutableStateOf(0) }
+    var brightnessValue by remember { mutableIntStateOf(0) }
+    var volumeValue by remember { mutableIntStateOf(0) }
 
     val audioManager = remember { view.context.getSystemService(Context.AUDIO_SERVICE) as AudioManager }
 
@@ -855,3 +854,4 @@ private fun ChannelContent(
             }
         }
     }
+}
