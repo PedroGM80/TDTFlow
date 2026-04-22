@@ -68,10 +68,14 @@ class ChannelRepositoryImpl(
     }
 
     private suspend fun fetchTvChannels(): TdtChannelsResponse? =
-        runCatching { NetworkModule.getTvChannels() }.getOrNull()
+        runCatching { NetworkModule.getTvChannels() }
+            .onFailure { Log.w(TAG, "TV fetch failed: ${it.message}") }
+            .getOrNull()
 
     private suspend fun fetchRadioChannels(): TdtChannelsResponse? =
-        runCatching { NetworkModule.getRadioChannels() }.getOrNull()
+        runCatching { NetworkModule.getRadioChannels() }
+            .onFailure { Log.w(TAG, "Radio fetch failed: ${it.message}") }
+            .getOrNull()
 
     private suspend fun mapTvChannels(response: TdtChannelsResponse?): List<Channel> =
         withContext(Dispatchers.Default) {

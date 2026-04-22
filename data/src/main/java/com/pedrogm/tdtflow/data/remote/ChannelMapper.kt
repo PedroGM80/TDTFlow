@@ -22,11 +22,11 @@ fun TdtChannel.toChannel(ambitName: String, isRadioManual: Boolean? = null): Cha
 
     val mappedCategory = mapAmbitToCategory(ambitName)
     val isRadioAmbit = isRadioAmbit(ambitName)
-    val isRadioName = name.contains("Radio", ignoreCase = true) || 
+    val isRadioName = name.contains("Radio", ignoreCase = true) ||
                      name.contains("Kiss FM", ignoreCase = true) ||
                      name.contains("Hit FM", ignoreCase = true) ||
                      name.contains("LOS40", ignoreCase = true) ||
-                     name.contains("Cadena", ignoreCase = true) && !name.contains("TV", ignoreCase = true)
+                     (name.contains("Cadena", ignoreCase = true) && !name.contains("TV", ignoreCase = true))
 
     val finalIsRadio = isRadioManual ?: (isRadioAmbit || isRadioName || format == "aac" || format == "mp3")
 
