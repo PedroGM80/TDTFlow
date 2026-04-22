@@ -135,6 +135,10 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
+    // testFixtures — dependencies needed by the shared fake source set
+    testFixturesImplementation(project(":domain"))
+    testFixturesImplementation(libs.kotlinx.coroutines.core)
+
     // Testing
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
