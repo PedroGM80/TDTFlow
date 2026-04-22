@@ -73,4 +73,6 @@
     <string name="remove_from_favorites">Treu dels preferits</string>
     <string name="brightness">Brillantor</string>
     <string name="volume">Volum</string>
+    <string name="export_favorites">Exportar preferits (Portapapers)</string>
+    <string name="import_favorites">Importar preferits (Portapapers)</string>
 </resources>

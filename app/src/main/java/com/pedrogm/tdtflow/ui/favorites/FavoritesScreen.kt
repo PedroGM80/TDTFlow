@@ -21,8 +21,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import com.composables.icons.lucide.ArrowLeft
+import com.composables.icons.lucide.Download
 import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.Upload
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.filterByUrls
@@ -40,6 +44,7 @@ fun FavoritesScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val favoriteChannels = allChannels.filterByUrls(uiState.favoriteIds)
+    val clipboardManager = LocalClipboardManager.current
 
     Scaffold(
         topBar = {
@@ -51,6 +56,21 @@ fun FavoritesScreen(
                             imageVector = Lucide.ArrowLeft,
                             contentDescription = stringResource(R.string.back_description)
                         )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = {
+                        val json = viewModel.exportFavorites()
+                        clipboardManager.setText(AnnotatedString(json))
+                    }) {
+                        Icon(Lucide.Download, contentDescription = stringResource(R.string.export_favorites))
+                    }
+                    IconButton(onClick = {
+                        clipboardManager.getText()?.let {
+                            viewModel.onIntent(FavoritesIntent.ImportFavorites(it.text))
+                        }
+                    }) {
+                        Icon(Lucide.Upload, contentDescription = stringResource(R.string.import_favorites))
                     }
                 }
             )

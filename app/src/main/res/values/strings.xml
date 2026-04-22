@@ -73,4 +73,6 @@
     <string name="remove_from_favorites">Quitar de favoritos</string>
     <string name="brightness">Brillo</string>
     <string name="volume">Volumen</string>
+    <string name="export_favorites">Exportar favoritos (Portapapeles)</string>
+    <string name="import_favorites">Importar favoritos (Portapapeles)</string>
 </resources>

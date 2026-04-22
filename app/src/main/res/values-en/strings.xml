@@ -73,4 +73,6 @@
     <string name="remove_from_favorites">Remove from favorites</string>
     <string name="brightness">Brightness</string>
     <string name="volume">Volume</string>
+    <string name="export_favorites">Export favorites (Clipboard)</string>
+    <string name="import_favorites">Import favorites (Clipboard)</string>
 </resources>
