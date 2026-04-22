@@ -67,4 +67,6 @@
     <string name="back_description">Enrere</string>
     <string name="add_to_favorites">Afegeix als preferits</string>
     <string name="remove_from_favorites">Treu dels preferits</string>
+    <string name="brightness">Brillantor</string>
+    <string name="volume">Volum</string>
 </resources>

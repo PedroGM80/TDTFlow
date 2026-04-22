@@ -46,6 +46,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.LocalContext
 import com.pedrogm.tdtflow.ui.util.LogoPreloader
+import com.composables.icons.lucide.Sun
+import com.composables.icons.lucide.Volume2
+import com.pedrogm.tdtflow.ui.components.GestureOverlay
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.Scaffold
@@ -191,6 +194,11 @@ private fun LandscapeFullscreenPlayer(
 ) {
     val view = LocalView.current
     var showOverlay by remember { mutableStateOf(false) }
+    var showBrightnessOverlay by remember { mutableStateOf(false) }
+    var showVolumeOverlay by remember { mutableStateOf(false) }
+    var brightnessValue by remember { mutableStateOf(0) }
+    var volumeValue by remember { mutableStateOf(0) }
+
     val audioManager = remember { view.context.getSystemService(Context.AUDIO_SERVICE) as AudioManager }
 
     DisposableEffect(Unit) {
@@ -226,25 +234,49 @@ private fun LandscapeFullscreenPlayer(
             }
             .pointerInput(Unit) {
                 var dragStartX = 0f
+                var brightnessAccumulator = 0f
                 var volumeAccumulator = 0f
                 detectVerticalDragGestures(
                     onDragStart = { offset ->
                         dragStartX = offset.x
+                        brightnessAccumulator = 0f
                         volumeAccumulator = 0f
+                    },
+                    onDragEnd = {
+                        showBrightnessOverlay = false
+                        showVolumeOverlay = false
+                    },
+                    onDragCancel = {
+                        showBrightnessOverlay = false
+                        showVolumeOverlay = false
                     },
                     onVerticalDrag = { change, dragAmount ->
                         change.consume()
-                        if (dragStartX < size.width / 2f) {
-                            val window = (view.context as Activity).window
-                            val attrs = window.attributes
-                            val current = if (attrs.screenBrightness < 0f) 0.5f else attrs.screenBrightness
-                            attrs.screenBrightness = (current - dragAmount / size.height).coerceIn(0.01f, 1.0f)
-                            window.attributes = attrs
+                        val isLeftSide = dragStartX < size.width / 2f
+                        if (isLeftSide) {
+                            brightnessAccumulator -= dragAmount
+                            if (kotlin.math.abs(brightnessAccumulator) >= 10f) {
+                                val activity = view.context as? Activity
+                                activity?.window?.attributes?.let { lp ->
+                                    val current = if (lp.screenBrightness < 0) 0.5f else lp.screenBrightness
+                                    lp.screenBrightness = (current + (if (brightnessAccumulator > 0) 0.05f else -0.05f))
+                                        .coerceIn(0.01f, 1.0f)
+                                    activity.window.attributes = lp
+                                    brightnessValue = (lp.screenBrightness * 100).toInt()
+                                    showBrightnessOverlay = true
+                                }
+                                brightnessAccumulator = 0f
+                            }
                         } else {
-                            volumeAccumulator += dragAmount
-                            if (kotlin.math.abs(volumeAccumulator) >= TimeConstants.VOLUME_DRAG_THRESHOLD) {
-                                val adjust = if (volumeAccumulator < 0f) AudioManager.ADJUST_RAISE else AudioManager.ADJUST_LOWER
-                                audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, adjust, AudioManager.FLAG_SHOW_UI)
+                            volumeAccumulator -= dragAmount
+                            if (kotlin.math.abs(volumeAccumulator) >= 10f) {
+                                val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+                                val currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+                                val nextVolume = (currentVolume + (if (volumeAccumulator > 0) 1 else -1))
+                                    .coerceIn(0, maxVolume)
+                                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, nextVolume, 0)
+                                volumeValue = (nextVolume.toFloat() / maxVolume * 100).toInt()
+                                showVolumeOverlay = true
                                 volumeAccumulator = 0f
                             }
                         }
@@ -273,6 +305,22 @@ private fun LandscapeFullscreenPlayer(
                     .align(Alignment.Center)
                     .size(dimensionResource(R.dimen.icon_size_extra_large)),
                 color = AppColors.Overlay.buffering
+            )
+        }
+
+        // Overlay de gestos
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            GestureOverlay(
+                visible = showBrightnessOverlay,
+                icon = Lucide.Sun,
+                value = brightnessValue,
+                label = stringResource(R.string.brightness)
+            )
+            GestureOverlay(
+                visible = showVolumeOverlay,
+                icon = Lucide.Volume2,
+                value = volumeValue,
+                label = stringResource(R.string.volume)
             )
         }
 
