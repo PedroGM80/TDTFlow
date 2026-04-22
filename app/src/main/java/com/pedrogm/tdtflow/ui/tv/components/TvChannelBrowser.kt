@@ -29,6 +29,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import com.pedrogm.tdtflow.ui.util.LogoPreloader
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import com.pedrogm.tdtflow.ui.components.SearchBar
+import com.composables.icons.lucide.Search
+import com.composables.icons.lucide.X
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Surface
@@ -61,6 +66,7 @@ internal fun TvChannelBrowser(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val favoritesState by favoritesViewModel.uiState.collectAsStateWithLifecycle()
+    var showSearch by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     LaunchedEffect(uiState.channels) {
@@ -112,6 +118,27 @@ internal fun TvChannelBrowser(
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.weight(1f))
+
+                // Botón de búsqueda
+                Surface(
+                    onClick = { showSearch = !showSearch },
+                    shape = ClickableSurfaceDefaults.shape(surfaceShape),
+                    colors = ClickableSurfaceDefaults.colors(
+                        containerColor = if (showSearch) M3Theme.colorScheme.primary else M3Theme.colorScheme.surfaceVariant,
+                        focusedContainerColor = M3Theme.colorScheme.primary
+                    )
+                ) {
+                    Box(modifier = Modifier.padding(horizontal = chipPaddingH, vertical = chipPaddingV)) {
+                        Icon(
+                            imageVector = if (showSearch) Lucide.X else Lucide.Search,
+                            contentDescription = stringResource(R.string.search_description),
+                            tint = Color.White,
+                            modifier = Modifier.size(iconSizeSmall)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(spacingMedium))
 
                 // Botón de favoritos mejorado
                 Surface(
@@ -170,6 +197,16 @@ internal fun TvChannelBrowser(
                         )
                     }
                 }
+            }
+
+            if (showSearch) {
+                SearchBar(
+                    query = uiState.searchQuery,
+                    onQueryChange = { viewModel.onIntent(TdtIntent.Search(it)) },
+                    modifier = Modifier
+                        .padding(horizontal = paddingTv)
+                        .padding(bottom = spacingLarge)
+                )
             }
 
             if (uiState.isLoading) {
