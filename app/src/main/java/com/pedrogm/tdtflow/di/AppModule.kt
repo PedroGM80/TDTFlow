@@ -30,7 +30,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideChannelRepository(): ChannelRepository = ChannelRepositoryImpl(
+    fun provideChannelRepository(channelDao: com.pedrogm.tdtflow.data.local.ChannelDao): ChannelRepository = ChannelRepositoryImpl(
+        channelDao = channelDao,
         onError = { FirebaseCrashlytics.getInstance().recordException(it) }
     )
 

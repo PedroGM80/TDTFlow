@@ -24,6 +24,7 @@ androidxComposeBom = "2026.03.01"
 androidxMedia3 = "1.10.0"
 androidxDataStore = "1.2.1"
 tvMaterial = "1.1.0-rc01"
+androidxRoom = "2.8.4"
 
 # Kotlin
 kotlinxCoroutines = "1.10.2"
@@ -75,6 +76,11 @@ media3-session = { group = "androidx.media3", name = "media3-session", version.r
 
 # DataStore
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "androidxDataStore" }
+
+# Room
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "androidxRoom" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "androidxRoom" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "androidxRoom" }
 
 # Coroutines
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
