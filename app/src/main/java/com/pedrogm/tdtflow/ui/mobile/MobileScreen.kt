@@ -44,6 +44,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.platform.LocalContext
+import com.pedrogm.tdtflow.ui.util.LogoPreloader
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.Scaffold
@@ -736,6 +738,13 @@ private fun ChannelContent(
     favoriteIds: Set<String> = emptySet(),
     onToggleFavorite: (String) -> Unit = {}
 ) {
+    val context = LocalContext.current
+    LaunchedEffect(uiState.channels) {
+        if (uiState.channels.isNotEmpty()) {
+            LogoPreloader.preload(context, uiState.channels)
+        }
+    }
+
     PullToRefreshBox(
         isRefreshing = uiState.isLoading,
         onRefresh = { viewModel.onIntent(TdtIntent.Retry) },

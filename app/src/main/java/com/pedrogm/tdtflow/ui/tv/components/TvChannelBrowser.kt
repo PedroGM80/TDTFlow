@@ -26,6 +26,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+import com.pedrogm.tdtflow.ui.util.LogoPreloader
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Surface
@@ -58,6 +61,13 @@ internal fun TvChannelBrowser(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val favoritesState by favoritesViewModel.uiState.collectAsStateWithLifecycle()
+
+    val context = LocalContext.current
+    LaunchedEffect(uiState.channels) {
+        if (uiState.channels.isNotEmpty()) {
+            LogoPreloader.preload(context, uiState.channels)
+        }
+    }
 
     // Refactorización de Dimensiones para rendimiento
     val paddingTv = dimensionResource(R.dimen.padding_tv)
