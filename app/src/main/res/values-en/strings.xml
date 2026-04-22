@@ -53,6 +53,10 @@
     <string name="options_language_es">Español</string>
     <string name="options_language_en">English</string>
     <string name="options_language_ca">Català</string>
+    <string name="options_buffer">Player Stability</string>
+    <string name="options_buffer_fast">Fast (low latency)</string>
+    <string name="options_buffer_balanced">Balanced</string>
+    <string name="options_buffer_stable">Stable (slow connection)</string>
 
     <!-- TV accessibility -->
     <string name="play_channel">Play %1$s</string>

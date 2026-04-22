@@ -53,6 +53,10 @@
     <string name="options_language_es">Español</string>
     <string name="options_language_en">English</string>
     <string name="options_language_ca">Català</string>
+    <string name="options_buffer">Estabilidad del reproductor</string>
+    <string name="options_buffer_fast">Rápido (baja latencia)</string>
+    <string name="options_buffer_balanced">Equilibrado</string>
+    <string name="options_buffer_stable">Estable (conexión lenta)</string>
 
     <!-- TV accesibilidad -->
     <string name="play_channel">Reproducir %1$s</string>

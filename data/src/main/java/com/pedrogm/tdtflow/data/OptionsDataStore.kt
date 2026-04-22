@@ -15,6 +15,7 @@ class OptionsDataStore(private val context: Context) : IOptionsPreferences {
 
     private val themeKey = stringPreferencesKey("selected_theme")
     private val languageKey = stringPreferencesKey("selected_language")
+    private val bufferKey = stringPreferencesKey("player_buffer")
 
     override val themeFlow: Flow<String> = context.dataStore.data.map { prefs ->
         prefs[themeKey] ?: "SYSTEM"
@@ -24,11 +25,19 @@ class OptionsDataStore(private val context: Context) : IOptionsPreferences {
         prefs[languageKey] ?: "SYSTEM"
     }
 
+    override val bufferFlow: Flow<String> = context.dataStore.data.map { prefs ->
+        prefs[bufferKey] ?: "BALANCED"
+    }
+
     override suspend fun saveTheme(name: String) {
         context.dataStore.edit { prefs -> prefs[themeKey] = name }
     }
 
     override suspend fun saveLanguage(name: String) {
         context.dataStore.edit { prefs -> prefs[languageKey] = name }
+    }
+
+    override suspend fun saveBuffer(name: String) {
+        context.dataStore.edit { prefs -> prefs[bufferKey] = name }
     }
 }

@@ -22,12 +22,13 @@ class OptionsMenuViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            combine(prefs.themeFlow, prefs.languageFlow) { themeName, languageName ->
+            combine(prefs.themeFlow, prefs.languageFlow, prefs.bufferFlow) { themeName, languageName, bufferName ->
                 val theme = AppTheme.entries.find { it.name == themeName } ?: AppTheme.SYSTEM
                 val language = AppLanguage.entries.find { it.name == languageName } ?: AppLanguage.SYSTEM
-                theme to language
-            }.collect { (theme, language) ->
-                _uiState.update { it.copy(selectedTheme = theme, language = language) }
+                val buffer = AppBuffer.entries.find { it.name == bufferName } ?: AppBuffer.BALANCED
+                Triple(theme, language, buffer)
+            }.collect { (theme, language, buffer) ->
+                _uiState.update { it.copy(selectedTheme = theme, language = language, buffer = buffer) }
             }
         }
     }
@@ -48,6 +49,11 @@ class OptionsMenuViewModel @Inject constructor(
             is OptionsMenuIntent.SelectLanguage -> {
                 _uiState.update { it.copy(language = intent.language) }
                 viewModelScope.launch { prefs.saveLanguage(intent.language.name) }
+            }
+
+            is OptionsMenuIntent.SelectBuffer -> {
+                _uiState.update { it.copy(buffer = intent.buffer) }
+                viewModelScope.launch { prefs.saveBuffer(intent.buffer.name) }
             }
         }
     }

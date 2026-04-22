@@ -80,5 +80,8 @@ object AppModule {
     @OptIn(UnstableApi::class)
     @Provides
     @Singleton
-    fun provideTdtPlayer(@ApplicationContext context: Context): TdtPlayer = TdtPlayer(context)
+    fun provideTdtPlayer(
+        @ApplicationContext context: Context,
+        prefs: IOptionsPreferences
+    ): TdtPlayer = TdtPlayer(context, prefs)
 }
