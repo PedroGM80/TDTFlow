@@ -15,7 +15,8 @@
 
 # Project specific
 /app/google-services.json
-/app/release.jks
+*.jks
+*.keystore
 results.sarif
 
 # Audit reports (optional, keep if you want them in the repo)
