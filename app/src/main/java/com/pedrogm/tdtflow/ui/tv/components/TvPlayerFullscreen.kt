@@ -14,6 +14,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme as M3Theme
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -41,12 +42,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.style.TextOverflow
+import com.pedrogm.tdtflow.domain.model.Program
 import com.pedrogm.tdtflow.ui.components.toLucideIcon
 import kotlinx.coroutines.delay
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.ui.unit.dp
 import com.composables.icons.lucide.ChevronUp
 import com.composables.icons.lucide.ChevronDown
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.media3.ui.PlayerView
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Tv
@@ -144,6 +148,27 @@ internal fun TvPlayerFullscreen(viewModel: TdtViewModel, channelName: String) {
                         color = Color.White.copy(alpha = 0.7f),
                         style = M3Theme.typography.bodyLarge
                     )
+
+                    uiState.nowPlaying?.let { program ->
+                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_small)))
+                        Text(
+                            text = program.title,
+                            color = Color.White,
+                            style = M3Theme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        LinearProgressIndicator(
+                            progress = program.progress(),
+                            modifier = Modifier
+                                .fillMaxWidth(0.6f)
+                                .height(4.dp)
+                                .background(Color.White.copy(alpha = 0.1f), RoundedCornerShape(2.dp)),
+                            color = AppColors.liveIndicator,
+                            trackColor = Color.Transparent,
+                            strokeCap = StrokeCap.Round
+                        )
+                    }
                 }
 
                 // Indicador de Zapping

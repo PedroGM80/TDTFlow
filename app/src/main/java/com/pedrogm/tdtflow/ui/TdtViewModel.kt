@@ -12,14 +12,17 @@ import androidx.media3.common.util.UnstableApi
 import com.pedrogm.tdtflow.domain.ChannelFilterLogic
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
+import com.pedrogm.tdtflow.domain.model.Program
 import com.pedrogm.tdtflow.domain.tracker.BrokenChannelTracker
 import com.pedrogm.tdtflow.domain.usecase.GetChannelsUseCase
+import com.pedrogm.tdtflow.domain.usecase.GetNowPlayingUseCase
 import com.pedrogm.tdtflow.player.TdtPlayer
 import com.pedrogm.tdtflow.util.Constants
 import com.pedrogm.tdtflow.util.TimeConstants
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
@@ -37,12 +40,15 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
 
 @HiltViewModel
 @UnstableApi
 class TdtViewModel(
     private val getChannelsUseCase: GetChannelsUseCase,
+    private val getNowPlayingUseCase: GetNowPlayingUseCase,
     private val brokenChannelTracker: BrokenChannelTracker,
     private val loadError: (Throwable) -> String,
     /** Factory receives the ViewModel's coroutine scope so PlayerController can launch jobs. */
@@ -53,11 +59,13 @@ class TdtViewModel(
 
     @Inject constructor(
         getChannelsUseCase: GetChannelsUseCase,
+        getNowPlayingUseCase: GetNowPlayingUseCase,
         brokenChannelTracker: BrokenChannelTracker,
         tdtPlayer: TdtPlayer,
         @ApplicationContext context: Context
     ) : this(
         getChannelsUseCase = getChannelsUseCase,
+        getNowPlayingUseCase = getNowPlayingUseCase,
         brokenChannelTracker = brokenChannelTracker,
         loadError = { e ->
             context.getString(R.string.error_loading_channels, e.localizedMessage ?: "Unknown")
@@ -126,6 +134,18 @@ class TdtViewModel(
             initialValue = emptyList()
         )
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val _nowPlaying: StateFlow<Program?> = playerController.currentChannel
+        .flatMapLatest { channel ->
+            if (channel != null) getNowPlayingUseCase(channel.url)
+            else flowOf(null)
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TimeConstants.FLOW_SUBSCRIPTION_TIMEOUT_MS),
+            initialValue = null
+        )
+
     // ── Estado UI combinado ─────────────────────────────────────────
 
     private val _partialUiState: StateFlow<PartialState> = combine(
@@ -133,13 +153,22 @@ class TdtViewModel(
         playerController.currentChannel,
         _selectedCategory,
         _searchQuery,
-        _isLoading
-    ) { filtered, current, category, query, loading ->
-        PartialState(filtered, current, category, query, loading)
+        _isLoading,
+        _nowPlaying
+    ) { args ->
+        @Suppress("UNCHECKED_CAST")
+        PartialState(
+            filtered = args[0] as List<Channel>,
+            current = args[1] as Channel?,
+            category = args[2] as ChannelCategory?,
+            query = args[3] as String,
+            loading = args[4] as Boolean,
+            nowPlaying = args[5] as Program?
+        )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(TimeConstants.FLOW_SUBSCRIPTION_TIMEOUT_MS),
-        initialValue = PartialState(emptyList(), null, null, Constants.EMPTY_STRING, true)
+        initialValue = PartialState(emptyList(), null, null, Constants.EMPTY_STRING, true, null)
     )
 
     val uiState: StateFlow<TdtUiState> = combine(
@@ -160,7 +189,8 @@ class TdtViewModel(
             error = error,
             brokenChannelsCount = brokenUrls.size,
             showBrokenChannels = showBroken,
-            playerState = playerState
+            playerState = playerState,
+            nowPlaying = partial.nowPlaying
         )
     }.stateIn(
         scope = viewModelScope,
@@ -286,5 +316,6 @@ private data class PartialState(
     val current: Channel?,
     val category: ChannelCategory?,
     val query: String,
-    val loading: Boolean
+    val loading: Boolean,
+    val nowPlaying: Program? = null
 )

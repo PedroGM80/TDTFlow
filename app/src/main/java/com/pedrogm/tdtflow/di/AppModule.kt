@@ -9,6 +9,9 @@ import com.pedrogm.tdtflow.data.IOptionsPreferences
 import com.pedrogm.tdtflow.data.OptionsDataStore
 import com.pedrogm.tdtflow.data.repository.ChannelRepositoryImpl
 import com.pedrogm.tdtflow.data.repository.FavoritesRepositoryImpl
+import com.pedrogm.tdtflow.data.repository.MockEpgRepositoryImpl
+import com.pedrogm.tdtflow.domain.repository.EpgRepository
+import com.pedrogm.tdtflow.domain.usecase.GetNowPlayingUseCase
 import com.pedrogm.tdtflow.domain.repository.ChannelRepository
 import com.pedrogm.tdtflow.domain.repository.FavoritesRepository
 import com.pedrogm.tdtflow.domain.tracker.BrokenChannelTracker
@@ -71,6 +74,14 @@ object AppModule {
     @Provides
     fun provideClearFavoritesUseCase(repo: FavoritesRepository): ClearFavoritesUseCase =
         ClearFavoritesUseCase(repo)
+
+    @Provides
+    @Singleton
+    fun provideEpgRepository(): EpgRepository = MockEpgRepositoryImpl()
+
+    @Provides
+    fun provideGetNowPlayingUseCase(repo: EpgRepository): GetNowPlayingUseCase =
+        GetNowPlayingUseCase(repo)
 
     @Provides
     @Singleton

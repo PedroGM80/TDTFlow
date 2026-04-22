@@ -2,6 +2,7 @@ package com.pedrogm.tdtflow.ui
 
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
+import com.pedrogm.tdtflow.domain.model.Program
 import com.pedrogm.tdtflow.player.PlayerState
 import com.pedrogm.tdtflow.util.Constants
 
@@ -16,5 +17,6 @@ data class TdtUiState(
     val error: String? = null,
     val brokenChannelsCount: Int = 0,
     val showBrokenChannels: Boolean = false,
-    val playerState: PlayerState = PlayerState.IDLE
+    val playerState: PlayerState = PlayerState.IDLE,
+    val nowPlaying: Program? = null
 )
