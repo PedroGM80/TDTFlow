@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme as M3Theme
@@ -27,6 +29,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Column
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.style.TextOverflow
+import com.pedrogm.tdtflow.ui.components.toLucideIcon
+import kotlinx.coroutines.delay
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.unit.dp
+import com.composables.icons.lucide.ChevronUp
+import com.composables.icons.lucide.ChevronDown
 import androidx.media3.ui.PlayerView
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Tv
@@ -42,13 +62,24 @@ private const val TOTAL_OPACITY = 100f
 @Composable
 internal fun TvPlayerFullscreen(viewModel: TdtViewModel, channelName: String) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val mediumAlpha = integerResource(R.integer.alpha_medium_percent) / TOTAL_OPACITY
-    val overlayAlpha = integerResource(R.integer.alpha_overlay_percent) / TOTAL_OPACITY
+    var showOsd by remember { mutableStateOf(true) }
+
+    LaunchedEffect(uiState.currentChannel, showOsd) {
+        if (showOsd) {
+            delay(5000)
+            showOsd = false
+        }
+    }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = { showOsd = true }
+            )
     ) {
         AndroidView(
             factory = { context ->
@@ -71,28 +102,72 @@ internal fun TvPlayerFullscreen(viewModel: TdtViewModel, channelName: String) {
             )
         }
 
-        // Overlay: nombre del canal + icono
-        Row(
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(dimensionResource(R.dimen.padding_tv))
-                .background(Color.Black.copy(alpha = mediumAlpha), RoundedCornerShape(dimensionResource(R.dimen.radius_small)))
-                .padding(horizontal = dimensionResource(R.dimen.radius_large), vertical = dimensionResource(R.dimen.spacing_small)),
-            verticalAlignment = Alignment.CenterVertically
+        // ── OSD (On-Screen Display) ──────────────────────────────────────
+        AnimatedVisibility(
+            visible = showOsd,
+            enter = fadeIn() + slideInVertically { it / 2 },
+            exit = fadeOut() + slideOutVertically { it / 2 },
+            modifier = Modifier.align(Alignment.BottomCenter)
         ) {
-            Icon(
-                imageVector = Lucide.Tv,
-                contentDescription = stringResource(R.string.tv_icon),
-                tint = AppColors.liveIndicator,
-                modifier = Modifier.size(dimensionResource(R.dimen.icon_size_small))
-            )
-            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_small)))
-            Text(
-                text = channelName,
-                color = Color.White.copy(alpha = overlayAlpha),
-                style = M3Theme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium
-            )
+            val currentChannel = uiState.currentChannel
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.8f))
+                        )
+                    )
+                    .padding(dimensionResource(R.dimen.padding_tv)),
+                verticalAlignment = Alignment.Bottom
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = currentChannel?.category?.toLucideIcon() ?: Lucide.Tv,
+                            contentDescription = null,
+                            tint = AppColors.liveIndicator,
+                            modifier = Modifier.size(dimensionResource(R.dimen.icon_size_medium))
+                        )
+                        Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_small)))
+                        Text(
+                            text = channelName,
+                            color = Color.White,
+                            style = M3Theme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    Text(
+                        text = currentChannel?.category?.name?.lowercase()?.replaceFirstChar { it.uppercase() } ?: "",
+                        color = Color.White.copy(alpha = 0.7f),
+                        style = M3Theme.typography.bodyLarge
+                    )
+                }
+
+                // Indicador de Zapping
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(
+                        imageVector = Lucide.ChevronUp,
+                        contentDescription = null,
+                        tint = Color.White.copy(alpha = 0.5f),
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.live_indicator),
+                        color = AppColors.liveIndicator,
+                        style = M3Theme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Icon(
+                        imageVector = Lucide.ChevronDown,
+                        contentDescription = null,
+                        tint = Color.White.copy(alpha = 0.5f),
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
         }
 
         if (uiState.error != null) {
