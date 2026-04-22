@@ -138,6 +138,8 @@ dependencies {
     // testFixtures — dependencies needed by the shared fake source set
     testFixturesImplementation(project(":domain"))
     testFixturesImplementation(libs.kotlinx.coroutines.core)
+    testFixturesImplementation(platform(libs.androidx.compose.bom))
+    testFixturesImplementation(libs.androidx.ui)
 
     // Testing
     testImplementation(libs.junit)
