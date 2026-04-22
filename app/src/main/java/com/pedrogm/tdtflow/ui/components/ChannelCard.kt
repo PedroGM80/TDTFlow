@@ -9,6 +9,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -64,7 +65,11 @@ fun ChannelCard(
     val haptic = LocalHapticFeedback.current
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-    
+
+    val liveSuffix = if (isSelected) ", ${stringResource(R.string.live_indicator)}" else ""
+    val favSuffix = if (isFavorite) ", ${stringResource(R.string.favorites_title)}" else ""
+    val cardDescription = "${channel.name}$liveSuffix$favSuffix"
+
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.96f else 1f,
         animationSpec = tween(durationMillis = 100),
@@ -75,7 +80,7 @@ fun ChannelCard(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .semantics(mergeDescendants = true) {}
+                .semantics(mergeDescendants = true) { contentDescription = cardDescription }
                 .clickable(
                     interactionSource = interactionSource,
                     indication = null,

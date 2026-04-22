@@ -21,11 +21,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TDTFlow"
-        android:usesCleartextTraffic="true">
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:localeConfig="@xml/locales_config">
 
         <activity
             android:name=".MainActivity"
-            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize"
+            android:supportsPictureInPicture="true"
             android:exported="true"
             android:theme="@style/Theme.TDTFlow">
             <intent-filter>
@@ -54,6 +56,10 @@
                 <action android:name="androidx.media3.session.MediaSessionService" />
             </intent-filter>
         </service>
+
+        <meta-data
+            android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
+            android:value="com.pedrogm.tdtflow.cast.CastOptionsProvider" />
 
     </application>
 </manifest>

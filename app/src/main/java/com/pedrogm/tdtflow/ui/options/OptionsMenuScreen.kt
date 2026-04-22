@@ -19,11 +19,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextAlign
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import com.pedrogm.tdtflow.R
+import com.pedrogm.tdtflow.ui.theme.AppColors
 import androidx.tv.material3.Button as TvButton
 import androidx.tv.material3.Surface as TvSurface
 import androidx.tv.material3.Border
@@ -87,7 +89,7 @@ fun OptionsMenuScreen(
                         .fillMaxHeight()
                         .width(380.dp)
                         .background(
-                            color = Color(0xFF121212).copy(alpha = 0.85f),
+                            color = AppColors.surfaceScrim.copy(alpha = 0.85f),
                             shape = RoundedCornerShape(topStart = 24.dp, bottomStart = 24.dp)
                         )
                         .clickable(enabled = false) { }
@@ -122,6 +124,12 @@ fun OptionsMenuScreen(
                         LanguageSectionTv(
                             selectedLanguage = uiState.language,
                             onSelectLanguage = { viewModel.onIntent(OptionsMenuIntent.SelectLanguage(it)) }
+                        )
+
+                        // SECCIÓN BUFFER (TV)
+                        BufferSectionTv(
+                            selectedBuffer = uiState.buffer,
+                            onSelectBuffer = { viewModel.onIntent(OptionsMenuIntent.SelectBuffer(it)) }
                         )
                         
                         Spacer(modifier = Modifier.weight(1f))
@@ -332,6 +340,81 @@ fun OptionsMenuContent(
                 selectedLanguage = uiState.language,
                 onSelectLanguage = { onIntent(OptionsMenuIntent.SelectLanguage(it)) }
             )
+
+            HorizontalDivider()
+
+            BufferSection(
+                selectedBuffer = uiState.buffer,
+                onSelectBuffer = { onIntent(OptionsMenuIntent.SelectBuffer(it)) }
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun BufferSectionTv(
+    selectedBuffer: AppBuffer,
+    onSelectBuffer: (AppBuffer) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = stringResource(R.string.options_buffer),
+            style = MaterialTheme.typography.labelLarge,
+            color = Color.LightGray
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            AppBuffer.entries.forEach { buffer ->
+                TvSurface(
+                    onClick = { onSelectBuffer(buffer) },
+                    modifier = Modifier.weight(1f),
+                    colors = ClickableSurfaceDefaults.colors(
+                        containerColor = if (selectedBuffer == buffer) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f) else Color.White.copy(alpha = 0.08f),
+                        focusedContainerColor = MaterialTheme.colorScheme.primary
+                    ),
+                    scale = ClickableSurfaceDefaults.scale(focusedScale = 1.05f),
+                    shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp))
+                ) {
+                    Box(modifier = Modifier.padding(12.dp), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = stringResource(buffer.labelRes),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun BufferSection(
+    selectedBuffer: AppBuffer,
+    onSelectBuffer: (AppBuffer) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = stringResource(R.string.options_buffer),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            AppBuffer.entries.forEach { buffer ->
+                FilterChip(
+                    selected = selectedBuffer == buffer,
+                    onClick = { onSelectBuffer(buffer) },
+                    label = { Text(stringResource(buffer.labelRes)) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
     }
 }

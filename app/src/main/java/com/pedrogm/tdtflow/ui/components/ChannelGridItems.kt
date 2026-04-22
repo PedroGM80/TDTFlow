@@ -26,6 +26,7 @@ import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Radio
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.domain.model.Channel
+import com.pedrogm.tdtflow.ui.theme.AppColors
 
 fun LazyGridScope.channelItemsWithRadioSeparator(
     channels: List<Channel>,
@@ -64,7 +65,7 @@ fun RadioSectionSeparator(modifier: Modifier = Modifier) {
             Icon(
                 imageVector = Lucide.Radio,
                 contentDescription = null,
-                tint = androidx.compose.ui.graphics.Color(0xFFFF5252), // Rojo vibrante
+                tint = AppColors.radioSectionIcon,
                 modifier = Modifier.size(32.dp)
             )
             Spacer(modifier = Modifier.width(16.dp))

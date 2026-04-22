@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Los streams de TDT/Radio pueden servirse via HTTP plano.
+    Se permite cleartext solo en tráfico de red general (no en WebViews).
+    El tráfico a la API de TDTChannels y Firebase usa HTTPS siempre.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

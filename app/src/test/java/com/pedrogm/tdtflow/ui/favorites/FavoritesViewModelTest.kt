@@ -2,7 +2,9 @@ package com.pedrogm.tdtflow.ui.favorites
 
 import app.cash.turbine.test
 import com.pedrogm.tdtflow.domain.usecase.AddFavoriteUseCase
+import com.pedrogm.tdtflow.domain.usecase.ClearFavoritesUseCase
 import com.pedrogm.tdtflow.domain.usecase.GetFavoritesUseCase
+import com.pedrogm.tdtflow.domain.usecase.ImportFavoritesUseCase
 import com.pedrogm.tdtflow.domain.usecase.RemoveFavoriteUseCase
 import com.pedrogm.tdtflow.fakes.FakeFavoritesRepository
 import kotlinx.coroutines.Dispatchers
@@ -32,7 +34,9 @@ class FavoritesViewModelTest {
         viewModel = FavoritesViewModel(
             addFavorite = AddFavoriteUseCase(repository),
             removeFavorite = RemoveFavoriteUseCase(repository),
-            getFavorites = GetFavoritesUseCase(repository)
+            getFavorites = GetFavoritesUseCase(repository),
+            importFavorites = ImportFavoritesUseCase(repository),
+            clearFavorites = ClearFavoritesUseCase(repository)
         )
     }
 

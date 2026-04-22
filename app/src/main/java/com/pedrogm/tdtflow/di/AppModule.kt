@@ -9,15 +9,23 @@ import com.pedrogm.tdtflow.data.IOptionsPreferences
 import com.pedrogm.tdtflow.data.OptionsDataStore
 import com.pedrogm.tdtflow.data.repository.ChannelRepositoryImpl
 import com.pedrogm.tdtflow.data.repository.FavoritesRepositoryImpl
+import com.pedrogm.tdtflow.data.repository.MockEpgRepositoryImpl
+import com.pedrogm.tdtflow.domain.repository.EpgRepository
+import com.pedrogm.tdtflow.domain.usecase.GetNowPlayingUseCase
 import com.pedrogm.tdtflow.domain.repository.ChannelRepository
 import com.pedrogm.tdtflow.domain.repository.FavoritesRepository
 import com.pedrogm.tdtflow.domain.tracker.BrokenChannelTracker
 import com.pedrogm.tdtflow.domain.usecase.AddFavoriteUseCase
+import com.pedrogm.tdtflow.domain.usecase.ClearFavoritesUseCase
 import com.pedrogm.tdtflow.domain.usecase.GetChannelsUseCase
 import com.pedrogm.tdtflow.domain.usecase.GetFavoritesUseCase
+import com.pedrogm.tdtflow.domain.usecase.ImportFavoritesUseCase
 import com.pedrogm.tdtflow.domain.usecase.RemoveFavoriteUseCase
 import com.pedrogm.tdtflow.player.TdtPlayer
+import com.pedrogm.tdtflow.ui.options.AppBuffer
 import dagger.Module
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -30,7 +38,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideChannelRepository(): ChannelRepository = ChannelRepositoryImpl(
+    fun provideChannelRepository(channelDao: com.pedrogm.tdtflow.data.local.ChannelDao): ChannelRepository = ChannelRepositoryImpl(
+        channelDao = channelDao,
         onError = { FirebaseCrashlytics.getInstance().recordException(it) }
     )
 
@@ -62,6 +71,22 @@ object AppModule {
         GetFavoritesUseCase(repo)
 
     @Provides
+    fun provideImportFavoritesUseCase(repo: FavoritesRepository): ImportFavoritesUseCase =
+        ImportFavoritesUseCase(repo)
+
+    @Provides
+    fun provideClearFavoritesUseCase(repo: FavoritesRepository): ClearFavoritesUseCase =
+        ClearFavoritesUseCase(repo)
+
+    @Provides
+    @Singleton
+    fun provideEpgRepository(): EpgRepository = MockEpgRepositoryImpl()
+
+    @Provides
+    fun provideGetNowPlayingUseCase(repo: EpgRepository): GetNowPlayingUseCase =
+        GetNowPlayingUseCase(repo)
+
+    @Provides
     @Singleton
     fun provideOptionsPreferences(@ApplicationContext ctx: Context): IOptionsPreferences =
         OptionsDataStore(ctx)
@@ -69,5 +94,12 @@ object AppModule {
     @OptIn(UnstableApi::class)
     @Provides
     @Singleton
-    fun provideTdtPlayer(@ApplicationContext context: Context): TdtPlayer = TdtPlayer(context)
+    fun provideTdtPlayer(
+        @ApplicationContext context: Context,
+        prefs: IOptionsPreferences
+    ): TdtPlayer {
+        val bufferName = runBlocking { prefs.bufferFlow.first() }
+        val buffer = AppBuffer.entries.find { it.name == bufferName } ?: AppBuffer.BALANCED
+        return TdtPlayer(context, buffer)
+    }
 }

@@ -1,6 +1,9 @@
 package com.pedrogm.tdtflow.data.repository
 
 import android.util.Log
+import com.pedrogm.tdtflow.data.local.ChannelDao
+import com.pedrogm.tdtflow.data.local.toDomain
+import com.pedrogm.tdtflow.data.local.toEntity
 import com.pedrogm.tdtflow.data.remote.AmbitConstants
 import com.pedrogm.tdtflow.data.remote.NetworkModule
 import com.pedrogm.tdtflow.data.remote.TdtChannelsResponse
@@ -14,6 +17,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 
 class ChannelRepositoryImpl(
+    private val channelDao: ChannelDao,
     private val cache: ChannelCache = ChannelCache(),
     private val onError: (Throwable) -> Unit = {}
 ) : ChannelRepository {
@@ -24,13 +28,26 @@ class ChannelRepositoryImpl(
     }
 
     override fun getChannels(): Flow<List<Channel>> = flow {
+        // 1. Memory cache
         cache.get()?.let {
             emit(it)
             return@flow
         }
-        val channels = loadChannels()
-        cache.put(channels)
-        emit(channels)
+
+        // 2. Room fallback (initial load)
+        val localChannels = channelDao.getAllChannels().map { it.toDomain() }
+        if (localChannels.isNotEmpty()) {
+            emit(localChannels)
+        }
+
+        // 3. Network load
+        val remoteChannels = loadChannels()
+        if (remoteChannels.isNotEmpty()) {
+            cache.put(remoteChannels)
+            channelDao.deleteAll()
+            channelDao.insertChannels(remoteChannels.map { it.toEntity() })
+            emit(remoteChannels)
+        }
     }
 
     private suspend fun loadChannels(): List<Channel> = withContext(Dispatchers.IO) {
@@ -68,10 +85,14 @@ class ChannelRepositoryImpl(
     }
 
     private suspend fun fetchTvChannels(): TdtChannelsResponse? =
-        runCatching { NetworkModule.getTvChannels() }.getOrNull()
+        runCatching { NetworkModule.getTvChannels() }
+            .onFailure { Log.w(TAG, "TV fetch failed: ${it.message}") }
+            .getOrNull()
 
     private suspend fun fetchRadioChannels(): TdtChannelsResponse? =
-        runCatching { NetworkModule.getRadioChannels() }.getOrNull()
+        runCatching { NetworkModule.getRadioChannels() }
+            .onFailure { Log.w(TAG, "Radio fetch failed: ${it.message}") }
+            .getOrNull()
 
     private suspend fun mapTvChannels(response: TdtChannelsResponse?): List<Channel> =
         withContext(Dispatchers.Default) {

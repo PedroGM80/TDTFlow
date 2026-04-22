@@ -53,6 +53,10 @@
     <string name="options_language_es">Español</string>
     <string name="options_language_en">English</string>
     <string name="options_language_ca">Català</string>
+    <string name="options_buffer">Player Stability</string>
+    <string name="options_buffer_fast">Fast (low latency)</string>
+    <string name="options_buffer_balanced">Balanced</string>
+    <string name="options_buffer_stable">Stable (slow connection)</string>
 
     <!-- TV accessibility -->
     <string name="play_channel">Play %1$s</string>
@@ -67,4 +71,8 @@
     <string name="back_description">Back</string>
     <string name="add_to_favorites">Add to favorites</string>
     <string name="remove_from_favorites">Remove from favorites</string>
+    <string name="brightness">Brightness</string>
+    <string name="volume">Volume</string>
+    <string name="export_favorites">Export favorites (Clipboard)</string>
+    <string name="import_favorites">Import favorites (Clipboard)</string>
 </resources>

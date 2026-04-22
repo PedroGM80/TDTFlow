@@ -5,4 +5,5 @@ sealed class OptionsMenuIntent {
     data object Dismiss : OptionsMenuIntent()
     data class SelectTheme(val theme: AppTheme) : OptionsMenuIntent()
     data class SelectLanguage(val language: AppLanguage) : OptionsMenuIntent()
+    data class SelectBuffer(val buffer: AppBuffer) : OptionsMenuIntent()
 }

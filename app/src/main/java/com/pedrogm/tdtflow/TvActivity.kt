@@ -1,24 +1,26 @@
 package com.pedrogm.tdtflow
 
-import android.content.Context
 import android.os.Bundle
 import android.view.KeyEvent
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pedrogm.tdtflow.ui.TdtIntent
 import com.pedrogm.tdtflow.ui.TdtViewModel
+import com.pedrogm.tdtflow.ui.options.AppLanguage
 import com.pedrogm.tdtflow.ui.options.AppTheme
+import com.pedrogm.tdtflow.ui.options.OptionsMenuIntent
 import com.pedrogm.tdtflow.ui.options.OptionsMenuViewModel
 import com.pedrogm.tdtflow.ui.theme.TDTFlowTheme
 import androidx.media3.common.util.UnstableApi
-import com.pedrogm.tdtflow.ui.options.AppLanguage
 import com.pedrogm.tdtflow.ui.tv.TvNavGraph
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.Locale
 
 @AndroidEntryPoint
 @androidx.annotation.OptIn(UnstableApi::class)
@@ -27,27 +29,19 @@ class TvActivity : AppCompatActivity() {
     private val viewModel: TdtViewModel by viewModels()
     private val optionsViewModel: OptionsMenuViewModel by viewModels()
 
-    override fun attachBaseContext(newBase: Context) {
-        val prefs = newBase.getSharedPreferences("options_prefs", Context.MODE_PRIVATE)
-        val languageName = prefs.getString("selected_language", AppLanguage.SYSTEM.name) ?: AppLanguage.SYSTEM.name
-        val language = try { AppLanguage.valueOf(languageName) } catch (e: Exception) { AppLanguage.SYSTEM }
-        
-        if (language == AppLanguage.SYSTEM) {
-            super.attachBaseContext(newBase)
-        } else {
-            val locale = Locale(language.name.lowercase())
-            Locale.setDefault(locale)
-            val config = newBase.resources.configuration
-            config.setLocale(locale)
-            super.attachBaseContext(newBase.createConfigurationContext(config))
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val optionsState by optionsViewModel.uiState.collectAsStateWithLifecycle()
-            
+
+            LaunchedEffect(optionsState.language) {
+                val localeList = when (optionsState.language) {
+                    AppLanguage.SYSTEM -> LocaleListCompat.getEmptyLocaleList()
+                    else -> LocaleListCompat.forLanguageTags(optionsState.language.name.lowercase())
+                }
+                AppCompatDelegate.setApplicationLocales(localeList)
+            }
+
             val darkTheme = when (optionsState.selectedTheme) {
                 AppTheme.DARK -> true
                 AppTheme.LIGHT -> false
@@ -71,8 +65,16 @@ class TvActivity : AppCompatActivity() {
             viewModel.onIntent(TdtIntent.StopPlayback)
             return true
         }
+        if (keyCode == KeyEvent.KEYCODE_DPAD_UP && viewModel.uiState.value.isPlaying) {
+            viewModel.onIntent(TdtIntent.PreviousChannel)
+            return true
+        }
+        if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN && viewModel.uiState.value.isPlaying) {
+            viewModel.onIntent(TdtIntent.NextChannel)
+            return true
+        }
         if (keyCode == KeyEvent.KEYCODE_MENU || keyCode == KeyEvent.KEYCODE_SETTINGS) {
-            optionsViewModel.onIntent(com.pedrogm.tdtflow.ui.options.OptionsMenuIntent.Open)
+            optionsViewModel.onIntent(OptionsMenuIntent.Open)
             return true
         }
         return super.onKeyDown(keyCode, event)

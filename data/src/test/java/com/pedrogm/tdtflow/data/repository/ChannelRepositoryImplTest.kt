@@ -1,5 +1,7 @@
 package com.pedrogm.tdtflow.data.repository
 
+import com.pedrogm.tdtflow.data.local.ChannelDao
+import com.pedrogm.tdtflow.data.local.ChannelEntity
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
 import kotlinx.coroutines.flow.first
@@ -7,7 +9,15 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
+private class FakeChannelDao : ChannelDao {
+    override suspend fun getAllChannels(): List<ChannelEntity> = emptyList()
+    override suspend fun insertChannels(channels: List<ChannelEntity>) = Unit
+    override suspend fun deleteAll() = Unit
+}
+
 class ChannelRepositoryImplTest {
+
+    private val fakeDao = FakeChannelDao()
 
     private fun channel(
         name: String,
@@ -25,7 +35,7 @@ class ChannelRepositoryImplTest {
             channel("La 2", "rtve2.m3u8")
         )
         val cache = ChannelCache(ttlMs = Long.MAX_VALUE).apply { put(cachedChannels) }
-        val repository = ChannelRepositoryImpl(cache = cache)
+        val repository = ChannelRepositoryImpl(channelDao = fakeDao, cache = cache)
 
         val result = repository.getChannels().first()
 
@@ -37,7 +47,7 @@ class ChannelRepositoryImplTest {
         val cache = ChannelCache(ttlMs = Long.MAX_VALUE).apply {
             put(listOf(channel("Canal Sur", "canalsur.m3u8", ChannelCategory.REGIONAL)))
         }
-        val repository = ChannelRepositoryImpl(cache = cache)
+        val repository = ChannelRepositoryImpl(channelDao = fakeDao, cache = cache)
 
         val emissions = mutableListOf<List<Channel>>()
         repository.getChannels().collect { emissions.add(it) }
@@ -53,7 +63,11 @@ class ChannelRepositoryImplTest {
         val cache = ChannelCache(ttlMs = Long.MAX_VALUE).apply {
             put(listOf(channel("La 1", "rtve1.m3u8")))
         }
-        val repository = ChannelRepositoryImpl(cache = cache, onError = { errorCalled = true })
+        val repository = ChannelRepositoryImpl(
+            channelDao = fakeDao,
+            cache = cache,
+            onError = { errorCalled = true }
+        )
 
         repository.getChannels().first()
 

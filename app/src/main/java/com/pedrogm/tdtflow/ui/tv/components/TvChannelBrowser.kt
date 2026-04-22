@@ -1,5 +1,10 @@
 package com.pedrogm.tdtflow.ui.tv.components
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -26,6 +31,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+import com.pedrogm.tdtflow.ui.util.LogoPreloader
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import com.pedrogm.tdtflow.ui.components.SearchBar
+import com.composables.icons.lucide.Search
+import com.composables.icons.lucide.X
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Surface
@@ -48,6 +61,8 @@ import com.pedrogm.tdtflow.ui.options.OptionsMenuIntent
 import com.pedrogm.tdtflow.ui.options.OptionsMenuScreen
 import com.pedrogm.tdtflow.ui.options.OptionsMenuViewModel
 
+private enum class TvContentState { Loading, Error, Grid }
+
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 internal fun TvChannelBrowser(
@@ -58,6 +73,14 @@ internal fun TvChannelBrowser(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val favoritesState by favoritesViewModel.uiState.collectAsStateWithLifecycle()
+    var showSearch by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    LaunchedEffect(uiState.channels) {
+        if (uiState.channels.isNotEmpty()) {
+            LogoPreloader.preload(context, uiState.channels)
+        }
+    }
 
     // Refactorización de Dimensiones para rendimiento
     val paddingTv = dimensionResource(R.dimen.padding_tv)
@@ -102,6 +125,27 @@ internal fun TvChannelBrowser(
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.weight(1f))
+
+                // Botón de búsqueda
+                Surface(
+                    onClick = { showSearch = !showSearch },
+                    shape = ClickableSurfaceDefaults.shape(surfaceShape),
+                    colors = ClickableSurfaceDefaults.colors(
+                        containerColor = if (showSearch) M3Theme.colorScheme.primary else M3Theme.colorScheme.surfaceVariant,
+                        focusedContainerColor = M3Theme.colorScheme.primary
+                    )
+                ) {
+                    Box(modifier = Modifier.padding(horizontal = chipPaddingH, vertical = chipPaddingV)) {
+                        Icon(
+                            imageVector = if (showSearch) Lucide.X else Lucide.Search,
+                            contentDescription = stringResource(R.string.search_description),
+                            tint = Color.White,
+                            modifier = Modifier.size(iconSizeSmall)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(spacingMedium))
 
                 // Botón de favoritos mejorado
                 Surface(
@@ -162,71 +206,93 @@ internal fun TvChannelBrowser(
                 }
             }
 
-            if (uiState.isLoading) {
-                ChannelGridSkeleton(modifier = Modifier.fillMaxSize().padding(horizontal = paddingTv))
-                return@Column
+            if (showSearch) {
+                SearchBar(
+                    query = uiState.searchQuery,
+                    onQueryChange = { viewModel.onIntent(TdtIntent.Search(it)) },
+                    modifier = Modifier
+                        .padding(horizontal = paddingTv)
+                        .padding(bottom = spacingLarge)
+                )
             }
 
-            if (uiState.error != null && uiState.channels.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    ErrorState(
-                        message = uiState.error.orEmpty(),
-                        onRetry = { viewModel.onIntent(TdtIntent.Retry) }
-                    )
-                }
-                return@Column
+            val tvContentState = when {
+                uiState.isLoading -> TvContentState.Loading
+                uiState.error != null && uiState.channels.isEmpty() -> TvContentState.Error
+                else -> TvContentState.Grid
             }
 
-            // ── Categorías (Añadido contentPadding para evitar cortes) ─────
-            LazyRow(
-                contentPadding = PaddingValues(horizontal = paddingTv),
-                horizontalArrangement = Arrangement.spacedBy(spacingMedium),
-                modifier = Modifier.padding(bottom = paddingExtraLarge)
-            ) {
-                item(key = "category_all") {
-                    TvCategoryChip(
-                        label = stringResource(R.string.category_all),
-                        icon = Lucide.LayoutGrid,
-                        isSelected = uiState.selectedCategory == null,
-                        onClick = { viewModel.onIntent(TdtIntent.FilterByCategory(null)) }
+            AnimatedContent(
+                targetState = tvContentState,
+                transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(200)) },
+                label = "tv_channel_content",
+                modifier = Modifier.fillMaxSize()
+            ) { state ->
+                when (state) {
+                    TvContentState.Loading -> ChannelGridSkeleton(
+                        modifier = Modifier.fillMaxSize().padding(horizontal = paddingTv)
                     )
-                }
-                items(ChannelCategory.entries.toList(), key = { it.name }) { category ->
-                    TvCategoryChip(
-                        label = stringResource(category.toStringRes()),
-                        icon = category.toLucideIcon(),
-                        isSelected = uiState.selectedCategory == category,
-                        onClick = { viewModel.onIntent(TdtIntent.FilterByCategory(category)) }
-                    )
-                }
-            }
-
-            if (uiState.filteredChannels.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    EmptyState(message = stringResource(R.string.no_channels_found))
-                }
-            } else {
-                // ── Grid de canales ───────────────────────────────────────
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(minSize = cardWidth),
-                    contentPadding = PaddingValues(
-                        start = paddingTv,
-                        top = 0.dp,
-                        end = paddingTv,
-                        bottom = paddingTv
-                    ),
-                    horizontalArrangement = Arrangement.spacedBy(spacingLarge, Alignment.CenterHorizontally),
-                    verticalArrangement = Arrangement.spacedBy(spacingLarge),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    channelItemsWithRadioSeparator(uiState.filteredChannels) { channel ->
-                        TvChannelCard(
-                            channel = channel,
-                            isSelected = channel == uiState.currentChannel,
-                            isFavorite = channel.url in favoritesState.favoriteIds,
-                            onClick = { viewModel.onIntent(TdtIntent.SelectChannel(channel)) },
-                            onLongClick = { favoritesViewModel.onIntent(FavoritesIntent.ToggleFavorite(channel.url)) }
+                    TvContentState.Error -> Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        ErrorState(
+                            message = uiState.error.orEmpty(),
+                            onRetry = { viewModel.onIntent(TdtIntent.Retry) }
                         )
+                    }
+                    TvContentState.Grid -> Column(modifier = Modifier.fillMaxSize()) {
+                        LazyRow(
+                            contentPadding = PaddingValues(horizontal = paddingTv),
+                            horizontalArrangement = Arrangement.spacedBy(spacingMedium),
+                            modifier = Modifier.padding(bottom = paddingExtraLarge)
+                        ) {
+                            item(key = "category_all") {
+                                TvCategoryChip(
+                                    label = stringResource(R.string.category_all),
+                                    icon = Lucide.LayoutGrid,
+                                    isSelected = uiState.selectedCategory == null,
+                                    onClick = { viewModel.onIntent(TdtIntent.FilterByCategory(null)) }
+                                )
+                            }
+                            items(ChannelCategory.entries.toList(), key = { it.name }) { category ->
+                                TvCategoryChip(
+                                    label = stringResource(category.toStringRes()),
+                                    icon = category.toLucideIcon(),
+                                    isSelected = uiState.selectedCategory == category,
+                                    onClick = { viewModel.onIntent(TdtIntent.FilterByCategory(category)) }
+                                )
+                            }
+                        }
+
+                        if (uiState.filteredChannels.isEmpty()) {
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                EmptyState(message = stringResource(R.string.no_channels_found))
+                            }
+                        } else {
+                            LazyVerticalGrid(
+                                columns = GridCells.Adaptive(minSize = cardWidth),
+                                contentPadding = PaddingValues(
+                                    start = paddingTv,
+                                    top = 0.dp,
+                                    end = paddingTv,
+                                    bottom = paddingTv
+                                ),
+                                horizontalArrangement = Arrangement.spacedBy(spacingLarge, Alignment.CenterHorizontally),
+                                verticalArrangement = Arrangement.spacedBy(spacingLarge),
+                                modifier = Modifier.fillMaxSize()
+                            ) {
+                                channelItemsWithRadioSeparator(uiState.filteredChannels) { channel ->
+                                    TvChannelCard(
+                                        channel = channel,
+                                        isSelected = channel == uiState.currentChannel,
+                                        isFavorite = channel.url in favoritesState.favoriteIds,
+                                        onClick = { viewModel.onIntent(TdtIntent.SelectChannel(channel)) },
+                                        onLongClick = { favoritesViewModel.onIntent(FavoritesIntent.ToggleFavorite(channel.url)) }
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }

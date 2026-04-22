@@ -5,6 +5,8 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.test.platform.app.InstrumentationRegistry
+import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.data.NoOpOptionsPreferences
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
@@ -28,6 +30,8 @@ class MobileScreenTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
+
+    private val context get() = InstrumentationRegistry.getInstrumentation().targetContext
 
     private val channel1 = Channel("Antena 3", "https://stream1.m3u8", category = ChannelCategory.GENERAL)
     private val channel2 = Channel("La Sexta", "https://stream2.m3u8", category = ChannelCategory.GENERAL)
@@ -96,7 +100,7 @@ class MobileScreenTest {
         setContent()
 
         composeTestRule
-            .onNodeWithContentDescription("Favoritos")
+            .onNodeWithContentDescription(context.getString(R.string.favorites_title))
             .assertIsDisplayed()
     }
 
@@ -105,7 +109,7 @@ class MobileScreenTest {
         setContent()
 
         composeTestRule
-            .onNodeWithContentDescription("Buscar")
+            .onNodeWithContentDescription(context.getString(R.string.search_description))
             .assertIsDisplayed()
     }
 
@@ -114,7 +118,7 @@ class MobileScreenTest {
         setContent()
 
         composeTestRule
-            .onNodeWithContentDescription("Opciones")
+            .onNodeWithContentDescription(context.getString(R.string.options_title))
             .assertIsDisplayed()
     }
 
@@ -138,7 +142,7 @@ class MobileScreenTest {
         setContent(tdtViewModel = buildTdtViewModel(channels = emptyList()))
 
         composeTestRule
-            .onNodeWithText("No se encontraron canales")
+            .onNodeWithText(context.getString(R.string.no_channels_found))
             .assertIsDisplayed()
     }
 
@@ -150,7 +154,7 @@ class MobileScreenTest {
         setContent(onNavigateToFavorites = { navigated = true })
 
         composeTestRule
-            .onNodeWithContentDescription("Favoritos")
+            .onNodeWithContentDescription(context.getString(R.string.favorites_title))
             .performClick()
 
         assertTrue(navigated)
@@ -163,7 +167,7 @@ class MobileScreenTest {
         setContent()
 
         composeTestRule
-            .onNodeWithText("Buscar canal\u2026")
+            .onNodeWithText(context.getString(R.string.search_placeholder))
             .assertDoesNotExist()
     }
 
@@ -172,11 +176,11 @@ class MobileScreenTest {
         setContent()
 
         composeTestRule
-            .onNodeWithContentDescription("Buscar")
+            .onNodeWithContentDescription(context.getString(R.string.search_description))
             .performClick()
 
         composeTestRule
-            .onNodeWithText("Buscar canal\u2026")
+            .onNodeWithText(context.getString(R.string.search_placeholder))
             .assertIsDisplayed()
     }
 }

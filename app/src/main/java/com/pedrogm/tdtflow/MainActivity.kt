@@ -1,17 +1,22 @@
 package com.pedrogm.tdtflow
 
-import android.content.Context
+import android.app.PictureInPictureParams
 import android.content.Intent
 import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
+import android.util.Rational
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.core.os.LocaleListCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
@@ -22,7 +27,6 @@ import com.pedrogm.tdtflow.ui.options.AppTheme
 import com.pedrogm.tdtflow.ui.options.OptionsMenuViewModel
 import com.pedrogm.tdtflow.ui.theme.TDTFlowTheme
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.Locale
 
 @AndroidEntryPoint
 @androidx.annotation.OptIn(UnstableApi::class)
@@ -30,22 +34,6 @@ class MainActivity : AppCompatActivity() {
 
     private val viewModel: TdtViewModel by viewModels()
     private val optionsViewModel: OptionsMenuViewModel by viewModels()
-
-    override fun attachBaseContext(newBase: Context) {
-        val prefs = newBase.getSharedPreferences("options_prefs", Context.MODE_PRIVATE)
-        val languageName = prefs.getString("selected_language", AppLanguage.SYSTEM.name) ?: AppLanguage.SYSTEM.name
-        val language = try { AppLanguage.valueOf(languageName) } catch (ignored: Exception) { AppLanguage.SYSTEM }
-
-        if (language == AppLanguage.SYSTEM) {
-            super.attachBaseContext(newBase)
-        } else {
-            val locale = Locale.forLanguageTag(language.name.lowercase())
-            Locale.setDefault(locale)
-            val config = newBase.resources.configuration
-            config.setLocale(locale)
-            super.attachBaseContext(newBase.createConfigurationContext(config))
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,6 +50,15 @@ class MainActivity : AppCompatActivity() {
         }
         setContent {
             val optionsState by optionsViewModel.uiState.collectAsStateWithLifecycle()
+
+            LaunchedEffect(optionsState.language) {
+                val localeList = when (optionsState.language) {
+                    AppLanguage.SYSTEM -> LocaleListCompat.getEmptyLocaleList()
+                    else -> LocaleListCompat.forLanguageTags(optionsState.language.name.lowercase())
+                }
+                AppCompatDelegate.setApplicationLocales(localeList)
+            }
+
             val darkTheme = when (optionsState.selectedTheme) {
                 AppTheme.DARK -> true
                 AppTheme.LIGHT -> false
@@ -69,6 +66,21 @@ class MainActivity : AppCompatActivity() {
             }
             TDTFlowTheme(darkTheme = darkTheme, dynamicColor = optionsState.selectedTheme == AppTheme.SYSTEM) {
                 AppNavGraph(viewModel = viewModel, optionsViewModel = optionsViewModel)
+            }
+        }
+    }
+
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        if (viewModel.uiState.value.isPlaying) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val params = PictureInPictureParams.Builder()
+                    .setAspectRatio(Rational(16, 9))
+                    .build()
+                enterPictureInPictureMode(params)
+            } else {
+                @Suppress("DEPRECATION")
+                enterPictureInPictureMode()
             }
         }
     }

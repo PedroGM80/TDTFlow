@@ -44,6 +44,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.platform.LocalContext
+import com.pedrogm.tdtflow.ui.util.LogoPreloader
+import com.composables.icons.lucide.Sun
+import com.composables.icons.lucide.Volume2
+import com.pedrogm.tdtflow.ui.components.GestureOverlay
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Surface
@@ -55,6 +61,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -76,7 +83,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -187,6 +193,11 @@ private fun LandscapeFullscreenPlayer(
 ) {
     val view = LocalView.current
     var showOverlay by remember { mutableStateOf(false) }
+    var showBrightnessOverlay by remember { mutableStateOf(false) }
+    var showVolumeOverlay by remember { mutableStateOf(false) }
+    var brightnessValue by remember { mutableIntStateOf(0) }
+    var volumeValue by remember { mutableIntStateOf(0) }
+
     val audioManager = remember { view.context.getSystemService(Context.AUDIO_SERVICE) as AudioManager }
 
     DisposableEffect(Unit) {
@@ -222,25 +233,49 @@ private fun LandscapeFullscreenPlayer(
             }
             .pointerInput(Unit) {
                 var dragStartX = 0f
+                var brightnessAccumulator = 0f
                 var volumeAccumulator = 0f
                 detectVerticalDragGestures(
                     onDragStart = { offset ->
                         dragStartX = offset.x
+                        brightnessAccumulator = 0f
                         volumeAccumulator = 0f
+                    },
+                    onDragEnd = {
+                        showBrightnessOverlay = false
+                        showVolumeOverlay = false
+                    },
+                    onDragCancel = {
+                        showBrightnessOverlay = false
+                        showVolumeOverlay = false
                     },
                     onVerticalDrag = { change, dragAmount ->
                         change.consume()
-                        if (dragStartX < size.width / 2f) {
-                            val window = (view.context as Activity).window
-                            val attrs = window.attributes
-                            val current = if (attrs.screenBrightness < 0f) 0.5f else attrs.screenBrightness
-                            attrs.screenBrightness = (current - dragAmount / size.height).coerceIn(0.01f, 1.0f)
-                            window.attributes = attrs
+                        val isLeftSide = dragStartX < size.width / 2f
+                        if (isLeftSide) {
+                            brightnessAccumulator -= dragAmount
+                            if (kotlin.math.abs(brightnessAccumulator) >= 10f) {
+                                val activity = view.context as? Activity
+                                activity?.window?.attributes?.let { lp ->
+                                    val current = if (lp.screenBrightness < 0) 0.5f else lp.screenBrightness
+                                    lp.screenBrightness = (current + (if (brightnessAccumulator > 0) 0.05f else -0.05f))
+                                        .coerceIn(0.01f, 1.0f)
+                                    activity.window.attributes = lp
+                                    brightnessValue = (lp.screenBrightness * 100).toInt()
+                                    showBrightnessOverlay = true
+                                }
+                                brightnessAccumulator = 0f
+                            }
                         } else {
-                            volumeAccumulator += dragAmount
-                            if (kotlin.math.abs(volumeAccumulator) >= TimeConstants.VOLUME_DRAG_THRESHOLD) {
-                                val adjust = if (volumeAccumulator < 0f) AudioManager.ADJUST_RAISE else AudioManager.ADJUST_LOWER
-                                audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, adjust, AudioManager.FLAG_SHOW_UI)
+                            volumeAccumulator -= dragAmount
+                            if (kotlin.math.abs(volumeAccumulator) >= 10f) {
+                                val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+                                val currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+                                val nextVolume = (currentVolume + (if (volumeAccumulator > 0) 1 else -1))
+                                    .coerceIn(0, maxVolume)
+                                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, nextVolume, 0)
+                                volumeValue = (nextVolume.toFloat() / maxVolume * 100).toInt()
+                                showVolumeOverlay = true
                                 volumeAccumulator = 0f
                             }
                         }
@@ -269,6 +304,22 @@ private fun LandscapeFullscreenPlayer(
                     .align(Alignment.Center)
                     .size(dimensionResource(R.dimen.icon_size_extra_large)),
                 color = AppColors.Overlay.buffering
+            )
+        }
+
+        // Overlay de gestos
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            GestureOverlay(
+                visible = showBrightnessOverlay,
+                icon = Lucide.Sun,
+                value = brightnessValue,
+                label = stringResource(R.string.brightness)
+            )
+            GestureOverlay(
+                visible = showVolumeOverlay,
+                icon = Lucide.Volume2,
+                value = volumeValue,
+                label = stringResource(R.string.volume)
             )
         }
 
@@ -724,6 +775,9 @@ private fun PlayerErrorSnackbar(
     }
 }
 
+private enum class ChannelContentState { Loading, Error, Empty, Grid }
+
+@OptIn(ExperimentalMaterial3Api::class)
 @androidx.annotation.OptIn(UnstableApi::class)
 @Composable
 private fun ChannelContent(
@@ -733,62 +787,68 @@ private fun ChannelContent(
     favoriteIds: Set<String> = emptySet(),
     onToggleFavorite: (String) -> Unit = {}
 ) {
-    AnimatedContent(
-        targetState = uiState.isLoading,
-        transitionSpec = {
-            fadeIn(tween(300)) togetherWith fadeOut(tween(200))
-        },
-        label = "channels_loading",
+    val context = LocalContext.current
+    LaunchedEffect(uiState.channels) {
+        if (uiState.channels.isNotEmpty()) {
+            LogoPreloader.preload(context, uiState.channels)
+        }
+    }
+
+    val contentState = when {
+        uiState.isLoading && uiState.channels.isEmpty() -> ChannelContentState.Loading
+        uiState.error != null && uiState.channels.isEmpty() -> ChannelContentState.Error
+        uiState.filteredChannels.isEmpty() -> ChannelContentState.Empty
+        else -> ChannelContentState.Grid
+    }
+
+    PullToRefreshBox(
+        isRefreshing = uiState.isLoading,
+        onRefresh = { viewModel.onIntent(TdtIntent.Retry) },
         modifier = modifier
-    ) { isLoading ->
-        if (isLoading) {
-            ChannelGridSkeleton()
-        } else {
-            when {
-                uiState.error != null && uiState.channels.isEmpty() -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .semantics {
-                                liveRegion = LiveRegionMode.Assertive
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        ErrorState(
-                            message = uiState.error,
-                            onRetry = { viewModel.onIntent(TdtIntent.Retry) },
-                            modifier = Modifier.semantics {
-                                error(uiState.error)
-                            }
+    ) {
+        AnimatedContent(
+            targetState = contentState,
+            transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(200)) },
+            label = "channel_content",
+            modifier = Modifier.fillMaxSize()
+        ) { state ->
+            when (state) {
+                ChannelContentState.Loading -> ChannelGridSkeleton()
+                ChannelContentState.Error -> Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .semantics { liveRegion = LiveRegionMode.Assertive },
+                    contentAlignment = Alignment.Center
+                ) {
+                    ErrorState(
+                        message = uiState.error.orEmpty(),
+                        onRetry = { viewModel.onIntent(TdtIntent.Retry) },
+                        modifier = Modifier.semantics { error(uiState.error.orEmpty()) }
+                    )
+                }
+                ChannelContentState.Empty -> Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    EmptyState(message = stringResource(R.string.no_channels_found))
+                }
+                ChannelContentState.Grid -> LazyVerticalGrid(
+                    columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.min_grid_cell_size)),
+                    contentPadding = PaddingValues(dimensionResource(R.dimen.spacing_small)),
+                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small)),
+                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small)),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .semantics { liveRegion = LiveRegionMode.Polite }
+                ) {
+                    channelItemsWithRadioSeparator(uiState.filteredChannels) { channel ->
+                        ChannelCard(
+                            channel = channel,
+                            isSelected = channel == uiState.currentChannel,
+                            onClick = { viewModel.onIntent(TdtIntent.SelectChannel(channel)) },
+                            isFavorite = channel.url in favoriteIds,
+                            onToggleFavorite = { onToggleFavorite(channel.url) }
                         )
-                    }
-                }
-
-                uiState.filteredChannels.isEmpty() -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        EmptyState(message = stringResource(R.string.no_channels_found))
-                    }
-                }
-
-                else -> {
-                    LazyVerticalGrid(
-                        columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.min_grid_cell_size)),
-                        contentPadding = PaddingValues(dimensionResource(R.dimen.spacing_small)),
-                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small)),
-                        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small)),
-                        modifier = Modifier.semantics {
-                            liveRegion = LiveRegionMode.Polite
-                        }
-                    ) {
-                        channelItemsWithRadioSeparator(uiState.filteredChannels) { channel ->
-                            ChannelCard(
-                                channel = channel,
-                                isSelected = channel == uiState.currentChannel,
-                                onClick = { viewModel.onIntent(TdtIntent.SelectChannel(channel)) },
-                                isFavorite = channel.url in favoriteIds,
-                                onToggleFavorite = { onToggleFavorite(channel.url) }
-                            )
-                        }
                     }
                 }
             }

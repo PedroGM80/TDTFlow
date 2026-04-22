@@ -1,22 +1,27 @@
 package com.pedrogm.tdtflow.ui.favorites
 
 import androidx.lifecycle.ViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import androidx.lifecycle.viewModelScope
 import com.pedrogm.tdtflow.domain.usecase.AddFavoriteUseCase
+import com.pedrogm.tdtflow.domain.usecase.ClearFavoritesUseCase
 import com.pedrogm.tdtflow.domain.usecase.GetFavoritesUseCase
+import com.pedrogm.tdtflow.domain.usecase.ImportFavoritesUseCase
 import com.pedrogm.tdtflow.domain.usecase.RemoveFavoriteUseCase
 import com.pedrogm.tdtflow.util.TimeConstants
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.serialization.json.Json
+import javax.inject.Inject
 
 @HiltViewModel
 class FavoritesViewModel @Inject constructor(
     private val addFavorite: AddFavoriteUseCase,
     private val removeFavorite: RemoveFavoriteUseCase,
+    private val importFavorites: ImportFavoritesUseCase,
+    private val clearFavorites: ClearFavoritesUseCase,
     getFavorites: GetFavoritesUseCase
 ) : ViewModel() {
 
@@ -39,7 +44,19 @@ class FavoritesViewModel @Inject constructor(
                     addFavorite.invoke(intent.channelUrl)
                 }
             }
+            is FavoritesIntent.ImportFavorites -> {
+                try {
+                    val urls = Json.decodeFromString<Set<String>>(intent.json)
+                    importFavorites.invoke(urls)
+                } catch (_: Exception) {
+                    // Log error or update state
+                }
+            }
+            is FavoritesIntent.ClearAll -> clearFavorites.invoke()
         }
     }
 
+    fun exportFavorites(): String {
+        return Json.encodeToString(uiState.value.favoriteIds)
+    }
 }

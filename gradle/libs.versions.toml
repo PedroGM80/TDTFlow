@@ -1,6 +1,6 @@
 [versions]
 # Android & Kotlin
-androidGradlePlugin = "9.1.1"
+androidGradlePlugin = "9.2.0"
 hiltAndroidGradlePlugin = "2.59.2"
 kotlin = "2.3.20"
 ksp = "2.3.6"
@@ -22,9 +22,9 @@ androidxLifecycle = "2.10.0"
 androidxNavigation = "2.9.7"
 androidxComposeBom = "2026.03.01"
 androidxMedia3 = "1.10.0"
-androidxCarApp = "1.7.0"
 androidxDataStore = "1.2.1"
 tvMaterial = "1.1.0-rc01"
+androidxRoom = "2.8.4"
 
 # Kotlin
 kotlinxCoroutines = "1.10.2"
@@ -44,6 +44,9 @@ lucideIcons = "1.1.0"
 junit = "4.13.2"
 turbine = "1.2.1"
 jacoco = "0.8.12"
+
+# Dependency Injection
+javaxInject = "1"
 
 [libraries]
 # Core
@@ -73,12 +76,16 @@ media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", versi
 media3-exoplayer-hls = { group = "androidx.media3", name = "media3-exoplayer-hls", version.ref = "androidxMedia3" }
 media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "androidxMedia3" }
 media3-session = { group = "androidx.media3", name = "media3-session", version.ref = "androidxMedia3" }
-
-# Car
-androidx-car-app = { group = "androidx.car.app", name = "app", version.ref = "androidxCarApp" }
+media3-cast = { group = "androidx.media3", name = "media3-cast", version.ref = "androidxMedia3" }
+androidx-mediarouter = { group = "androidx.mediarouter", name = "mediarouter", version = "1.8.1" }
 
 # DataStore
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "androidxDataStore" }
+
+# Room
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "androidxRoom" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "androidxRoom" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "androidxRoom" }
 
 # Coroutines
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
@@ -100,6 +107,9 @@ compottie-network = { group = "io.github.alexzhirkevich", name = "compottie-netw
 # Images
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 
+# Dependency Injection
+javax-inject = { group = "javax.inject", name = "javax.inject", version.ref = "javaxInject" }
+
 # Hilt
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
@@ -117,6 +127,9 @@ kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version = "1.3.0" }
+androidx-test-runner = { group = "androidx.test", name = "runner", version = "1.7.0" }
+androidx-test-core = { group = "androidx.test", name = "core", version = "1.7.0" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
