@@ -12,14 +12,11 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.LoadControl
-import com.pedrogm.tdtflow.data.IOptionsPreferences
 import com.pedrogm.tdtflow.ui.options.AppBuffer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.datasource.DefaultHttpDataSource
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.util.TimeConstants
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -42,23 +39,19 @@ import kotlinx.coroutines.flow.asStateFlow
 @UnstableApi
 class TdtPlayer(
     context: Context,
-    private val prefs: IOptionsPreferences
+    buffer: AppBuffer = AppBuffer.BALANCED
 ) {
 
     companion object {
         private const val TAG = "TdtPlayer"
     }
 
-    private val loadControl: DefaultLoadControl by lazy {
-        val bufferType = runBlocking { prefs.bufferFlow.first() }
-        val buffer = AppBuffer.entries.find { it.name == bufferType } ?: AppBuffer.BALANCED
-        
+    private val loadControl: DefaultLoadControl = run {
         val (minMs, maxMs, playbackMs, rebufferMs) = when (buffer) {
-            AppBuffer.FAST -> Triple(1500, 3000, 500) to 1000
-            AppBuffer.BALANCED -> Triple(2500, 5000, 1000) to 1500
-            AppBuffer.STABLE -> Triple(5000, 15000, 2000) to 3000
-        }.let { (t, reb) -> listOf(t.first, t.second, t.third, reb) }
-
+            AppBuffer.FAST     -> listOf(1500,  3000,  500, 1000)
+            AppBuffer.BALANCED -> listOf(2500,  5000, 1000, 1500)
+            AppBuffer.STABLE   -> listOf(5000, 15000, 2000, 3000)
+        }
         DefaultLoadControl.Builder()
             .setBufferDurationsMs(minMs, maxMs, playbackMs, rebufferMs)
             .build()

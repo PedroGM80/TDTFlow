@@ -61,6 +61,10 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
         compose = true
         buildConfig = true
     }
+
+    testFixtures {
+        enable = true
+    }
 }
 
 base {
@@ -85,6 +89,7 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.serialization.json)
 
     // Compose
     implementation(platform(libs.androidx.compose.bom))
@@ -108,6 +113,8 @@ dependencies {
     implementation(libs.media3.exoplayer.hls)
     implementation(libs.media3.ui)
     implementation(libs.media3.session)
+    implementation(libs.media3.cast)
+    implementation(libs.androidx.mediarouter)
 
     // TV
     implementation(libs.tv.compose.material)

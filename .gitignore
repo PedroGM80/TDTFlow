@@ -19,6 +19,13 @@
 *.keystore
 results.sarif
 
+# Android Studio inspection / lint XML exports
+*.xml
+!app/src/**/*.xml
+!data/src/**/*.xml
+!domain/src/**/*.xml
+!gradle/**/*.xml
+
 # Audit reports (optional, keep if you want them in the repo)
 # *_audit_report.md
 # audit_*.md

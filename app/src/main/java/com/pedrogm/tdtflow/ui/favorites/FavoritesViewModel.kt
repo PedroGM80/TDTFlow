@@ -1,8 +1,6 @@
 package com.pedrogm.tdtflow.ui.favorites
 
 import androidx.lifecycle.ViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import androidx.lifecycle.viewModelScope
 import com.pedrogm.tdtflow.domain.usecase.AddFavoriteUseCase
 import com.pedrogm.tdtflow.domain.usecase.ClearFavoritesUseCase
@@ -10,13 +8,13 @@ import com.pedrogm.tdtflow.domain.usecase.GetFavoritesUseCase
 import com.pedrogm.tdtflow.domain.usecase.ImportFavoritesUseCase
 import com.pedrogm.tdtflow.domain.usecase.RemoveFavoriteUseCase
 import com.pedrogm.tdtflow.util.TimeConstants
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.serialization.json.Json
+import javax.inject.Inject
 
 @HiltViewModel
 class FavoritesViewModel @Inject constructor(
@@ -50,7 +48,7 @@ class FavoritesViewModel @Inject constructor(
                 try {
                     val urls = Json.decodeFromString<Set<String>>(intent.json)
                     importFavorites.invoke(urls)
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     // Log error or update state
                 }
             }

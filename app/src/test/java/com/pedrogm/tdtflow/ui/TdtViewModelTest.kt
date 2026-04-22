@@ -2,8 +2,13 @@ package com.pedrogm.tdtflow.ui
 
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
+import com.pedrogm.tdtflow.domain.repository.EpgRepository
+import com.pedrogm.tdtflow.domain.model.Program
 import com.pedrogm.tdtflow.domain.usecase.GetChannelsUseCase
+import com.pedrogm.tdtflow.domain.usecase.GetNowPlayingUseCase
 import com.pedrogm.tdtflow.fakes.FakeBrokenChannelTracker
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import com.pedrogm.tdtflow.fakes.FakeChannelsRepository
 import com.pedrogm.tdtflow.player.PlayerState
 import com.pedrogm.tdtflow.util.TimeConstants
@@ -296,9 +301,14 @@ class TdtViewModelTest {
 
     // Extension on TestScope so backgroundScope is accessible to start the
     // WhileSubscribed StateFlow chain before tests assert on uiState.value.
+    private val fakeEpgRepository = object : EpgRepository {
+        override fun getNowPlaying(channelUrl: String): Flow<Program?> = flowOf(null)
+    }
+
     private fun TestScope.buildViewModel(): TdtViewModel {
         val vm = TdtViewModel(
             getChannelsUseCase = GetChannelsUseCase(fakeChannels),
+            getNowPlayingUseCase = GetNowPlayingUseCase(fakeEpgRepository),
             brokenChannelTracker = fakeTracker,
             loadError = { e: Throwable -> "Error: ${e.message}" },
             playerControllerFactory = { scope ->

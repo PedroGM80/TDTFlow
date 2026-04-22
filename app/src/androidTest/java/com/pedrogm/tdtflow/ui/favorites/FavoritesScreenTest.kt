@@ -5,6 +5,8 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.test.platform.app.InstrumentationRegistry
+import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
 import com.pedrogm.tdtflow.domain.usecase.AddFavoriteUseCase
@@ -21,6 +23,8 @@ class FavoritesScreenTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
+
+    private val context get() = InstrumentationRegistry.getInstrumentation().targetContext
 
     private val channel1 = Channel(
         name = "Antena 3",
@@ -80,7 +84,7 @@ class FavoritesScreenTest {
         setContent(viewModel = createViewModel(initialFavorites = emptySet()))
 
         composeTestRule
-            .onNodeWithText("Aún no tienes canales favoritos")
+            .onNodeWithText(context.getString(R.string.no_favorites))
             .assertIsDisplayed()
     }
 
@@ -132,7 +136,7 @@ class FavoritesScreenTest {
         setContent(onBack = { backClicked = true })
 
         composeTestRule
-            .onNodeWithContentDescription("Volver")
+            .onNodeWithContentDescription(context.getString(R.string.back_description))
             .performClick()
 
         assertTrue(backClicked)

@@ -160,7 +160,7 @@ internal fun TvChannelCard(
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
-                            tint = Color(0xFFEF5350), // Rojo sutil
+                            tint = AppColors.favoriteHeart,
                             modifier = Modifier.size(16.dp)
                         )
                     } else if (isFocused) {

@@ -22,7 +22,10 @@ import com.pedrogm.tdtflow.domain.usecase.GetFavoritesUseCase
 import com.pedrogm.tdtflow.domain.usecase.ImportFavoritesUseCase
 import com.pedrogm.tdtflow.domain.usecase.RemoveFavoriteUseCase
 import com.pedrogm.tdtflow.player.TdtPlayer
+import com.pedrogm.tdtflow.ui.options.AppBuffer
 import dagger.Module
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -94,5 +97,9 @@ object AppModule {
     fun provideTdtPlayer(
         @ApplicationContext context: Context,
         prefs: IOptionsPreferences
-    ): TdtPlayer = TdtPlayer(context, prefs)
+    ): TdtPlayer {
+        val bufferName = runBlocking { prefs.bufferFlow.first() }
+        val buffer = AppBuffer.entries.find { it.name == bufferName } ?: AppBuffer.BALANCED
+        return TdtPlayer(context, buffer)
+    }
 }

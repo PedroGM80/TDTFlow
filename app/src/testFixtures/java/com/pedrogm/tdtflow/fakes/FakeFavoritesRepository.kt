@@ -17,4 +17,12 @@ class FakeFavoritesRepository : FavoritesRepository {
     override fun remove(channelUrl: String) {
         _favoriteIds.update { it - channelUrl }
     }
+
+    override fun addAll(urls: Set<String>) {
+        _favoriteIds.update { it + urls }
+    }
+
+    override fun clearAll() {
+        _favoriteIds.value = emptySet()
+    }
 }

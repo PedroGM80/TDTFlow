@@ -25,6 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import com.pedrogm.tdtflow.R
+import com.pedrogm.tdtflow.ui.theme.AppColors
 import androidx.tv.material3.Button as TvButton
 import androidx.tv.material3.Surface as TvSurface
 import androidx.tv.material3.Border
@@ -88,7 +89,7 @@ fun OptionsMenuScreen(
                         .fillMaxHeight()
                         .width(380.dp)
                         .background(
-                            color = Color(0xFF121212).copy(alpha = 0.85f),
+                            color = AppColors.surfaceScrim.copy(alpha = 0.85f),
                             shape = RoundedCornerShape(topStart = 24.dp, bottomStart = 24.dp)
                         )
                         .clickable(enabled = false) { }

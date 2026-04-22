@@ -776,6 +776,8 @@ private fun PlayerErrorSnackbar(
     }
 }
 
+private enum class ChannelContentState { Loading, Error, Empty, Grid }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @androidx.annotation.OptIn(UnstableApi::class)
 @Composable
@@ -793,71 +795,61 @@ private fun ChannelContent(
         }
     }
 
+    val contentState = when {
+        uiState.isLoading && uiState.channels.isEmpty() -> ChannelContentState.Loading
+        uiState.error != null && uiState.channels.isEmpty() -> ChannelContentState.Error
+        uiState.filteredChannels.isEmpty() -> ChannelContentState.Empty
+        else -> ChannelContentState.Grid
+    }
+
     PullToRefreshBox(
         isRefreshing = uiState.isLoading,
         onRefresh = { viewModel.onIntent(TdtIntent.Retry) },
         modifier = modifier
     ) {
         AnimatedContent(
-            targetState = uiState.isLoading,
-            transitionSpec = {
-                fadeIn(tween(300)) togetherWith fadeOut(tween(200))
-            },
-            label = "channels_loading",
+            targetState = contentState,
+            transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(200)) },
+            label = "channel_content",
             modifier = Modifier.fillMaxSize()
-        ) { isLoading ->
-            if (isLoading && uiState.channels.isEmpty()) {
-                ChannelGridSkeleton()
-            } else {
-                when {
-                    uiState.error != null && uiState.channels.isEmpty() -> {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .semantics {
-                                    liveRegion = LiveRegionMode.Assertive
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            ErrorState(
-                                message = uiState.error,
-                                onRetry = { viewModel.onIntent(TdtIntent.Retry) },
-                                modifier = Modifier.semantics {
-                                    error(uiState.error)
-                                }
-                            )
-                        }
-                    }
-
-                    uiState.filteredChannels.isEmpty() -> {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            EmptyState(message = stringResource(R.string.no_channels_found))
-                        }
-                    }
-
-                    else -> {
-                        LazyVerticalGrid(
-                            columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.min_grid_cell_size)),
-                            contentPadding = PaddingValues(dimensionResource(R.dimen.spacing_small)),
-                            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small)),
-                            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small)),
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .semantics {
-                                    liveRegion = LiveRegionMode.Polite
-                                }
-                        ) {
-                            channelItemsWithRadioSeparator(uiState.filteredChannels) { channel ->
-                                ChannelCard(
-                                    channel = channel,
-                                    isSelected = channel == uiState.currentChannel,
-                                    onClick = { viewModel.onIntent(TdtIntent.SelectChannel(channel)) },
-                                    isFavorite = channel.url in favoriteIds,
-                                    onToggleFavorite = { onToggleFavorite(channel.url) }
-                                    )
-                                }
-                            }
-                        }
+        ) { state ->
+            when (state) {
+                ChannelContentState.Loading -> ChannelGridSkeleton()
+                ChannelContentState.Error -> Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .semantics { liveRegion = LiveRegionMode.Assertive },
+                    contentAlignment = Alignment.Center
+                ) {
+                    ErrorState(
+                        message = uiState.error.orEmpty(),
+                        onRetry = { viewModel.onIntent(TdtIntent.Retry) },
+                        modifier = Modifier.semantics { error(uiState.error.orEmpty()) }
+                    )
+                }
+                ChannelContentState.Empty -> Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    EmptyState(message = stringResource(R.string.no_channels_found))
+                }
+                ChannelContentState.Grid -> LazyVerticalGrid(
+                    columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.min_grid_cell_size)),
+                    contentPadding = PaddingValues(dimensionResource(R.dimen.spacing_small)),
+                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small)),
+                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small)),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .semantics { liveRegion = LiveRegionMode.Polite }
+                ) {
+                    channelItemsWithRadioSeparator(uiState.filteredChannels) { channel ->
+                        ChannelCard(
+                            channel = channel,
+                            isSelected = channel == uiState.currentChannel,
+                            onClick = { viewModel.onIntent(TdtIntent.SelectChannel(channel)) },
+                            isFavorite = channel.url in favoriteIds,
+                            onToggleFavorite = { onToggleFavorite(channel.url) }
+                        )
                     }
                 }
             }

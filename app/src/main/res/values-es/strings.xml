@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TDTFlow</string>
+    <string name="search_placeholder">Buscar canal&#8230;</string>
+    <string name="search_description">Buscar</string>
+    <string name="clear_description">Limpiar</string>
+    <string name="reload_description">Recargar</string>
+    <string name="no_channels_found">No se encontraron canales</string>
+    <string name="close">Cerrar</string>
+    <string name="fullscreen_description">Pantalla completa</string>
+    <string name="error_description">Error</string>
+    <string name="playback_error">Error de reproducción</string>
+    <string name="retry_button">Reintentar</string>
+    <string name="error_loading_channels">Error cargando canales: %1$s</string>
+    <string name="category_all">Todos</string>
+    <string name="live_indicator">EN DIRECTO</string>
+
+    <!-- Categorías -->
+    <string name="category_general">Generales</string>
+    <string name="category_news">Noticias</string>
+    <string name="category_sports">Deportes</string>
+    <string name="category_kids">Infantil</string>
+    <string name="category_entertainment">Entretenimiento</string>
+    <string name="category_regional">Autonómicos</string>
+    <string name="category_music">Música</string>
+    <string name="category_other">Otros</string>
+
+    <!-- Canales rotos -->
+    <string name="channel_not_available">Canal no disponible</string>
+    <string name="show_broken_channels">Mostrar todos</string>
+    <string name="revalidate_channels">Revalidar canales</string>
+
+    <!-- Accesibilidad -->
+    <string name="category_icon_description">Icono de categoría %1$s</string>
+    <string name="check_icon_description">Seleccionado</string>
+    <string name="channel_logo_placeholder">Logo del canal %1$s</string>
+    <string name="audio_only_channel">Reproducción solo audio</string>
+    <string name="empty_state_icon">Sin resultados</string>
+    <string name="app_logo">Logo de la aplicación</string>
+    <string name="tv_icon">Icono de televisión</string>
+    <string name="channel_card_icon">Icono de canal</string>
+
+    <!-- Opciones -->
+    <string name="options_title">Opciones</string>
+    <string name="options_appearance">Apariencia</string>
+    <string name="options_theme_system">Sistema</string>
+    <string name="options_theme_light">Claro</string>
+    <string name="options_theme_dark">Oscuro</string>
+    <string name="options_broken_channels">Canales rotos</string>
+    <string name="options_show_broken_channels">Mostrar canales rotos</string>
+    <string name="options_language">Idioma</string>
+    <string name="options_language_system">Sistema</string>
+    <string name="options_language_es">Español</string>
+    <string name="options_language_en">English</string>
+    <string name="options_language_ca">Català</string>
+    <string name="options_buffer">Estabilidad del reproductor</string>
+    <string name="options_buffer_fast">Rápido (baja latencia)</string>
+    <string name="options_buffer_balanced">Equilibrado</string>
+    <string name="options_buffer_stable">Estable (conexión lenta)</string>
+
+    <!-- TV accesibilidad -->
+    <string name="play_channel">Reproducir %1$s</string>
+    <string name="filter_category">Filtrar por %1$s</string>
+
+    <!-- Separador de radio -->
+    <string name="radio_section_separator">Canales de Radio</string>
+
+    <!-- Favoritos -->
+    <string name="favorites_title">Favoritos</string>
+    <string name="no_favorites">Aún no tienes canales favoritos</string>
+    <string name="back_description">Volver</string>
+    <string name="add_to_favorites">Añadir a favoritos</string>
+    <string name="remove_from_favorites">Quitar de favoritos</string>
+    <string name="brightness">Brillo</string>
+    <string name="volume">Volumen</string>
+    <string name="export_favorites">Exportar favoritos (Portapapeles)</string>
+    <string name="import_favorites">Importar favoritos (Portapapeles)</string>
+</resources>

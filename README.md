@@ -68,8 +68,8 @@
 ┌──────────────────────────────────────────────────────────────────┐
 │  :app  (Presentation)                                            │
 │  Jetpack Compose · ViewModels (MVI) · Hilt · PlaybackService     │
-├──────────────────────────────────────────────────────────────────┤
-│  :domain  (Business Logic — pure Kotlin/JVM, zero Android deps)  │
+├──────────────────────────────────────────────────────────────────┐
+│  :domain  (Business Logic — pure Kotlin/JVM, javax.inject)       │
 │  UseCases · Domain Models · Repository interfaces · FilterLogic  │
 ├──────────────────────────────────────────────────────────────────┤
 │  :data  (Data Layer)                                             │
@@ -137,7 +137,7 @@ User selects channel
 | Build | Android Gradle Plugin | 9.1.0 |
 | UI | Jetpack Compose + Material 3 | BOM 2026.03.01 |
 | TV UI | TV Material 3 | 1.1.0-rc01 |
-| DI | Hilt | 2.59.2 |
+| DI | Hilt / javax.inject | 2.59.2 / 1 |
 | Media | AndroidX Media3 / ExoPlayer | 1.10.0 |
 | Networking | Ktor (client + serialization) | 3.4.2 |
 | Image loading | Coil | 2.7.0 |
