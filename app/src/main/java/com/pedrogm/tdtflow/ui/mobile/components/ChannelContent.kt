@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -96,7 +97,9 @@ internal fun ChannelContent(
                 }
                 ChannelContentState.Grid -> LazyVerticalGrid(
                     columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.min_grid_cell_size)),
-                    contentPadding = PaddingValues(dimensionResource(R.dimen.spacing_small)),
+                    contentPadding = PaddingValues(dimensionResource(R.dimen.spacing_medium)),
+                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium)),
+                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium)),
                     modifier = Modifier.fillMaxSize()
                 ) {
                     channelItemsWithRadioSeparator(uiState.filteredChannels) { channel ->

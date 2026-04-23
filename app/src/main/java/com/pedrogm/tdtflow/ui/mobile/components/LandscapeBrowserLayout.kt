@@ -109,9 +109,9 @@ internal fun LandscapeBrowserLayout(
 
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = horizontalGridSize),
-                contentPadding = PaddingValues(dimensionResource(R.dimen.spacing_small)),
-                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small)),
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small)),
+                contentPadding = PaddingValues(dimensionResource(R.dimen.spacing_medium)),
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium)),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium)),
                 modifier = Modifier.fillMaxSize()
             ) {
                 channelItemsWithRadioSeparator(uiState.filteredChannels) { channel ->
