@@ -19,9 +19,7 @@ import com.pedrogm.tdtflow.ui.favorites.FavoritesScreen
 import com.pedrogm.tdtflow.ui.favorites.FavoritesViewModel
 import com.pedrogm.tdtflow.ui.mobile.MobileScreen
 import com.pedrogm.tdtflow.ui.options.OptionsMenuViewModel
-
-private const val ROUTE_CHANNELS = "channels"
-private const val ROUTE_FAVORITES = "favorites"
+import com.pedrogm.tdtflow.util.AnimationConstants
 
 @UnstableApi
 @Composable
@@ -34,26 +32,34 @@ fun AppNavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = ROUTE_CHANNELS,
-        enterTransition = { fadeIn(tween(150)) },
-        exitTransition = { fadeOut(tween(100)) },
-        popEnterTransition = { fadeIn(tween(150)) },
-        popExitTransition = { fadeOut(tween(100)) }
+        startDestination = Route.Channels,
+        enterTransition = { fadeIn(tween(AnimationConstants.NAV_ENTER_MS)) },
+        exitTransition = { fadeOut(tween(AnimationConstants.NAV_EXIT_MS)) },
+        popEnterTransition = { fadeIn(tween(AnimationConstants.NAV_ENTER_MS)) },
+        popExitTransition = { fadeOut(tween(AnimationConstants.NAV_EXIT_MS)) }
     ) {
-        composable(ROUTE_CHANNELS) {
+        composable<Route.Channels> {
             MobileScreen(
                 viewModel = viewModel,
                 favoritesViewModel = favoritesViewModel,
                 optionsViewModel = optionsViewModel,
-                onNavigateToFavorites = { navController.navigate(ROUTE_FAVORITES) }
+                onNavigateToFavorites = { navController.navigate(Route.Favorites) }
             )
         }
-        composable(
-            route = ROUTE_FAVORITES,
-            enterTransition = { slideInHorizontally(tween(150)) { it } + fadeIn(tween(300)) },
-            exitTransition = { slideOutHorizontally(tween(125)) { it } + fadeOut(tween(250)) },
-            popEnterTransition = { fadeIn(tween(150)) },
-            popExitTransition = { slideOutHorizontally(tween(125)) { it } + fadeOut(tween(250)) }
+        composable<Route.Favorites>(
+            enterTransition = {
+                slideInHorizontally(tween(AnimationConstants.SLIDE_IN_MS)) { it } +
+                        fadeIn(tween(AnimationConstants.DEFAULT_FADE_IN_MS))
+            },
+            exitTransition = {
+                slideOutHorizontally(tween(AnimationConstants.SLIDE_OUT_MS)) { it } +
+                        fadeOut(tween(AnimationConstants.FADE_TRANSITION_MS))
+            },
+            popEnterTransition = { fadeIn(tween(AnimationConstants.NAV_ENTER_MS)) },
+            popExitTransition = {
+                slideOutHorizontally(tween(AnimationConstants.SLIDE_OUT_MS)) { it } +
+                        fadeOut(tween(AnimationConstants.FADE_TRANSITION_MS))
+            }
         ) {
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             FavoritesScreen(
