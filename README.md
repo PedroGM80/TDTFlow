@@ -13,9 +13,9 @@
 
 ## Screenshots
 
-| Android TV — All channels | Android TV — Categories |
-|:---:|:---:|
-| ![TV All](screenshots/tv_play_store/1_all.png) | ![TV Categories](screenshots/tv_play_store/2_general.png) |
+| Android TV — All channels | Android TV — Categories | Android TV — Sports |
+|:---:|:---:|:---:|
+| ![TV All](screenshots/tv_play_store/1_all.png) | ![TV General](screenshots/tv_play_store/2_general.png) | ![TV Sports](screenshots/tv_play_store/4_sports.png) |
 
 ---
 
@@ -46,7 +46,7 @@
 | Form factor | Layout |
 |---|---|
 | Phone portrait | TopAppBar · search · category chips · adaptive grid · player overlay |
-| Phone landscape (playing) | Fullscreen immersive player · Aspect Ratio Fit (no cropping) · Brightness/Volume gestures |
+| Phone landscape (playing) | Fullscreen immersive player · Aspect Ratio Fit (no cropping) · Brightness/Volume gestures · Audio visualizer overlay for music channels |
 | Phone landscape (browsing) | Fullscreen channel grid · Minimalist tap-to-reveal overlay with transparency |
 | Tablet | Scaled portrait / landscape layout identical to phone |
 | Android TV | TV Material 3 · Adaptive grid with centered cards · Focus glow · Scale animations |
@@ -82,6 +82,8 @@
 ```
 
 ### MVI Pattern
+
+Navigation uses a typed `Route` sealed class (Compose Navigation type-safety) instead of raw string routes, making destinations refactor-safe.
 
 Every ViewModel exposes a single `StateFlow<UiState>` and processes actions through `onIntent()`:
 
@@ -139,7 +141,7 @@ User selects channel
 |---|---|---|
 | Language | Kotlin (K2 compiler) | 2.3.20 |
 | Build | Android Gradle Plugin | 9.2.0 |
-| UI | Jetpack Compose + Material 3 | BOM 2026.03.01 |
+| UI | Jetpack Compose + Material 3 | BOM 2026.04.01 |
 | TV UI | TV Material 3 | 1.1.0-rc01 |
 | DI | Hilt / javax.inject | 2.59.2 / 1 |
 | Media | AndroidX Media3 / ExoPlayer | 1.10.0 |
@@ -224,15 +226,25 @@ TDTFlow/
 │       │   ├── MainActivity.kt     # Phone entry point
 │       │   ├── TvActivity.kt       # TV entry point (auto-launched)
 │       │   ├── di/                 # Hilt AppModule
-│       │   ├── navigation/         # NavGraph
+│       │   ├── navigation/         # Routes (typed), AppNavGraph
 │       │   ├── player/             # TdtPlayer, PlayerController, PlayerState
 │       │   ├── service/            # PlaybackService (MediaSessionService)
 │       │   └── ui/
-│       │       ├── components/     # Shared composables (ChannelCard, LogoImage, …)
+│       │       ├── components/     # Shared composables (ChannelCard, VideoPlayer,
+│       │       │                   # TdtAppScaffold, VideoPlayerHeader, …)
 │       │       ├── favorites/      # FavoritesScreen + ViewModel
-│       │       ├── mobile/         # MobileScreen (portrait / landscape / tablet)
-│       │       ├── options/        # OptionsMenuScreen + ViewModel
-│       │       └── tv/             # TvScreen, TvChannelBrowser, TvChannelCard
+│       │       ├── mobile/
+│       │       │   ├── MobileScreen.kt          # Orientation router
+│       │       │   └── components/              # PortraitLayout, LandscapeFullscreenPlayer,
+│       │       │                                # LandscapeBrowserLayout, ChannelContent, …
+│       │       ├── options/
+│       │       │   ├── OptionsMenuScreen.kt
+│       │       │   └── components/              # ThemeSection, LanguageSection,
+│       │       │                                # BufferSection, BrokenChannelsSection, …
+│       │       └── tv/
+│       │           ├── TvScreen.kt
+│       │           └── components/              # TvChannelBrowser, TvBrowserHeader,
+│       │                                        # TvCategorySelector, TvChannelGrid, …
 │       └── testFixtures/java/...   # Shared fakes for unit + instrumented tests
 ├── domain/                     # Pure Kotlin business logic
 │   └── src/main/java/.../
@@ -243,7 +255,8 @@ TDTFlow/
 │       └── ChannelFilterLogic  # Filter + search algorithm
 └── data/                       # Data layer
     └── src/main/java/.../
-        ├── remote/             # Ktor client, TdtApi, ChannelMapper
+        ├── di/                 # NetworkModule (Hilt)
+        ├── remote/             # Ktor client, TdtApi, ChannelMapper, MapperConstants
         ├── local/              # Room database, ChannelDao, ChannelEntity
         ├── repository/         # ChannelRepositoryImpl, FavoritesRepositoryImpl,
         │                       # MockEpgRepositoryImpl
