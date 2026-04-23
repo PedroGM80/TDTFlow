@@ -15,9 +15,8 @@ import com.pedrogm.tdtflow.ui.TdtIntent
 import com.pedrogm.tdtflow.ui.TdtViewModel
 import com.pedrogm.tdtflow.ui.favorites.FavoritesViewModel
 import com.pedrogm.tdtflow.ui.options.OptionsMenuViewModel
-
-private const val TV_ROUTE_CHANNELS  = "tv_channels"
-private const val TV_ROUTE_FAVORITES = "tv_favorites"
+import com.pedrogm.tdtflow.navigation.Route
+import com.pedrogm.tdtflow.util.AnimationConstants
 
 @UnstableApi
 @Composable
@@ -30,21 +29,21 @@ fun TvNavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = TV_ROUTE_CHANNELS,
-        enterTransition = { fadeIn(tween(200)) },
-        exitTransition = { fadeOut(tween(150)) },
-        popEnterTransition = { fadeIn(tween(200)) },
-        popExitTransition = { fadeOut(tween(150)) }
+        startDestination = Route.TvChannels,
+        enterTransition = { fadeIn(tween(AnimationConstants.TV_NAV_ENTER_MS)) },
+        exitTransition = { fadeOut(tween(AnimationConstants.TV_NAV_EXIT_MS)) },
+        popEnterTransition = { fadeIn(tween(AnimationConstants.TV_NAV_ENTER_MS)) },
+        popExitTransition = { fadeOut(tween(AnimationConstants.TV_NAV_EXIT_MS)) }
     ) {
-        composable(TV_ROUTE_CHANNELS) {
+        composable<Route.TvChannels> {
             TvScreen(
                 viewModel = viewModel,
                 favoritesViewModel = favoritesViewModel,
                 optionsViewModel = optionsViewModel,
-                onNavigateToFavorites = { navController.navigate(TV_ROUTE_FAVORITES) }
+                onNavigateToFavorites = { navController.navigate(Route.TvFavorites) }
             )
         }
-        composable(TV_ROUTE_FAVORITES) {
+        composable<Route.TvFavorites> {
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             TvFavoritesScreen(
                 allChannels = uiState.channels,

@@ -16,17 +16,15 @@ fun TdtChannel.toChannel(ambitName: String, isRadioManual: Boolean? = null): Cha
         ?: return null
 
     // Filtrar canales que no son reproducibles directamente (Twitch, YouTube, etc)
-    if (stream.contains("twitch.tv") || stream.contains("youtube.com") || stream.contains("youtu.be")) {
+    if (MapperConstants.NON_STREAMABLE_KEYWORDS.any { stream.contains(it) }) {
         return null
     }
 
     val mappedCategory = mapAmbitToCategory(ambitName)
     val isRadioAmbit = isRadioAmbit(ambitName)
-    val isRadioName = name.contains("Radio", ignoreCase = true) ||
-                     name.contains("Kiss FM", ignoreCase = true) ||
-                     name.contains("Hit FM", ignoreCase = true) ||
-                     name.contains("LOS40", ignoreCase = true) ||
-                     (name.contains("Cadena", ignoreCase = true) && !name.contains("TV", ignoreCase = true))
+    
+    val isRadioName = MapperConstants.RADIO_KEYWORDS.any { name.contains(it, ignoreCase = true) } &&
+            MapperConstants.RADIO_EXCEPTIONS.none { name.contains(it, ignoreCase = true) }
 
     val finalIsRadio = isRadioManual ?: (isRadioAmbit || isRadioName || format == "aac" || format == "mp3")
 

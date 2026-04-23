@@ -7,7 +7,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import com.pedrogm.tdtflow.ui.components.channelItemsWithRadioSeparator
@@ -60,6 +59,7 @@ import com.pedrogm.tdtflow.ui.favorites.FavoritesViewModel
 import com.pedrogm.tdtflow.ui.options.OptionsMenuIntent
 import com.pedrogm.tdtflow.ui.options.OptionsMenuScreen
 import com.pedrogm.tdtflow.ui.options.OptionsMenuViewModel
+import com.pedrogm.tdtflow.util.AnimationConstants
 
 private enum class TvContentState { Loading, Error, Grid }
 
@@ -69,11 +69,11 @@ internal fun TvChannelBrowser(
     viewModel: TdtViewModel,
     favoritesViewModel: FavoritesViewModel,
     optionsViewModel: OptionsMenuViewModel,
-    onNavigateToFavorites: () -> Unit
+    onNavigateToFavorites: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val favoritesState by favoritesViewModel.uiState.collectAsStateWithLifecycle()
-    var showSearch by remember { mutableStateOf(false) }
+    var showSearch by remember { mutableStateOf(value = false) }
 
     val context = LocalContext.current
     LaunchedEffect(uiState.channels) {
@@ -82,21 +82,10 @@ internal fun TvChannelBrowser(
         }
     }
 
-    // Refactorización de Dimensiones para rendimiento
+    // Dimensiones centralizadas para el layout
     val paddingTv = dimensionResource(R.dimen.padding_tv)
-    val paddingExtraLarge = dimensionResource(R.dimen.padding_extra_large)
-    val spacingMedium = dimensionResource(R.dimen.spacing_medium)
     val spacingLarge = dimensionResource(R.dimen.spacing_large)
-    val spacingSmall = dimensionResource(R.dimen.spacing_small)
-    val radiusExtraLarge = dimensionResource(R.dimen.radius_extra_large)
-    val chipPaddingH = dimensionResource(R.dimen.chip_padding_horizontal)
-    val chipPaddingV = dimensionResource(R.dimen.chip_padding_vertical)
-    val iconSizeSmall = dimensionResource(R.dimen.icon_size_small)
-    val iconSizeLarge = dimensionResource(R.dimen.icon_size_large)
-    val cardWidth = dimensionResource(R.dimen.card_width_tv)
     val paddingLarge = dimensionResource(R.dimen.padding_large)
-
-    val surfaceShape = remember(radiusExtraLarge) { RoundedCornerShape(radiusExtraLarge) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -104,107 +93,12 @@ internal fun TvChannelBrowser(
                 .fillMaxSize()
                 .background(M3Theme.colorScheme.background)
         ) {
-            // ── Header ───────────────────────────────────────────────────
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .padding(paddingTv)
-                    .padding(bottom = paddingExtraLarge)
-            ) {
-                Icon(
-                    imageVector = Lucide.Tv,
-                    contentDescription = stringResource(R.string.app_logo),
-                    tint = M3Theme.colorScheme.primary,
-                    modifier = Modifier.size(iconSizeLarge)
-                )
-                Spacer(modifier = Modifier.width(spacingMedium))
-                Text(
-                    text = stringResource(R.string.app_name),
-                    color = M3Theme.colorScheme.onBackground,
-                    style = M3Theme.typography.headlineLarge,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.weight(1f))
-
-                // Botón de búsqueda
-                Surface(
-                    onClick = { showSearch = !showSearch },
-                    shape = ClickableSurfaceDefaults.shape(surfaceShape),
-                    colors = ClickableSurfaceDefaults.colors(
-                        containerColor = if (showSearch) M3Theme.colorScheme.primary else M3Theme.colorScheme.surfaceVariant,
-                        focusedContainerColor = M3Theme.colorScheme.primary
-                    )
-                ) {
-                    Box(modifier = Modifier.padding(horizontal = chipPaddingH, vertical = chipPaddingV)) {
-                        Icon(
-                            imageVector = if (showSearch) Lucide.X else Lucide.Search,
-                            contentDescription = stringResource(R.string.search_description),
-                            tint = Color.White,
-                            modifier = Modifier.size(iconSizeSmall)
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.width(spacingMedium))
-
-                // Botón de favoritos mejorado
-                Surface(
-                    onClick = onNavigateToFavorites,
-                    shape = ClickableSurfaceDefaults.shape(surfaceShape),
-                    colors = ClickableSurfaceDefaults.colors(
-                        containerColor = M3Theme.colorScheme.surfaceVariant,
-                        focusedContainerColor = M3Theme.colorScheme.primary
-                    )
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = chipPaddingH, vertical = chipPaddingV),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(spacingSmall)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Favorite,
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(iconSizeSmall)
-                        )
-                        Text(
-                            text = stringResource(R.string.favorites_title),
-                            color = Color.White,
-                            style = M3Theme.typography.bodyLarge
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.width(spacingMedium))
-
-                // Botón de opciones mejorado
-                Surface(
-                    onClick = { optionsViewModel.onIntent(OptionsMenuIntent.Open) },
-                    shape = ClickableSurfaceDefaults.shape(surfaceShape),
-                    colors = ClickableSurfaceDefaults.colors(
-                        containerColor = M3Theme.colorScheme.surfaceVariant,
-                        focusedContainerColor = M3Theme.colorScheme.primary
-                    )
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = chipPaddingH, vertical = chipPaddingV),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(spacingSmall)
-                    ) {
-                        Icon(
-                            imageVector = Lucide.Settings,
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(iconSizeSmall)
-                        )
-                        Text(
-                            text = stringResource(R.string.options_title),
-                            color = Color.White,
-                            style = M3Theme.typography.bodyLarge
-                        )
-                    }
-                }
-            }
+            TvBrowserHeader(
+                showSearch = showSearch,
+                onToggleSearch = { showSearch = !showSearch },
+                onNavigateToFavorites = onNavigateToFavorites,
+                onShowOptions = { optionsViewModel.onIntent(OptionsMenuIntent.Open) }
+            )
 
             if (showSearch) {
                 SearchBar(
@@ -218,13 +112,16 @@ internal fun TvChannelBrowser(
 
             val tvContentState = when {
                 uiState.isLoading -> TvContentState.Loading
-                uiState.error != null && uiState.channels.isEmpty() -> TvContentState.Error
+                (uiState.error != null && uiState.channels.isEmpty()) -> TvContentState.Error
                 else -> TvContentState.Grid
             }
 
             AnimatedContent(
                 targetState = tvContentState,
-                transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(200)) },
+                transitionSpec = {
+                    fadeIn(tween(AnimationConstants.DEFAULT_FADE_IN_MS)) togetherWith
+                            fadeOut(tween(AnimationConstants.DEFAULT_FADE_OUT_MS))
+                },
                 label = "tv_channel_content",
                 modifier = Modifier.fillMaxSize()
             ) { state ->
@@ -242,57 +139,18 @@ internal fun TvChannelBrowser(
                         )
                     }
                     TvContentState.Grid -> Column(modifier = Modifier.fillMaxSize()) {
-                        LazyRow(
-                            contentPadding = PaddingValues(horizontal = paddingTv),
-                            horizontalArrangement = Arrangement.spacedBy(spacingMedium),
-                            modifier = Modifier.padding(bottom = paddingExtraLarge)
-                        ) {
-                            item(key = "category_all") {
-                                TvCategoryChip(
-                                    label = stringResource(R.string.category_all),
-                                    icon = Lucide.LayoutGrid,
-                                    isSelected = uiState.selectedCategory == null,
-                                    onClick = { viewModel.onIntent(TdtIntent.FilterByCategory(null)) }
-                                )
-                            }
-                            items(ChannelCategory.entries.toList(), key = { it.name }) { category ->
-                                TvCategoryChip(
-                                    label = stringResource(category.toStringRes()),
-                                    icon = category.toLucideIcon(),
-                                    isSelected = uiState.selectedCategory == category,
-                                    onClick = { viewModel.onIntent(TdtIntent.FilterByCategory(category)) }
-                                )
-                            }
-                        }
+                        TvCategorySelector(
+                            selectedCategory = uiState.selectedCategory,
+                            onCategorySelected = { viewModel.onIntent(TdtIntent.FilterByCategory(it)) }
+                        )
 
-                        if (uiState.filteredChannels.isEmpty()) {
-                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                EmptyState(message = stringResource(R.string.no_channels_found))
-                            }
-                        } else {
-                            LazyVerticalGrid(
-                                columns = GridCells.Adaptive(minSize = cardWidth),
-                                contentPadding = PaddingValues(
-                                    start = paddingTv,
-                                    top = 0.dp,
-                                    end = paddingTv,
-                                    bottom = paddingTv
-                                ),
-                                horizontalArrangement = Arrangement.spacedBy(spacingLarge, Alignment.CenterHorizontally),
-                                verticalArrangement = Arrangement.spacedBy(spacingLarge),
-                                modifier = Modifier.fillMaxSize()
-                            ) {
-                                channelItemsWithRadioSeparator(uiState.filteredChannels) { channel ->
-                                    TvChannelCard(
-                                        channel = channel,
-                                        isSelected = channel == uiState.currentChannel,
-                                        isFavorite = channel.url in favoritesState.favoriteIds,
-                                        onClick = { viewModel.onIntent(TdtIntent.SelectChannel(channel)) },
-                                        onLongClick = { favoritesViewModel.onIntent(FavoritesIntent.ToggleFavorite(channel.url)) }
-                                    )
-                                }
-                            }
-                        }
+                        TvChannelGrid(
+                            channels = uiState.filteredChannels,
+                            currentChannel = uiState.currentChannel,
+                            favoriteIds = favoritesState.favoriteIds,
+                            onChannelClick = { viewModel.onIntent(TdtIntent.SelectChannel(it)) },
+                            onToggleFavorite = { favoritesViewModel.onIntent(FavoritesIntent.ToggleFavorite(it.url)) }
+                        )
                     }
                 }
             }

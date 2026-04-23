@@ -20,6 +20,7 @@ import com.pedrogm.tdtflow.ui.options.OptionsMenuScreen
 import com.pedrogm.tdtflow.ui.options.OptionsMenuViewModel
 import com.pedrogm.tdtflow.ui.tv.components.TvChannelBrowser
 import com.pedrogm.tdtflow.ui.tv.components.TvPlayerFullscreen
+import com.pedrogm.tdtflow.util.AnimationConstants
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -36,7 +37,8 @@ fun TvScreen(
         AnimatedContent(
             targetState = isPlaying,
             transitionSpec = {
-                fadeIn(tween(200)) togetherWith fadeOut(tween(150))
+                fadeIn(tween(AnimationConstants.TV_NAV_ENTER_MS)) togetherWith
+                        fadeOut(tween(AnimationConstants.TV_NAV_EXIT_MS))
             },
             label = "tv_screen_transition",
             modifier = Modifier.fillMaxSize()

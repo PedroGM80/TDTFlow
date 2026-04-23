@@ -1,19 +1,26 @@
-package com.pedrogm.tdtflow.data.remote
+package com.pedrogm.tdtflow.data.di
 
+import com.pedrogm.tdtflow.data.remote.KtorTdtApi
+import com.pedrogm.tdtflow.data.remote.TdtApi
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import javax.inject.Singleton
 
+@Module
+@InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    private const val BASE_URL = "https://www.tdtchannels.com"
-
-    val client = HttpClient(Android) {
+    @Provides
+    @Singleton
+    fun provideHttpClient(): HttpClient = HttpClient(Android) {
         install(HttpTimeout) {
             requestTimeoutMillis = 15_000
             connectTimeoutMillis = 10_000
@@ -27,9 +34,7 @@ object NetworkModule {
         }
     }
 
-    suspend fun getTvChannels(): TdtChannelsResponse =
-        client.get("$BASE_URL/lists/tv.json").body()
-
-    suspend fun getRadioChannels(): TdtChannelsResponse =
-        client.get("$BASE_URL/lists/radio.json").body()
+    @Provides
+    @Singleton
+    fun provideTdtApi(client: HttpClient): TdtApi = KtorTdtApi(client)
 }

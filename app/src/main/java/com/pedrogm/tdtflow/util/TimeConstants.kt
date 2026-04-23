@@ -14,6 +14,8 @@ object TimeConstants {
     // UI interactions
     const val SEARCH_DEBOUNCE_MS = 300L
     const val OVERLAY_AUTO_HIDE_DELAY_MS = 4_000L
+    const val TV_OVERLAY_HIDE_DELAY_MS = 5_000L
+    const val EPG_UPDATE_DELAY_MS = 60_000L
     const val PLAYER_SEEK_MS = 10_000L        // double-tap seek distance
     const val VOLUME_DRAG_THRESHOLD = 50f     // drag pixels needed to change volume step
 

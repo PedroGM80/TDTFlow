@@ -33,6 +33,7 @@ import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.ui.components.LiveIndicator
 import com.pedrogm.tdtflow.ui.components.toLucideIcon
 import com.pedrogm.tdtflow.ui.theme.AppColors
+import com.pedrogm.tdtflow.util.AnimationConstants
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -57,7 +58,7 @@ internal fun TvChannelCard(
         initialValue = 0.4f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = LinearEasing),
+            animation = tween(AnimationConstants.LINEAR_LOOP_MS, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "alpha"

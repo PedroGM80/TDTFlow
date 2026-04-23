@@ -4,27 +4,28 @@ import android.util.Log
 import com.pedrogm.tdtflow.data.local.ChannelDao
 import com.pedrogm.tdtflow.data.local.toDomain
 import com.pedrogm.tdtflow.data.local.toEntity
-import com.pedrogm.tdtflow.data.remote.AmbitConstants
-import com.pedrogm.tdtflow.data.remote.NetworkModule
+import com.pedrogm.tdtflow.data.remote.TdtApi
 import com.pedrogm.tdtflow.data.remote.TdtChannelsResponse
 import com.pedrogm.tdtflow.data.remote.toChannel
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.repository.ChannelRepository
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 
 class ChannelRepositoryImpl(
+    private val tdtApi: TdtApi,
     private val channelDao: ChannelDao,
+    private val ioDispatcher: CoroutineDispatcher,
     private val cache: ChannelCache = ChannelCache(),
     private val onError: (Throwable) -> Unit = {}
 ) : ChannelRepository {
 
     companion object {
         private const val TAG = "ChannelRepository"
-        private const val SPAIN = "Spain"
+        private const val DEFAULT_REGION = "Spain"
     }
 
     override fun getChannels(): Flow<List<Channel>> = flow {
@@ -50,7 +51,7 @@ class ChannelRepositoryImpl(
         }
     }
 
-    private suspend fun loadChannels(): List<Channel> = withContext(Dispatchers.IO) {
+    private suspend fun loadChannels(): List<Channel> = withContext(ioDispatcher) {
         val fallback = fallbackChannels()
         try {
             Log.d(TAG, "Loading channels from TDTChannels API...")
@@ -85,18 +86,18 @@ class ChannelRepositoryImpl(
     }
 
     private suspend fun fetchTvChannels(): TdtChannelsResponse? =
-        runCatching { NetworkModule.getTvChannels() }
+        runCatching { tdtApi.getTvChannels() }
             .onFailure { Log.w(TAG, "TV fetch failed: ${it.message}") }
             .getOrNull()
 
     private suspend fun fetchRadioChannels(): TdtChannelsResponse? =
-        runCatching { NetworkModule.getRadioChannels() }
+        runCatching { tdtApi.getRadioChannels() }
             .onFailure { Log.w(TAG, "Radio fetch failed: ${it.message}") }
             .getOrNull()
 
     private suspend fun mapTvChannels(response: TdtChannelsResponse?): List<Channel> =
-        withContext(Dispatchers.Default) {
-            response?.countries?.firstOrNull { it.name == SPAIN }?.ambits?.flatMap { ambit ->
+        withContext(ioDispatcher) {
+            response?.countries?.firstOrNull { it.name == DEFAULT_REGION }?.ambits?.flatMap { ambit ->
                 ambit.channels.mapNotNull { channel ->
                     channel.toChannel(ambitName = ambit.name, isRadioManual = false)
                 }
@@ -104,8 +105,8 @@ class ChannelRepositoryImpl(
         }
 
     private suspend fun mapRadioChannels(response: TdtChannelsResponse?): List<Channel> =
-        withContext(Dispatchers.Default) {
-            response?.countries?.firstOrNull { it.name == SPAIN }?.ambits
+        withContext(ioDispatcher) {
+            response?.countries?.firstOrNull { it.name == DEFAULT_REGION }?.ambits
                 ?.flatMap { ambit ->
                     ambit.channels.mapNotNull { channel ->
                         channel.toChannel(ambitName = ambit.name, isRadioManual = true)

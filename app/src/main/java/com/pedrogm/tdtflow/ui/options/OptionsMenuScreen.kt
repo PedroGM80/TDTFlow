@@ -1,501 +1,145 @@
 package com.pedrogm.tdtflow.ui.options
 
 import androidx.activity.compose.BackHandler
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.animation.*
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.text.style.TextAlign
-import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.tv.material3.ClickableSurfaceDefaults
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import com.pedrogm.tdtflow.R
-import com.pedrogm.tdtflow.ui.theme.AppColors
-import androidx.tv.material3.Button as TvButton
-import androidx.tv.material3.Surface as TvSurface
-import androidx.tv.material3.Border
+import com.pedrogm.tdtflow.ui.options.components.*
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OptionsMenuScreen(
     viewModel: OptionsMenuViewModel,
     onDismiss: () -> Unit,
-    showBrokenChannels: Boolean = false,
-    onToggleBroken: () -> Unit = {},
+    showBrokenChannels: Boolean,
+    onToggleBroken: () -> Unit,
     isTv: Boolean = false
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val firstItemFocusRequester = remember { FocusRequester() }
-
-    // Manejo nativo del botón atrás en TV
-    if (uiState.isOpen && isTv) {
-        BackHandler {
-            viewModel.onIntent(OptionsMenuIntent.Dismiss)
-        }
-    }
-
-    LaunchedEffect(uiState.isOpen) {
-        if (!uiState.isOpen) {
-            onDismiss()
-        } else if (isTv) {
-            // Forzamos el foco inmediato al abrir el menú lateral
-            firstItemFocusRequester.requestFocus()
-        }
-    }
-
-    LaunchedEffect(uiState.language) {
-        val tag = when (uiState.language) {
-            AppLanguage.ES -> "es"
-            AppLanguage.EN -> "en"
-            AppLanguage.CA -> "ca"
-            AppLanguage.SYSTEM -> ""
-        }
-        AppCompatDelegate.setApplicationLocales(
-            if (tag.isEmpty()) LocaleListCompat.getEmptyLocaleList()
-            else LocaleListCompat.forLanguageTags(tag)
-        )
-    }
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     if (isTv) {
+        val focusRequester = remember { FocusRequester() }
+
+        LaunchedEffect(state.isOpen) {
+            if (state.isOpen) {
+                focusRequester.requestFocus()
+            }
+        }
+
+        BackHandler(enabled = state.isOpen) {
+            viewModel.onIntent(OptionsMenuIntent.Dismiss)
+        }
+
         AnimatedVisibility(
-            visible = uiState.isOpen,
-            enter = slideInHorizontally(initialOffsetX = { it }) + fadeIn(),
-            exit = slideOutHorizontally(targetOffsetX = { it }) + fadeOut()
+            visible = state.isOpen,
+            enter = fadeIn() + slideInHorizontally { it },
+            exit = fadeOut() + slideOutHorizontally { it }
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.5f))
-                    .clickable { viewModel.onIntent(OptionsMenuIntent.Dismiss) }
+                    .background(Color.Black.copy(alpha = 0.6f))
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) { viewModel.onIntent(OptionsMenuIntent.Dismiss) },
+                contentAlignment = Alignment.CenterEnd
             ) {
-                Box(
+                Surface(
                     modifier = Modifier
-                        .align(Alignment.CenterEnd)
                         .fillMaxHeight()
                         .width(380.dp)
-                        .background(
-                            color = AppColors.surfaceScrim.copy(alpha = 0.85f),
-                            shape = RoundedCornerShape(topStart = 24.dp, bottomStart = 24.dp)
-                        )
-                        .clickable(enabled = false) { }
+                        .clickable(enabled = false) {},
+                    color = MaterialTheme.colorScheme.surface,
+                    tonalElevation = dimensionResource(R.dimen.elevation_high)
                 ) {
                     Column(
                         modifier = Modifier
-                            .padding(24.dp)
-                            .fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(20.dp)
+                            .fillMaxSize()
+                            .padding(dimensionResource(R.dimen.padding_extra_large))
                     ) {
                         Text(
                             text = stringResource(R.string.options_title),
                             style = MaterialTheme.typography.headlineMedium,
-                            color = Color.White,
-                            modifier = Modifier.padding(bottom = 8.dp)
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_large))
                         )
 
-                        // SECCIÓN TEMA (Optimizada para D-pad)
                         ThemeSectionTv(
-                            selectedTheme = uiState.selectedTheme,
-                            onSelectTheme = { viewModel.onIntent(OptionsMenuIntent.SelectTheme(it)) },
-                            focusRequester = firstItemFocusRequester
+                            selectedTheme = state.selectedTheme,
+                            onThemeSelected = { viewModel.onIntent(OptionsMenuIntent.SelectTheme(it)) },
+                            focusRequester = focusRequester
                         )
 
-                        // SECCIÓN CANALES ROTOS (Toda la fila atrapa el foco)
+                        LanguageSectionTv(
+                            selectedLanguage = state.language,
+                            onLanguageSelected = { viewModel.onIntent(OptionsMenuIntent.SelectLanguage(it)) }
+                        )
+
+                        BufferSectionTv(
+                            selectedBuffer = state.buffer,
+                            onBufferSelected = { viewModel.onIntent(OptionsMenuIntent.SelectBuffer(it)) }
+                        )
+
                         BrokenChannelsSectionTv(
-                            showBrokenChannels = showBrokenChannels,
+                            showBroken = showBrokenChannels,
                             onToggle = onToggleBroken
                         )
-
-                        // SECCIÓN IDIOMA (Cada opción es un botón de mando)
-                        LanguageSectionTv(
-                            selectedLanguage = uiState.language,
-                            onSelectLanguage = { viewModel.onIntent(OptionsMenuIntent.SelectLanguage(it)) }
-                        )
-
-                        // SECCIÓN BUFFER (TV)
-                        BufferSectionTv(
-                            selectedBuffer = uiState.buffer,
-                            onSelectBuffer = { viewModel.onIntent(OptionsMenuIntent.SelectBuffer(it)) }
-                        )
-                        
-                        Spacer(modifier = Modifier.weight(1f))
-                        
-                        TvButton(
-                            onClick = { viewModel.onIntent(OptionsMenuIntent.Dismiss) },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(stringResource(R.string.close))
-                        }
                     }
                 }
             }
         }
     } else {
-        if (uiState.isOpen) {
-            OptionsMenuContent(
-                uiState = uiState,
-                onIntent = viewModel::onIntent,
-                showBrokenChannels = showBrokenChannels,
-                onToggleBroken = onToggleBroken
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-private fun ThemeSectionTv(
-    selectedTheme: AppTheme,
-    onSelectTheme: (AppTheme) -> Unit,
-    focusRequester: FocusRequester
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            text = stringResource(R.string.options_appearance),
-            style = MaterialTheme.typography.labelLarge,
-            color = Color.LightGray
-        )
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            AppTheme.entries.forEachIndexed { index, theme ->
-                TvSurface(
-                    onClick = { onSelectTheme(theme) },
-                    modifier = Modifier
-                        .weight(1f)
-                        .then(if (index == 0) Modifier.focusRequester(focusRequester) else Modifier),
-                    colors = ClickableSurfaceDefaults.colors(
-                        containerColor = if (selectedTheme == theme) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f) else Color.White.copy(alpha = 0.08f),
-                        focusedContainerColor = MaterialTheme.colorScheme.primary
-                    ),
-                    scale = ClickableSurfaceDefaults.scale(focusedScale = 1.1f),
-                    border = ClickableSurfaceDefaults.border(
-                        focusedBorder = Border(border = BorderStroke(2.dp, Color.White), shape = RoundedCornerShape(12.dp))
-                    ),
-                    shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp))
-                ) {
-                    Box(modifier = Modifier.padding(12.dp), contentAlignment = Alignment.Center) {
-                        Text(
-                            text = stringResource(theme.labelRes),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White,
-                            fontWeight = if (selectedTheme == theme) androidx.compose.ui.text.font.FontWeight.Bold else null
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-private fun BrokenChannelsSectionTv(
-    showBrokenChannels: Boolean,
-    onToggle: () -> Unit
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            text = stringResource(R.string.options_broken_channels),
-            style = MaterialTheme.typography.labelLarge,
-            color = Color.LightGray
-        )
-
-        TvSurface(
-            onClick = onToggle,
-            modifier = Modifier.fillMaxWidth(),
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = Color.White.copy(alpha = 0.08f),
-                focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer
-            ),
-            scale = ClickableSurfaceDefaults.scale(focusedScale = 1.05f),
-            border = ClickableSurfaceDefaults.border(
-                focusedBorder = Border(border = BorderStroke(2.dp, Color.White), shape = RoundedCornerShape(12.dp))
-            ),
-            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp))
-        ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+        if (state.isOpen) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    viewModel.onIntent(OptionsMenuIntent.Dismiss)
+                    onDismiss()
+                },
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                containerColor = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
             ) {
-                Text(
-                    text = stringResource(R.string.options_show_broken_channels),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color.White
+                OptionsMenuContent(
+                    state = state,
+                    onIntent = { viewModel.onIntent(it) },
+                    showBrokenChannels = showBrokenChannels,
+                    onToggleBroken = onToggleBroken
                 )
-                Switch(
-                    checked = showBrokenChannels,
-                    onCheckedChange = null, // Manejado por la Surface
-                    colors = SwitchDefaults.colors(checkedThumbColor = MaterialTheme.colorScheme.primary)
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-private fun LanguageSectionTv(
-    selectedLanguage: AppLanguage,
-    onSelectLanguage: (AppLanguage) -> Unit
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            text = stringResource(R.string.options_language),
-            style = MaterialTheme.typography.labelLarge,
-            color = Color.LightGray
-        )
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            AppLanguage.entries.forEach { language ->
-                TvSurface(
-                    onClick = { onSelectLanguage(language) },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ClickableSurfaceDefaults.colors(
-                        containerColor = if (selectedLanguage == language) Color.White.copy(alpha = 0.15f) else Color.Transparent,
-                        focusedContainerColor = MaterialTheme.colorScheme.tertiaryContainer
-                    ),
-                    scale = ClickableSurfaceDefaults.scale(focusedScale = 1.03f),
-                    border = ClickableSurfaceDefaults.border(
-                        focusedBorder = Border(border = BorderStroke(2.dp, Color.White), shape = RoundedCornerShape(12.dp))
-                    ),
-                    shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp))
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        RadioButton(
-                            selected = selectedLanguage == language,
-                            onClick = null,
-                            colors = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary)
-                        )
-                        Text(
-                            text = stringResource(language.labelRes),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = Color.White
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun OptionsMenuContent(
-    uiState: OptionsMenuState,
-    onIntent: (OptionsMenuIntent) -> Unit,
-    showBrokenChannels: Boolean = false,
-    onToggleBroken: () -> Unit = {}
-) {
-    ModalBottomSheet(
-        onDismissRequest = { onIntent(OptionsMenuIntent.Dismiss) }
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .padding(bottom = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.options_title),
-                style = MaterialTheme.typography.titleLarge
-            )
-
-            ThemeSection(
-                selectedTheme = uiState.selectedTheme,
-                onSelectTheme = { onIntent(OptionsMenuIntent.SelectTheme(it)) }
-            )
-
-            HorizontalDivider()
-
-            BrokenChannelsSection(
-                showBrokenChannels = showBrokenChannels,
-                onToggle = onToggleBroken
-            )
-
-            HorizontalDivider()
-
-            LanguageSection(
-                selectedLanguage = uiState.language,
-                onSelectLanguage = { onIntent(OptionsMenuIntent.SelectLanguage(it)) }
-            )
-
-            HorizontalDivider()
-
-            BufferSection(
-                selectedBuffer = uiState.buffer,
-                onSelectBuffer = { onIntent(OptionsMenuIntent.SelectBuffer(it)) }
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-private fun BufferSectionTv(
-    selectedBuffer: AppBuffer,
-    onSelectBuffer: (AppBuffer) -> Unit
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            text = stringResource(R.string.options_buffer),
-            style = MaterialTheme.typography.labelLarge,
-            color = Color.LightGray
-        )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            AppBuffer.entries.forEach { buffer ->
-                TvSurface(
-                    onClick = { onSelectBuffer(buffer) },
-                    modifier = Modifier.weight(1f),
-                    colors = ClickableSurfaceDefaults.colors(
-                        containerColor = if (selectedBuffer == buffer) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f) else Color.White.copy(alpha = 0.08f),
-                        focusedContainerColor = MaterialTheme.colorScheme.primary
-                    ),
-                    scale = ClickableSurfaceDefaults.scale(focusedScale = 1.05f),
-                    shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp))
-                ) {
-                    Box(modifier = Modifier.padding(12.dp), contentAlignment = Alignment.Center) {
-                        Text(
-                            text = stringResource(buffer.labelRes),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.White,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun BufferSection(
-    selectedBuffer: AppBuffer,
-    onSelectBuffer: (AppBuffer) -> Unit
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            text = stringResource(R.string.options_buffer),
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            AppBuffer.entries.forEach { buffer ->
-                FilterChip(
-                    selected = selectedBuffer == buffer,
-                    onClick = { onSelectBuffer(buffer) },
-                    label = { Text(stringResource(buffer.labelRes)) },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun ThemeSection(
-    selectedTheme: AppTheme,
-    onSelectTheme: (AppTheme) -> Unit
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            text = stringResource(R.string.options_appearance),
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            AppTheme.entries.forEach { theme ->
-                FilterChip(
-                    selected = selectedTheme == theme,
-                    onClick = { onSelectTheme(theme) },
-                    label = { Text(stringResource(theme.labelRes)) },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun BrokenChannelsSection(
-    showBrokenChannels: Boolean,
-    onToggle: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onToggle)
-            .padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = stringResource(R.string.options_show_broken_channels),
-            style = MaterialTheme.typography.bodyLarge
-        )
-        Switch(
-            checked = showBrokenChannels,
-            onCheckedChange = { onToggle() }
-        )
-    }
-}
-
-@Composable
-private fun LanguageSection(
-    selectedLanguage: AppLanguage,
-    onSelectLanguage: (AppLanguage) -> Unit
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(
-            text = stringResource(R.string.options_language),
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Column(modifier = Modifier.selectableGroup()) {
-            AppLanguage.entries.forEach { language ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onSelectLanguage(language) }
-                        .padding(vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(selected = selectedLanguage == language, onClick = { onSelectLanguage(language) })
-                    Text(
-                        text = stringResource(language.labelRes),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                }
             }
         }
     }

@@ -16,6 +16,7 @@ import com.pedrogm.tdtflow.domain.model.Program
 import com.pedrogm.tdtflow.domain.tracker.BrokenChannelTracker
 import com.pedrogm.tdtflow.domain.usecase.GetChannelsUseCase
 import com.pedrogm.tdtflow.domain.usecase.GetNowPlayingUseCase
+import com.pedrogm.tdtflow.player.PlayerState
 import com.pedrogm.tdtflow.player.TdtPlayer
 import com.pedrogm.tdtflow.util.Constants
 import com.pedrogm.tdtflow.util.TimeConstants
@@ -53,7 +54,7 @@ class TdtViewModel(
     private val loadError: (Throwable) -> String,
     /** Factory receives the ViewModel's coroutine scope so PlayerController can launch jobs. */
     private val playerControllerFactory: (CoroutineScope) -> PlayerController,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.Default,
+    ioDispatcher: CoroutineDispatcher = Dispatchers.Default,
     private val searchDebounceMs: Long = TimeConstants.SEARCH_DEBOUNCE_MS
 ) : ViewModel() {
 
@@ -80,10 +81,6 @@ class TdtViewModel(
             )
         }
     )
-
-    companion object {
-        private const val TAG = "TdtViewModel"
-    }
 
     // PlayerController is created here so it receives the live viewModelScope
     private val playerController: PlayerController = playerControllerFactory(viewModelScope)
@@ -157,13 +154,20 @@ class TdtViewModel(
         _nowPlaying
     ) { args ->
         @Suppress("UNCHECKED_CAST")
+        val filtered = args[0] as List<Channel>
+        val current = args[1] as Channel?
+        val category = args[2] as ChannelCategory?
+        val query = args[3] as String
+        val loading = args[4] as Boolean
+        val nowPlaying = args[5] as Program?
+
         PartialState(
-            filtered = args[0] as List<Channel>,
-            current = args[1] as Channel?,
-            category = args[2] as ChannelCategory?,
-            query = args[3] as String,
-            loading = args[4] as Boolean,
-            nowPlaying = args[5] as Program?
+            filtered = filtered,
+            current = current,
+            category = category,
+            query = query,
+            loading = loading,
+            nowPlaying = nowPlaying
         )
     }.stateIn(
         scope = viewModelScope,
@@ -173,13 +177,24 @@ class TdtViewModel(
 
     val uiState: StateFlow<TdtUiState> = combine(
         _partialUiState,
+        _channels,
         _error,
         brokenChannelTracker.brokenUrls,
         _showBrokenChannels,
         playerController.playerState
-    ) { partial, error, brokenUrls, showBroken, playerState ->
+    ) { args ->
+        @Suppress("UNCHECKED_CAST")
+        val partial = args[0] as PartialState
+        @Suppress("UNCHECKED_CAST")
+        val channels = args[1] as List<Channel>
+        val error = args[2] as String?
+        @Suppress("UNCHECKED_CAST")
+        val brokenUrls = args[3] as Set<String>
+        val showBroken = args[4] as Boolean
+        val playerState = args[5] as PlayerState
+
         TdtUiState(
-            channels = _channels.value,
+            channels = channels,
             filteredChannels = partial.filtered,
             currentChannel = partial.current,
             selectedCategory = partial.category,
@@ -200,6 +215,10 @@ class TdtViewModel(
 
     /** Exposed so the UI can bind the ExoPlayer surface. */
     val player: TdtPlayer? get() = playerController.player
+
+    // Flows filtrados para recomposición selectiva
+    val currentChannel: StateFlow<Channel?> = playerController.currentChannel
+    val playerState: StateFlow<PlayerState> = playerController.playerState
 
     init {
         loadChannels()

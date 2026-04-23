@@ -56,6 +56,7 @@ import com.pedrogm.tdtflow.ui.TdtIntent
 import com.pedrogm.tdtflow.ui.TdtViewModel
 import com.pedrogm.tdtflow.ui.components.toLucideIcon
 import com.pedrogm.tdtflow.ui.theme.AppColors
+import com.pedrogm.tdtflow.util.TimeConstants
 import kotlinx.coroutines.delay
 import androidx.compose.material3.MaterialTheme as M3Theme
 
@@ -69,7 +70,7 @@ internal fun TvPlayerFullscreen(viewModel: TdtViewModel, channelName: String) {
 
     LaunchedEffect(uiState.currentChannel, showOsd) {
         if (showOsd) {
-            delay(5000)
+            delay(TimeConstants.TV_OVERLAY_HIDE_DELAY_MS)
             showOsd = false
         }
     }

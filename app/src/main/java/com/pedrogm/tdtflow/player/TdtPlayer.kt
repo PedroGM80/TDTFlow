@@ -3,24 +3,35 @@ package com.pedrogm.tdtflow.player
 import android.content.Context
 import android.util.Log
 import androidx.annotation.OptIn
-import android.net.Uri
+import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.exoplayer.DefaultLoadControl
-import androidx.media3.exoplayer.LoadControl
-import com.pedrogm.tdtflow.ui.options.AppBuffer
-import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.exoplayer.DefaultLoadControl
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.hls.HlsMediaSource
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.exoplayer.upstream.DefaultLoadErrorHandlingPolicy
+import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy
 import com.pedrogm.tdtflow.R
+import com.pedrogm.tdtflow.data.IOptionsPreferences
+import com.pedrogm.tdtflow.ui.options.AppBuffer
 import com.pedrogm.tdtflow.util.TimeConstants
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Wrapper sobre Media3/ExoPlayer optimizado para rendimiento.
@@ -38,41 +49,95 @@ import kotlinx.coroutines.flow.asStateFlow
  */
 @UnstableApi
 class TdtPlayer(
-    context: Context,
-    buffer: AppBuffer = AppBuffer.BALANCED
+    private val context: Context,
+    private val prefs: IOptionsPreferences? = null
 ) {
 
     companion object {
         private const val TAG = "TdtPlayer"
     }
 
-    private val loadControl: DefaultLoadControl = run {
+    private var currentBuffer = AppBuffer.BALANCED
+
+    private var _exoPlayer: ExoPlayer? = null
+    val exoPlayer: ExoPlayer
+        get() {
+            if (_exoPlayer == null) {
+                _exoPlayer = createExoPlayer()
+            }
+            return _exoPlayer!!
+        }
+
+    private fun createExoPlayer(): ExoPlayer {
+        val loadControl = createLoadControl(currentBuffer)
+        return ExoPlayer.Builder(context)
+            .setLoadControl(loadControl)
+            .build()
+            .apply {
+                playWhenReady = true
+                setupPlayerListener(this)
+            }
+    }
+
+    private fun createLoadControl(buffer: AppBuffer): DefaultLoadControl {
         val (minMs, maxMs, playbackMs, rebufferMs) = when (buffer) {
             AppBuffer.FAST     -> listOf(1500,  3000,  500, 1000)
             AppBuffer.BALANCED -> listOf(2500,  5000, 1000, 1500)
             AppBuffer.STABLE   -> listOf(5000, 15000, 2000, 3000)
         }
-        DefaultLoadControl.Builder()
+        return DefaultLoadControl.Builder()
             .setBufferDurationsMs(minMs, maxMs, playbackMs, rebufferMs)
             .build()
     }
 
-    val exoPlayer: ExoPlayer by lazy {
-        ExoPlayer.Builder(context)
-            .setLoadControl(loadControl)
-            .build()
-            .apply { playWhenReady = true }
+    @OptIn(UnstableApi::class)
+    private val dataSourceFactory = DefaultHttpDataSource.Factory()
+        .setUserAgent("TDTFlow/1.1.0")
+        .setConnectTimeoutMs(TimeConstants.PLAYER_CONNECT_TIMEOUT_MS)
+        .setReadTimeoutMs(TimeConstants.PLAYER_READ_TIMEOUT_MS)
+        .setAllowCrossProtocolRedirects(true)
+
+    /**
+     * Custom policy to prevent ArrayIndexOutOfBoundsException during HLS fallback.
+     * If there's only one track variant, we disable the fallback/exclusion logic.
+     */
+    private val loadErrorHandlingPolicy = object : DefaultLoadErrorHandlingPolicy() {
+        override fun getFallbackSelectionFor(
+            fallbackOptions: LoadErrorHandlingPolicy.FallbackOptions,
+            loadErrorInfo: LoadErrorHandlingPolicy.LoadErrorInfo
+        ): LoadErrorHandlingPolicy.FallbackSelection? {
+            if (fallbackOptions.numberOfTracks <= 1) return null
+            return super.getFallbackSelectionFor(fallbackOptions, loadErrorInfo)
+        }
     }
 
     @OptIn(UnstableApi::class)
     private val mediaSourceFactory = DefaultMediaSourceFactory(context)
-        .setDataSourceFactory(
-            DefaultHttpDataSource.Factory()
-                .setUserAgent("TDTFlow/1.0")
-                .setConnectTimeoutMs(TimeConstants.PLAYER_CONNECT_TIMEOUT_MS)
-                .setReadTimeoutMs(TimeConstants.PLAYER_READ_TIMEOUT_MS)
-                .setAllowCrossProtocolRedirects(true)
-        )
+        .setDataSourceFactory(dataSourceFactory)
+        .setLoadErrorHandlingPolicy(loadErrorHandlingPolicy)
+
+    @OptIn(UnstableApi::class)
+    private val hlsMediaSourceFactory = HlsMediaSource.Factory(dataSourceFactory)
+        .setLoadErrorHandlingPolicy(loadErrorHandlingPolicy)
+
+    fun updateBufferConfig(newBuffer: AppBuffer) {
+        if (currentBuffer == newBuffer) return
+        currentBuffer = newBuffer
+        
+        // Si el player ya existe, tenemos que recrearlo para que pille el nuevo LoadControl
+        val isPlaying = _exoPlayer?.isPlaying == true
+        val currentUrl = currentStreamUrl
+        val currentPos = _exoPlayer?.currentPosition ?: 0L
+
+        _exoPlayer?.release()
+        _exoPlayer = createExoPlayer()
+
+        if (currentUrl != null) {
+            play(currentUrl)
+            _exoPlayer?.seekTo(currentPos)
+            if (!isPlaying) _exoPlayer?.pause()
+        }
+    }
 
     // ── Estado reactivo ─────────────────────────────────────────────
 
@@ -101,10 +166,24 @@ class TdtPlayer(
     private val appContext = context.applicationContext
 
     init {
-        exoPlayer.addListener(object : Player.Listener {
+        // Observe buffer settings if prefs provided
+        prefs?.let { p ->
+            playerScope.launch {
+                p.bufferFlow.collect { bufferName ->
+                    val buffer = AppBuffer.entries.find { it.name == bufferName } ?: AppBuffer.BALANCED
+                    withContext(Dispatchers.Main) {
+                        updateBufferConfig(buffer)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun setupPlayerListener(player: Player) {
+        player.addListener(object : Player.Listener {
             override fun onPlaybackStateChanged(playbackState: Int) {
                 Log.d(TAG, "Playback state changed: $playbackState")
-                
+
                 when (playbackState) {
                     Player.STATE_IDLE -> {
                         cancelBufferingTimeout()
@@ -117,10 +196,7 @@ class TdtPlayer(
                     Player.STATE_READY -> {
                         cancelBufferingTimeout()
                         _bufferingTimeout.value = false
-                        _playerState.value = when {
-                            exoPlayer.playWhenReady -> PlayerState.PLAYING
-                            else -> PlayerState.PAUSED
-                        }
+                        _playerState.value = if (player.playWhenReady) PlayerState.PLAYING else PlayerState.PAUSED
                     }
                     Player.STATE_ENDED -> {
                         cancelBufferingTimeout()
@@ -135,7 +211,6 @@ class TdtPlayer(
                     _bufferingTimeout.value = false
                     _playerState.value = PlayerState.PLAYING
                 } else if (_playerState.value == PlayerState.PLAYING) {
-                    // Only transition to PAUSED from PLAYING — never override BUFFERING or ERROR
                     _playerState.value = PlayerState.PAUSED
                 }
             }
@@ -143,7 +218,7 @@ class TdtPlayer(
             override fun onPlayerError(error: PlaybackException) {
                 Log.e(TAG, "Playback error: ${error.errorCodeName} (${error.errorCode})", error)
                 cancelBufferingTimeout()
-                _playerError.value = error.localizedMessage ?: appContext.getString(R.string.playback_error)
+                _playerError.value = error.localizedMessage ?: appContext?.getString(R.string.playback_error)
                 _playerState.value = PlayerState.ERROR
             }
         })
@@ -188,12 +263,18 @@ class TdtPlayer(
             .setMediaMetadata(
                 MediaMetadata.Builder()
                     .setTitle(channelName.ifEmpty { null })
-                    .setArtworkUri(channelLogo.ifEmpty { null }?.let { Uri.parse(it) })
+                    .setArtworkUri(channelLogo.ifEmpty { null }?.toUri())
                     .build()
             )
             .build()
 
-        exoPlayer.setMediaSource(mediaSourceFactory.createMediaSource(mediaItem))
+        val source = if (streamUrl.contains("m3u8")) {
+            hlsMediaSourceFactory.createMediaSource(mediaItem)
+        } else {
+            mediaSourceFactory.createMediaSource(mediaItem)
+        }
+
+        exoPlayer.setMediaSource(source)
         exoPlayer.prepare()
     }
 
@@ -226,8 +307,4 @@ class TdtPlayer(
         _playerState.value = PlayerState.IDLE
     }
 
-}
-
-enum class PlayerState {
-    IDLE, BUFFERING, PLAYING, PAUSED, ENDED, ERROR
 }

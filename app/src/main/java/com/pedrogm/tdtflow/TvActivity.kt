@@ -32,26 +32,7 @@ class TvActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val optionsState by optionsViewModel.uiState.collectAsStateWithLifecycle()
-
-            LaunchedEffect(optionsState.language) {
-                val localeList = when (optionsState.language) {
-                    AppLanguage.SYSTEM -> LocaleListCompat.getEmptyLocaleList()
-                    else -> LocaleListCompat.forLanguageTags(optionsState.language.name.lowercase())
-                }
-                AppCompatDelegate.setApplicationLocales(localeList)
-            }
-
-            val darkTheme = when (optionsState.selectedTheme) {
-                AppTheme.DARK -> true
-                AppTheme.LIGHT -> false
-                AppTheme.SYSTEM -> isSystemInDarkTheme()
-            }
-
-            TDTFlowTheme(
-                darkTheme = darkTheme,
-                dynamicColor = optionsState.selectedTheme == AppTheme.SYSTEM
-            ) {
+            com.pedrogm.tdtflow.ui.components.TdtAppScaffold(optionsViewModel = optionsViewModel) {
                 TvNavGraph(
                     viewModel = viewModel,
                     optionsViewModel = optionsViewModel

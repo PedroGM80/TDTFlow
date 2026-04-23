@@ -1,24 +1,34 @@
 package com.pedrogm.tdtflow.ui.components
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import com.composables.icons.lucide.*
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.RefreshCw
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.ui.theme.TDTFlowTheme
+import io.github.alexzhirkevich.compottie.Compottie
 import io.github.alexzhirkevich.compottie.LottieCompositionSpec
 import io.github.alexzhirkevich.compottie.rememberLottieComposition
 import io.github.alexzhirkevich.compottie.rememberLottiePainter
-import io.github.alexzhirkevich.compottie.Compottie
 
 @PreviewLightDark
 @Composable
@@ -33,6 +43,7 @@ private fun ErrorStatePreview() {
     }
 }
 
+@SuppressLint("AndroidLintLocalContextResourcesRead")
 @Composable
 fun ErrorState(
     message: String,
@@ -40,10 +51,9 @@ fun ErrorState(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val jsonString = remember {
-        context.resources.openRawResource(R.raw.error_animation).bufferedReader().use { it.readText() }
-    }
     val composition by rememberLottieComposition {
+        val jsonString = context.resources.openRawResource(R.raw.error_animation)
+            .bufferedReader().use { it.readText() }
         LottieCompositionSpec.JsonString(jsonString)
     }
 
