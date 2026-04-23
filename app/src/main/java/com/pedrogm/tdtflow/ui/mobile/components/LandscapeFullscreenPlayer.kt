@@ -26,7 +26,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.media3.common.util.UnstableApi
@@ -65,7 +64,7 @@ internal fun LandscapeFullscreenPlayer(
 
     DisposableEffect(Unit) {
         val window = (view.context as Activity).window
-        val controller = WindowCompat.getInsetsController(window, view)
+        val controller = WindowInsetsControllerCompat(window, view)
         controller.hide(WindowInsetsCompat.Type.systemBars())
         controller.systemBarsBehavior =
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
