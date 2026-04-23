@@ -1,15 +1,16 @@
 package com.pedrogm.tdtflow.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -68,51 +69,59 @@ private fun CategoryFilterChips(
     onCategorySelected: (ChannelCategory?) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier
-            .horizontalScroll(rememberScrollState())
-            .padding(start = dimensionResource(R.dimen.spacing_medium)),
+    val chipHeight = dimensionResource(R.dimen.chip_height)
+    val textSize = dimensionResource(R.dimen.text_size_small).value.sp
+    val iconSize = dimensionResource(R.dimen.icon_size_small)
+
+    LazyRow(
+        modifier = modifier,
+        contentPadding = PaddingValues(horizontal = dimensionResource(R.dimen.spacing_medium)),
         horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small))
     ) {
-        FilterChip(
-            selected = selectedCategory == null,
-            onClick = { onCategorySelected(null) },
-            label = {
-                Text(
-                    text = stringResource(R.string.category_all),
-                    fontSize = dimensionResource(R.dimen.text_size_small).value.sp
-                )
-            },
-            leadingIcon = if (selectedCategory == null) {
-                {
-                    Icon(
-                        imageVector = Lucide.Check,
-                        contentDescription = stringResource(R.string.check_icon_description),
-                        modifier = Modifier.size(dimensionResource(R.dimen.icon_size_small))
+        item(key = "all") {
+            FilterChip(
+                selected = selectedCategory == null,
+                onClick = { onCategorySelected(null) },
+                label = {
+                    Text(
+                        text = stringResource(R.string.category_all),
+                        fontSize = textSize
                     )
-                }
-            } else null,
-            modifier = Modifier.height(dimensionResource(R.dimen.chip_height))
-        )
+                },
+                leadingIcon = if (selectedCategory == null) {
+                    {
+                        Icon(
+                            imageVector = Lucide.Check,
+                            contentDescription = stringResource(R.string.check_icon_description),
+                            modifier = Modifier.size(iconSize)
+                        )
+                    }
+                } else null,
+                modifier = Modifier.height(chipHeight)
+            )
+        }
 
-        ChannelCategory.entries.forEach { category ->
+        items(ChannelCategory.entries.toTypedArray(), key = { it.name }) { category ->
             FilterChip(
                 selected = selectedCategory == category,
                 onClick = { onCategorySelected(category) },
                 label = {
                     Text(
                         text = stringResource(category.toStringRes()),
-                        fontSize = dimensionResource(R.dimen.text_size_small).value.sp
+                        fontSize = textSize
                     )
                 },
                 leadingIcon = {
                     Icon(
                         imageVector = category.toLucideIcon(),
-                        contentDescription = stringResource(R.string.category_icon_description, stringResource(category.toStringRes())),
-                        modifier = Modifier.size(dimensionResource(R.dimen.icon_size_small))
+                        contentDescription = stringResource(
+                            R.string.category_icon_description,
+                            stringResource(category.toStringRes())
+                        ),
+                        modifier = Modifier.size(iconSize)
                     )
                 },
-                modifier = Modifier.height(dimensionResource(R.dimen.chip_height))
+                modifier = Modifier.height(chipHeight)
             )
         }
     }

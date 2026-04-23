@@ -52,6 +52,7 @@ import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
 import com.pedrogm.tdtflow.ui.theme.TDTFlowTheme
+import com.pedrogm.tdtflow.util.AnimationConstants
 
 @Composable
 fun ChannelCard(
@@ -72,7 +73,7 @@ fun ChannelCard(
 
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.96f else 1f,
-        animationSpec = tween(durationMillis = 100),
+        animationSpec = tween(durationMillis = AnimationConstants.QUICK_FADE_MS),
         label = "card_scale"
     )
 

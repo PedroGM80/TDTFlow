@@ -32,14 +32,32 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import javax.inject.Named
+
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
     @Provides
+    @Named("IO")
+    fun provideIoDispatcher(): CoroutineDispatcher = Dispatchers.IO
+
+    @Provides
+    @Named("Default")
+    fun provideDefaultDispatcher(): CoroutineDispatcher = Dispatchers.Default
+
+    @Provides
     @Singleton
-    fun provideChannelRepository(channelDao: com.pedrogm.tdtflow.data.local.ChannelDao): ChannelRepository = ChannelRepositoryImpl(
+    fun provideChannelRepository(
+        tdtApi: com.pedrogm.tdtflow.data.remote.TdtApi,
+        channelDao: com.pedrogm.tdtflow.data.local.ChannelDao,
+        @Named("IO") ioDispatcher: CoroutineDispatcher
+    ): ChannelRepository = ChannelRepositoryImpl(
+        tdtApi = tdtApi,
         channelDao = channelDao,
+        ioDispatcher = ioDispatcher,
         onError = { FirebaseCrashlytics.getInstance().recordException(it) }
     )
 
@@ -97,9 +115,5 @@ object AppModule {
     fun provideTdtPlayer(
         @ApplicationContext context: Context,
         prefs: IOptionsPreferences
-    ): TdtPlayer {
-        val bufferName = runBlocking { prefs.bufferFlow.first() }
-        val buffer = AppBuffer.entries.find { it.name == bufferName } ?: AppBuffer.BALANCED
-        return TdtPlayer(context, buffer)
-    }
+    ): TdtPlayer = TdtPlayer(context, prefs)
 }
