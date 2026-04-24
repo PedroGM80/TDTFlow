@@ -9,7 +9,6 @@ import android.util.Rational
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.os.LocaleListCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.activity.viewModels
@@ -44,9 +43,16 @@ class MainActivity : AppCompatActivity() {
             return
         }
         enableEdgeToEdge()
-        WindowCompat.getInsetsController(window, window.decorView).apply {
+        WindowInsetsControllerCompat(window, window.decorView).apply {
             hide(WindowInsetsCompat.Type.systemBars())
             systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val pipParams = PictureInPictureParams.Builder()
+                .setAspectRatio(Rational(16, 9))
+                .setAutoEnterEnabled(true)
+                .build()
+            setPictureInPictureParams(pipParams)
         }
         setContent {
             com.pedrogm.tdtflow.ui.components.TdtAppScaffold(optionsViewModel = optionsViewModel) {
@@ -57,16 +63,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
-        if (viewModel.uiState.value.isPlaying) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val params = PictureInPictureParams.Builder()
-                    .setAspectRatio(Rational(16, 9))
-                    .build()
-                enterPictureInPictureMode(params)
-            } else {
-                @Suppress("DEPRECATION")
-                enterPictureInPictureMode()
+        if (viewModel.uiState.value.isPlaying && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val paramsBuilder = PictureInPictureParams.Builder()
+                .setAspectRatio(Rational(16, 9))
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                paramsBuilder.setAutoEnterEnabled(true)
             }
+            enterPictureInPictureMode(paramsBuilder.build())
         }
     }
 
