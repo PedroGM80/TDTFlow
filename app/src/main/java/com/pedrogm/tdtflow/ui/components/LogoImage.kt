@@ -53,6 +53,8 @@ fun LogoImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(logo)
                 .crossfade(true)
+                .diskCacheKey(logo) // Clave de caché persistente
+                .memoryCacheKey(logo) // Clave de caché en memoria
                 .build(),
             contentDescription = name,
             modifier = modifier

@@ -47,11 +47,9 @@ internal fun ChannelContent(
     favoriteIds: Set<String> = emptySet(),
     onToggleFavorite: (String) -> Unit = {}
 ) {
-    val context = LocalContext.current
     LaunchedEffect(uiState.channels) {
-        if (uiState.channels.isNotEmpty()) {
-            LogoPreloader.preload(context, uiState.channels)
-        }
+        // Precarga eliminada para mejorar la velocidad inicial. 
+        // El grid cargará los logos bajo demanda según se necesiten en pantalla.
     }
 
     val contentState = when {
