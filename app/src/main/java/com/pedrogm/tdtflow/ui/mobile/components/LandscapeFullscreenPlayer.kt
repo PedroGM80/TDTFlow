@@ -159,10 +159,12 @@ internal fun LandscapeFullscreenPlayer(
             modifier = Modifier.fillMaxSize()
         )
 
-        if (uiState.currentChannel?.category == ChannelCategory.MUSIC) {
+        if (uiState.currentChannel?.isRadio == true) {
             AudioVisualizer(
                 channel = uiState.currentChannel,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(AppColors.Player.background)
             )
         }
 

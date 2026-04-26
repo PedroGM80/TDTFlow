@@ -1,5 +1,9 @@
 package com.pedrogm.tdtflow.ui.components
 
+import android.app.Activity
+import android.app.PictureInPictureParams
+import android.os.Build
+import android.util.Rational
 import androidx.compose.foundation.background
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Row
@@ -14,6 +18,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -21,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Maximize
+import com.composables.icons.lucide.Monitor
 import com.composables.icons.lucide.Music
 import com.composables.icons.lucide.X
 import com.pedrogm.tdtflow.R
@@ -36,6 +42,7 @@ internal fun VideoPlayerHeader(
     onFullscreen: (() -> Unit)?,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -72,6 +79,24 @@ internal fun VideoPlayerHeader(
         }
 
         CastButton(modifier = Modifier.size(32.dp))
+
+        IconButton(onClick = {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val params = PictureInPictureParams.Builder()
+                    .setAspectRatio(Rational(16, 9))
+                    .build()
+                (context as? Activity)?.enterPictureInPictureMode(params)
+            } else {
+                (context as? Activity)?.enterPictureInPictureMode()
+            }
+        }) {
+            Icon(
+                Lucide.Monitor,
+                contentDescription = stringResource(R.string.pip_description),
+                tint = AppColors.Player.foreground,
+                modifier = Modifier.size(dimensionResource(R.dimen.radius_extra_large))
+            )
+        }
 
         if (onFullscreen != null) {
             IconButton(onClick = onFullscreen) {

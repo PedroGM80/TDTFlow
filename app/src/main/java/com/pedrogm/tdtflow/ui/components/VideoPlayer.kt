@@ -90,8 +90,8 @@ fun VideoPlayer(
                 )
             }
 
-            // Marcador de posición para canales de audio (Music)
-            if (channel.category == ChannelCategory.MUSIC) {
+            // Marcador de posición para canales de audio (Radio)
+            if (channel.isRadio) {
                 AudioVisualizer(
                     channel = channel,
                     modifier = Modifier
@@ -149,7 +149,7 @@ internal fun AudioVisualizer(
             }
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_large)))
             Text(
-                text = stringResource(R.string.category_music),
+                text = if (channel.isRadio) stringResource(R.string.radio_section_separator) else stringResource(R.string.category_music),
                 color = AppColors.Player.inactiveIcon,
                 style = MaterialTheme.typography.labelLarge
             )

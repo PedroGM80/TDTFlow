@@ -59,7 +59,12 @@ class PlayerController(
     fun selectChannel(channel: Channel) {
         ensurePlayerInitialized()
         _playerError.value = null
-        player?.play(channel.url, channel.name, channel.logo)
+        player?.play(
+            streamUrl = channel.url,
+            channelName = channel.name,
+            channelLogo = channel.logo,
+            isRadio = channel.isRadio
+        )
         _currentChannel.value = channel
         context?.startService(Intent(context, PlaybackService::class.java))
     }

@@ -8,6 +8,7 @@
     <string name="no_channels_found">No s\'han trobat canals</string>
     <string name="close">Tanca</string>
     <string name="fullscreen_description">Pantalla completa</string>
+    <string name="pip_description">Imatge sobre imatge (PiP)</string>
     <string name="error_description">Error</string>
     <string name="playback_error">Error de reproducció</string>
     <string name="retry_button">Torna-ho a intentar</string>

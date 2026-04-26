@@ -6,6 +6,7 @@ import androidx.annotation.OptIn
 import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
+import androidx.media3.common.MimeTypes
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
@@ -250,22 +251,29 @@ class TdtPlayer(
      * Reutiliza [mediaSourceFactory] para evitar recrear la factory cada vez.
      */
     @OptIn(UnstableApi::class)
-    fun play(streamUrl: String, channelName: String = "", channelLogo: String = "") {
-        Log.d(TAG, "Playing: $streamUrl")
+    fun play(
+        streamUrl: String,
+        channelName: String = "",
+        channelLogo: String = "",
+        isRadio: Boolean = false
+    ) {
+        Log.d(TAG, "Playing: $streamUrl (isRadio: $isRadio)")
 
         cancelBufferingTimeout()
         _playerError.value = null
         _bufferingTimeout.value = false
         currentStreamUrl = streamUrl
 
+        val mediaMetadata = MediaMetadata.Builder()
+            .setTitle(channelName.ifEmpty { null })
+            .setArtworkUri(channelLogo.ifEmpty { null }?.toUri())
+            .setMediaType(if (isRadio) MediaMetadata.MEDIA_TYPE_MUSIC else MediaMetadata.MEDIA_TYPE_TV_SHOW)
+            .build()
+
         val mediaItem = MediaItem.Builder()
             .setUri(streamUrl)
-            .setMediaMetadata(
-                MediaMetadata.Builder()
-                    .setTitle(channelName.ifEmpty { null })
-                    .setArtworkUri(channelLogo.ifEmpty { null }?.toUri())
-                    .build()
-            )
+            .setMimeType(if (streamUrl.contains("m3u8")) MimeTypes.APPLICATION_M3U8 else null)
+            .setMediaMetadata(mediaMetadata)
             .build()
 
         val source = if (streamUrl.contains("m3u8")) {
