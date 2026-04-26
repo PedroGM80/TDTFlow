@@ -68,10 +68,7 @@ class TdtMediaItemConverter : MediaItemConverter {
             .setCustomData(customData)
             .build()
 
-        // startTime(-1) anchors playback at the live edge instead of DVR window start.
-        return MediaQueueItem.Builder(mediaInfo)
-            .setStartTime(MediaQueueItem.CURRENT_TIME)
-            .build()
+        return MediaQueueItem.Builder(mediaInfo).build()
     }
 
     override fun toMediaItem(mediaQueueItem: MediaQueueItem): MediaItem {
@@ -82,7 +79,7 @@ class TdtMediaItemConverter : MediaItemConverter {
             ?: info.contentUrl
             ?: info.contentId
             ?: return MediaItem.EMPTY
-        val mimeType = custom?.optString(KEY_MIME) ?: info.contentType
+        val mimeType = custom?.optString(KEY_MIME)?.takeIf { it.isNotEmpty() } ?: info.contentType
         val mediaType = custom?.optInt(KEY_MEDIA_TYPE, MediaMetadata.MEDIA_TYPE_TV_SHOW)
             ?: MediaMetadata.MEDIA_TYPE_TV_SHOW
 
