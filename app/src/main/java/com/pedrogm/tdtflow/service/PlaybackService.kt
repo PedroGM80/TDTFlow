@@ -27,15 +27,31 @@ class PlaybackService : MediaSessionService() {
 
         mediaSession = MediaSession.Builder(this, tdtPlayer.exoPlayer).build()
 
+        // Keep MediaSession in sync if ExoPlayer is recreated due to buffer config change.
+        tdtPlayer.onExoPlayerRecreated = { newPlayer ->
+            mediaSession?.let { session ->
+                if (session.player !== castPlayer) session.player = newPlayer
+            }
+        }
+
         try {
             val castContext = CastContext.getSharedInstance(this)
             castPlayer = CastPlayer(castContext, TdtMediaItemConverter()).also { cp ->
                 cp.setSessionAvailabilityListener(object : SessionAvailabilityListener {
-                    override fun onCastSessionAvailable() = switchPlayer(cp)
-                    override fun onCastSessionUnavailable() = switchPlayer(tdtPlayer.exoPlayer)
+                    override fun onCastSessionAvailable() {
+                        tdtPlayer.sessionPlayer = cp
+                        switchPlayer(cp)
+                    }
+                    override fun onCastSessionUnavailable() {
+                        tdtPlayer.sessionPlayer = null
+                        switchPlayer(tdtPlayer.exoPlayer)
+                    }
                 })
                 // If a Cast session is already active on startup, switch immediately.
-                if (cp.isCastSessionAvailable) switchPlayer(cp)
+                if (cp.isCastSessionAvailable) {
+                    tdtPlayer.sessionPlayer = cp
+                    switchPlayer(cp)
+                }
             }
         } catch (_: Exception) {
             // CastContext not available on this device (e.g. Android TV without Play Services).
@@ -45,11 +61,12 @@ class PlaybackService : MediaSessionService() {
     private fun switchPlayer(player: Player) {
         val session = mediaSession ?: return
         val currentItem = session.player.currentMediaItem
-        val position = session.player.currentPosition
         session.player.stop()
         session.player = player
         currentItem?.let {
-            player.setMediaItem(it, position)
+            // Live streams: no start position — receiver must start at live edge,
+            // not at a DVR offset that will be exhausted quickly.
+            player.setMediaItem(it)
             player.prepare()
             player.play()
         }
@@ -65,6 +82,8 @@ class PlaybackService : MediaSessionService() {
     }
 
     override fun onDestroy() {
+        tdtPlayer.onExoPlayerRecreated = null
+        tdtPlayer.sessionPlayer = null
         castPlayer?.setSessionAvailabilityListener(null)
         castPlayer?.release()
         castPlayer = null

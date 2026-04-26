@@ -1,6 +1,5 @@
 package com.pedrogm.tdtflow.cast
 
-import android.net.Uri
 import androidx.media3.cast.MediaItemConverter
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
@@ -8,6 +7,7 @@ import com.google.android.gms.cast.MediaInfo
 import com.google.android.gms.cast.MediaMetadata as CastMetadata
 import com.google.android.gms.cast.MediaQueueItem
 import com.google.android.gms.common.images.WebImage
+import com.pedrogm.tdtflow.player.TdtPlayer
 import org.json.JSONObject
 
 /**
@@ -23,7 +23,6 @@ import org.json.JSONObject
 class TdtMediaItemConverter : MediaItemConverter {
 
     companion object {
-        private const val KEY_MEDIA_ITEM = "mediaItem"
         private const val KEY_URI = "uri"
         private const val KEY_MIME = "mimeType"
         private const val KEY_MEDIA_TYPE = "mediaType"
@@ -34,7 +33,6 @@ class TdtMediaItemConverter : MediaItemConverter {
             ?: mediaItem.mediaId
 
         val isRadio = mediaItem.mediaMetadata.mediaType == MediaMetadata.MEDIA_TYPE_MUSIC
-        val isHls = uri.contains("m3u8", ignoreCase = true)
 
         val castMetadata = CastMetadata(
             if (isRadio) CastMetadata.MEDIA_TYPE_MUSIC_TRACK else CastMetadata.MEDIA_TYPE_MOVIE
@@ -45,7 +43,11 @@ class TdtMediaItemConverter : MediaItemConverter {
             mediaItem.mediaMetadata.artworkUri?.let { addImage(WebImage(it)) }
         }
 
-        val contentType = if (isHls) "application/x-mpegurl" else "video/mp4"
+        // Prefer the MIME type already on the item (set by TdtPlayer.play());
+        // fall back to URI-based detection so Cast receiver always gets the correct type
+        // (e.g. audio/mpeg for MP3 radio streams instead of the generic video/mp4).
+        val contentType = mediaItem.localConfiguration?.mimeType
+            ?: TdtPlayer.mimeTypeFor(uri)
 
         // Round-trip payload so toMediaItem() can reconstruct the original MediaItem.
         val customData = JSONObject().apply {
@@ -76,10 +78,11 @@ class TdtMediaItemConverter : MediaItemConverter {
         val custom = info.customData
 
         val uri = custom?.optString(KEY_URI)?.takeIf { it.isNotEmpty() }
-            ?: info.contentUrl
-            ?: info.contentId
+            ?: info.contentUrl?.takeIf { it.isNotEmpty() }
+            ?: info.contentId.takeIf { it.isNotEmpty() }
             ?: return MediaItem.EMPTY
-        val mimeType = custom?.optString(KEY_MIME)?.takeIf { it.isNotEmpty() } ?: info.contentType
+        val mimeType: String = custom?.optString(KEY_MIME)?.takeIf { it.isNotEmpty() }
+            ?: TdtPlayer.mimeTypeFor(uri)
         val mediaType = custom?.optInt(KEY_MEDIA_TYPE, MediaMetadata.MEDIA_TYPE_TV_SHOW)
             ?: MediaMetadata.MEDIA_TYPE_TV_SHOW
 
