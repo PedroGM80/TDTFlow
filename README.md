@@ -38,7 +38,7 @@
 - **Real-time search** with 300 ms debounce to minimise recompositions.
 - **Now Playing info** — current programme title displayed via EPG integration on the player overlay.
 - **Broken channel detection** — automatic marking after an 8-second buffering timeout or a playback error; counter shown in the UI with options to retry individual channels or revalidate all.
-- **Persistent favourites** — stored in DataStore, restored across sessions, accessible from a dedicated screen; supports **import / export via clipboard** for easy backup and sharing.
+- **Persistent favourites** — stored in DataStore, restored across sessions, accessible from a dedicated screen; supports **import / export to/from JSON files** (Android Storage Access Framework) for easy backup and sharing.
 - **Persistent preferences** — theme (Light / Dark / System), app language (ES / EN / CA / System), and **player buffer mode** (Fast / Balanced / Stable) backed by DataStore Preferences.
 
 ### Multi-Platform UI
@@ -46,12 +46,12 @@
 | Form factor | Layout |
 |---|---|
 | Phone portrait | TopAppBar · search · category chips · adaptive grid · player overlay |
-| Phone landscape (playing) | Fullscreen immersive player · Aspect Ratio Fit (no cropping) · Brightness/Volume gestures · Audio visualizer overlay for music channels |
+| Phone landscape (playing) | Fullscreen immersive player · Aspect Ratio Fit (no cropping) · Brightness/Volume gestures · Audio visualizer overlay for radio channels · PiP button in header |
 | Phone landscape (browsing) | Fullscreen channel grid · Minimalist tap-to-reveal overlay with transparency |
 | Tablet | Scaled portrait / landscape layout identical to phone |
 | Android TV | TV Material 3 · Adaptive grid with centered cards · Focus glow · Scale animations |
 
-- **Immersive mode** — system bars hidden across the entire app; swipe from edge to peek temporarily (`BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE`).
+- **Edge-to-edge** — `enableEdgeToEdge()` extends content behind system bars; Scaffold padding adjusts automatically via window insets.
 - **Options panel** — accessible on every form factor: theme selector, language selector, broken channel toggle, revalidation action, and player buffer mode.
 
 ### Design & Accessibility
@@ -125,7 +125,7 @@ val finalIsRadio = isRadioManual ?: (isRadioAmbit || isRadioName || isRadioForma
 ```
 User selects channel
   → PlayerController.selectChannel(channel)
-  → TdtPlayer.play(url, channelName, channelLogo)   ← metadata for notification
+  → TdtPlayer.play(url, channelName, channelLogo, isRadio)   ← metadata + media type for notification
   → ExoPlayer.setMediaSource() + prepare()
   → context.startService(PlaybackService)
   → MediaSession wraps ExoPlayer singleton
