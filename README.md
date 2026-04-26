@@ -27,7 +27,7 @@
 - **50+ radio stations** — Cadena SER, COPE, RNE, Onda Cero, LOS40, Rock FM, Kiss FM, Europa FM, Cadena Dial, Radio Marca, regional Catalan and Andalusian stations and more.
 - **HLS & MP3/AAC streaming** via AndroidX Media3 / ExoPlayer with custom HTTP timeouts and cross-protocol redirect support.
 - **Background playback** — `PlaybackService` (Media3 `MediaSessionService`) keeps audio running when the app is minimised or the screen turns off, with a persistent notification and media controls.
-- **Google Cast** — stream to Chromecast and Cast-compatible devices via Media3 Cast integration.
+- **Google Cast** — stream to Chromecast and Cast-compatible Smart TVs (Sony Bravia, etc.) via Media3 Cast + `TdtMediaItemConverter`: `STREAM_TYPE_LIVE`, correct MIME types for HLS / MP3 / AAC, `UNKNOWN_DURATION` for unbounded live streams, full channel-switch / seek / pause routing to the active Cast session, and seamless ExoPlayer resume on Cast disconnect.
 - **Picture-in-Picture** — phone playback continues in a floating window when the user leaves the app.
 - **Offline resilience** — 50+ hardcoded fallback channels (TV + radio) automatically used when the remote API is unreachable.
 
@@ -126,11 +126,40 @@ val finalIsRadio = isRadioManual ?: (isRadioAmbit || isRadioName || isRadioForma
 User selects channel
   → PlayerController.selectChannel(channel)
   → TdtPlayer.play(url, channelName, channelLogo, isRadio)   ← metadata + media type for notification
-  → ExoPlayer.setMediaSource() + prepare()
+  → ExoPlayer.setMediaSource() + prepare()                   (skipped when Cast is active)
   → context.startService(PlaybackService)
-  → MediaSession wraps ExoPlayer singleton
+  → MediaSession wraps the active player (ExoPlayer or CastPlayer)
   → System notification with channel name + controls
   → Audio continues when app is backgrounded
+```
+
+### Google Cast
+
+```
+User taps Cast button
+  → CastPlayer created with TdtMediaItemConverter
+  → onCastSessionAvailable → TdtPlayer.sessionPlayer = castPlayer
+                           → PlaybackService.switchPlayer(castPlayer)
+  → MediaSession.player switched to CastPlayer
+  → TdtPlayer.isCastActive = true; CastPlayer listener attached for state tracking
+  → ExoPlayer listener suppressed (isCastActive guard)
+
+User selects channel (Cast active)
+  → TdtPlayer.play() routes MediaItem to CastPlayer only
+  → TdtMediaItemConverter.toMediaQueueItem():
+       STREAM_TYPE_LIVE + UNKNOWN_DURATION (live edge, no DVR freeze)
+       MIME type from mediaItem (HLS → application/x-mpegurl,
+                                 MP3 → audio/mpeg, AAC → audio/aac)
+       MEDIA_TYPE_MOVIE / MUSIC_TRACK metadata for correct TV UI
+
+User seeks / pauses (Cast active)
+  → TdtPlayer.activePlayer() returns CastPlayer → operation sent to TV
+
+Cast session ends
+  → TdtPlayer.sessionPlayer = null → isCastActive = false
+  → PlaybackService.switchPlayer(exoPlayer) restores local playback
+  → ExoPlayer.setMediaItem(lastCastItem) using custom dataSourceFactory
+    (correct User-Agent, timeouts, cross-protocol redirects)
 ```
 
 ---
