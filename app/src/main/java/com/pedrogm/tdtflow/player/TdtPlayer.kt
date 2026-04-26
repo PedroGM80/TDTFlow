@@ -6,7 +6,6 @@ import androidx.annotation.OptIn
 import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
-import androidx.media3.common.MimeTypes
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
@@ -266,14 +265,17 @@ class TdtPlayer(
 
         val mediaMetadata = MediaMetadata.Builder()
             .setTitle(channelName.ifEmpty { null })
+            .setSubtitle(if (isRadio) "Radio" else "Televisión")
             .setArtworkUri(channelLogo.ifEmpty { null }?.toUri())
             .setMediaType(if (isRadio) MediaMetadata.MEDIA_TYPE_MUSIC else MediaMetadata.MEDIA_TYPE_TV_SHOW)
+            .setIsPlayable(true)
             .build()
 
         val mediaItem = MediaItem.Builder()
-            .setUri(streamUrl)
-            .setMimeType(if (streamUrl.contains("m3u8")) MimeTypes.APPLICATION_M3U8 else null)
+            .setMediaId(streamUrl)
+            .setUri(streamUrl.trim())
             .setMediaMetadata(mediaMetadata)
+            .setMimeType(if (streamUrl.contains("m3u8")) "application/x-mpegurl" else null)
             .build()
 
         val source = if (streamUrl.contains("m3u8")) {
