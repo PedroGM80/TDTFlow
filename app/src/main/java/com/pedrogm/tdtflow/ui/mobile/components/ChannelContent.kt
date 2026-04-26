@@ -62,7 +62,7 @@ internal fun ChannelContent(
     }
 
     PullToRefreshBox(
-        isRefreshing = uiState.isLoading,
+        isRefreshing = uiState.isLoading && uiState.channels.isNotEmpty(),
         onRefresh = { viewModel.onIntent(TdtIntent.Retry) },
         modifier = modifier
     ) {
@@ -76,7 +76,7 @@ internal fun ChannelContent(
             modifier = Modifier.fillMaxSize()
         ) { state ->
             when (state) {
-                ChannelContentState.Loading -> ChannelGridSkeleton()
+                ChannelContentState.Loading -> ChannelGridSkeleton(modifier = Modifier.fillMaxSize())
                 ChannelContentState.Error -> Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center

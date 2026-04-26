@@ -39,9 +39,9 @@ fun ChannelGridSkeleton(
 
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.min_grid_cell_size)),
-        contentPadding = PaddingValues(dimensionResource(R.dimen.spacing_small)),
-        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small)),
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small)),
+        contentPadding = PaddingValues(dimensionResource(R.dimen.spacing_medium)),
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium)),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium)),
         modifier = modifier,
         userScrollEnabled = false
     ) {
