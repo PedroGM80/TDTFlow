@@ -56,12 +56,22 @@ class TdtMediaItemConverter : MediaItemConverter {
 
         val mediaInfo = MediaInfo.Builder(uri)
             .setStreamType(MediaInfo.STREAM_TYPE_LIVE)
+            // Explicit contentUrl required by Cast SDK v3+ — contentId alone is not
+            // fetched by all receivers; without it the DMR stalls after the initial buffer.
+            .setContentUrl(uri)
             .setContentType(contentType)
+            // UNKNOWN_DURATION (-1) tells the receiver this is an unbounded live stream.
+            // Without this the DMR defaults to 0 ms duration and freezes once the
+            // initially buffered segments are consumed.
+            .setStreamDuration(MediaInfo.UNKNOWN_DURATION)
             .setMetadata(castMetadata)
             .setCustomData(customData)
             .build()
 
-        return MediaQueueItem.Builder(mediaInfo).build()
+        // startTime(-1) anchors playback at the live edge instead of DVR window start.
+        return MediaQueueItem.Builder(mediaInfo)
+            .setStartTime(MediaQueueItem.CURRENT_TIME)
+            .build()
     }
 
     override fun toMediaItem(mediaQueueItem: MediaQueueItem): MediaItem {
