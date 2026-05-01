@@ -74,11 +74,11 @@
     <string name="remove_from_favorites">Quitar de favoritos</string>
     <string name="brightness">Brillo</string>
     <string name="volume">Volumen</string>
-    <string name="export_favorites">Exportar favoritos (Portapapeles)</string>
-    <string name="import_favorites">Importar favoritos (Portapapeles)</string>
+    <string name="export_favorites">Exportar favoritos (JSON)</string>
+    <string name="import_favorites">Importar favoritos (JSON)</string>
     <string name="favorites_exported">Favoritos exportados correctamente</string>
     <string name="favorites_imported">Favoritos importados correctamente</string>
-    <string name="favorites_import_error">Error: el archivo no contiene favoritos válidos</string>
+    <string name="favorites_import_error">Error: el archivo no contiene un JSON de favoritos válido</string>
     <string name="favorites_export_error">Error al exportar los favoritos</string>
     <string name="cast_playing_on_tv">Reproduciendo en TV</string>
 </resources>
