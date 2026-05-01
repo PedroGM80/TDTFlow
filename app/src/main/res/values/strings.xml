@@ -80,4 +80,5 @@
     <string name="favorites_imported">Favoritos importados correctamente</string>
     <string name="favorites_import_error">Error: el archivo no contiene favoritos válidos</string>
     <string name="favorites_export_error">Error al exportar los favoritos</string>
+    <string name="cast_playing_on_tv">Reproduciendo en TV</string>
 </resources>

@@ -80,4 +80,5 @@
     <string name="favorites_imported">Favorites imported successfully</string>
     <string name="favorites_import_error">Error: file does not contain valid favorites</string>
     <string name="favorites_export_error">Error exporting favorites</string>
+    <string name="cast_playing_on_tv">Playing on TV</string>
 </resources>

@@ -70,6 +70,14 @@ class TdtPlayer(
         }
 
     private var isCastActive = false
+        set(value) {
+            field = value
+            _isCastActiveFlow.value = value
+        }
+
+    private val _isCastActiveFlow = MutableStateFlow(false)
+    val isCastActiveFlow: StateFlow<Boolean> = _isCastActiveFlow.asStateFlow()
+
     private var castPlayerListener: Player.Listener? = null
 
     // ── ExoPlayer ────────────────────────────────────────────────────
@@ -374,7 +382,7 @@ class TdtPlayer(
         _playerState.value = PlayerState.IDLE
     }
 
-    private fun activePlayer(): Player = sessionPlayer?.takeIf { isCastActive } ?: exoPlayer
+    fun activePlayer(): Player = sessionPlayer?.takeIf { isCastActive } ?: exoPlayer
 
     companion object {
         private const val TAG = "TdtPlayer"
