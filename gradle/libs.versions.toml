@@ -36,6 +36,9 @@ ktor = "3.4.3"
 # Networking & Serialization
 coil = "2.7.0"
 
+# Google Play Services
+playServicesCastFramework = "22.3.1"
+
 # Lottie & Icons
 compottie = "2.1.0"
 lucideIcons = "1.1.0"
@@ -109,6 +112,9 @@ coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coi
 
 # Dependency Injection
 javax-inject = { group = "javax.inject", name = "javax.inject", version.ref = "javaxInject" }
+
+# Google Play Services
+play-services-cast-framework = { group = "com.google.android.gms", name = "play-services-cast-framework", version.ref = "playServicesCastFramework" }
 
 # Hilt
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }

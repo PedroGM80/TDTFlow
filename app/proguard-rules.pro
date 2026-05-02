@@ -29,3 +29,6 @@
 -keepattributes SourceFile,LineNumberTable
 -keep public class * extends java.lang.Exception
 -dontwarn com.google.firebase.crashlytics.**
+
+# Google Cast
+-keep class com.pedrogm.tdtflow.cast.CastOptionsProvider { *; }

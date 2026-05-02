@@ -177,6 +177,7 @@ class TdtPlayer(
     val bufferingTimeout: StateFlow<Boolean> = _bufferingTimeout.asStateFlow()
 
     private var currentStreamUrl: String? = null
+    private var currentMediaItem: MediaItem? = null
 
     private var bufferingTimeoutJob: Job? = null
     private val playerScope = CoroutineScope(
@@ -259,6 +260,7 @@ class TdtPlayer(
                     Player.STATE_READY -> {
                         cancelBufferingTimeout()
                         _bufferingTimeout.value = false
+                        _playerError.value = null
                         _playerState.value = if (castP.playWhenReady) PlayerState.PLAYING else PlayerState.PAUSED
                     }
                     Player.STATE_ENDED -> { cancelBufferingTimeout(); _playerState.value = PlayerState.ENDED }
@@ -286,9 +288,13 @@ class TdtPlayer(
 
     private fun startBufferingTimeout() {
         cancelBufferingTimeout()
+        // Cast receiver needs 10-25 s to start (load receiver app + initial buffer).
+        // The receiver fires onPlayerError if it truly cannot play, so an app-side
+        // timeout during Cast only causes false ERROR states and broken-channel marks.
+        if (isCastActive) return
         bufferingTimeoutJob = playerScope.launch {
             delay(TimeConstants.BUFFERING_TIMEOUT_MS)
-            Log.w(TAG, "Buffering timeout for: $currentStreamUrl (cast=$isCastActive)")
+            Log.w(TAG, "Buffering timeout for: $currentStreamUrl")
             _bufferingTimeout.value = true
             _playerState.value = PlayerState.ERROR
             _playerError.value = appContext.getString(R.string.channel_not_available)
@@ -331,6 +337,8 @@ class TdtPlayer(
             .setMimeType(mimeTypeFor(streamUrl))
             .build()
 
+        currentMediaItem = mediaItem
+
         val castP = sessionPlayer?.takeIf { isCastActive }
         if (castP != null) {
             // Cast is active: send to receiver only. ExoPlayer will be loaded with this
@@ -350,6 +358,7 @@ class TdtPlayer(
     }
 
     fun getCurrentStreamUrl(): String? = currentStreamUrl
+    fun getCurrentMediaItem(): MediaItem? = currentMediaItem
 
     fun pause() {
         activePlayer().pause()
@@ -370,6 +379,7 @@ class TdtPlayer(
         sessionPlayer?.takeIf { isCastActive }?.stop()
         exoPlayer.stop()
         currentStreamUrl = null
+        currentMediaItem = null
         _playerState.value = PlayerState.IDLE
         _bufferingTimeout.value = false
     }

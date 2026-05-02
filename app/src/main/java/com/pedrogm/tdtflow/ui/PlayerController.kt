@@ -112,7 +112,11 @@ class PlayerController(
                 val channelName = _currentChannel.value?.name
                 onError(Exception("Player error: $errorMsg (channel: $channelName)"))
                 _playerError.value = errorMsg
-                markCurrentChannelAsBroken()
+                // Cast errors are on the receiver side (TV network, receiver crash, etc.)
+                // and do not mean the channel stream itself is down.
+                if (player?.isCastActiveFlow?.value != true) {
+                    markCurrentChannelAsBroken()
+                }
             }
             .catch { e -> Log.e(TAG, "Error observing player errors", e) }
             .launchIn(scope)
@@ -127,7 +131,9 @@ class PlayerController(
             .distinctUntilChanged()
             .onEach {
                 Log.d(TAG, "Buffering timeout detected, marking channel as broken")
-                markCurrentChannelAsBroken()
+                if (player?.isCastActiveFlow?.value != true) {
+                    markCurrentChannelAsBroken()
+                }
             }
             .catch { e -> Log.e(TAG, "Error observing buffering timeout", e) }
             .launchIn(scope)

@@ -85,14 +85,21 @@ internal fun TvPlayerFullscreen(viewModel: TdtViewModel, channelName: String) {
                 onClick = { showOsd = true }
             )
     ) {
+        val isCastActive by (viewModel.player?.isCastActiveFlow
+            ?: kotlinx.coroutines.flow.flowOf(false))
+            .collectAsStateWithLifecycle(initialValue = false)
+
         AndroidView(
             factory = { context ->
                 PlayerView(context).apply {
-                    player = viewModel.player?.exoPlayer
+                    player = viewModel.player?.activePlayer()
                     useController = true
                     setShowNextButton(false)
                     setShowPreviousButton(false)
                 }
+            },
+            update = { playerView ->
+                playerView.player = viewModel.player?.activePlayer()
             },
             modifier = Modifier.fillMaxSize()
         )

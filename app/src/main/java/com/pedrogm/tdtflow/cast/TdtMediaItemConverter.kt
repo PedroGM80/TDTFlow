@@ -4,11 +4,11 @@ import androidx.media3.cast.MediaItemConverter
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import com.google.android.gms.cast.MediaInfo
-import com.google.android.gms.cast.MediaMetadata as CastMetadata
 import com.google.android.gms.cast.MediaQueueItem
 import com.google.android.gms.common.images.WebImage
 import com.pedrogm.tdtflow.player.TdtPlayer
 import org.json.JSONObject
+import com.google.android.gms.cast.MediaMetadata as CastMetadata
 
 /**
  * Converts Media3 MediaItems to Cast MediaQueueItems for the Default Media Receiver.
@@ -63,8 +63,6 @@ class TdtMediaItemConverter : MediaItemConverter {
             .setContentUrl(uri)
             .setContentType(contentType)
             // UNKNOWN_DURATION (-1) tells the receiver this is an unbounded live stream.
-            // Without this the DMR defaults to 0 ms duration and freezes once the
-            // initially buffered segments are consumed.
             .setStreamDuration(MediaInfo.UNKNOWN_DURATION)
             .setMetadata(castMetadata)
             .setCustomData(customData)
