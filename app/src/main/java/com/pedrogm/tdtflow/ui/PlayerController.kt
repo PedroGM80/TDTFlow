@@ -11,17 +11,16 @@ import com.pedrogm.tdtflow.player.TdtPlayer
 import com.pedrogm.tdtflow.service.PlaybackService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 /**
  * Encapsulates all player lifecycle concerns: initialization, playback control,
@@ -43,6 +42,8 @@ class PlayerController(
 
     var player: TdtPlayer? = null
         private set
+
+    private var observationJob: Job? = null
 
     private val _playerState = MutableStateFlow(PlayerState.IDLE)
     val playerState: StateFlow<PlayerState> = _playerState.asStateFlow()
@@ -85,6 +86,7 @@ class PlayerController(
     }
 
     fun release() {
+        stopObserving()
         player = null
         // ExoPlayer singleton lifecycle is managed by Hilt/PlaybackService — not released here
     }
@@ -94,49 +96,57 @@ class PlayerController(
     private fun ensurePlayerInitialized() {
         if (player != null) return
         player = playerFactory()
-        player?.playerState
-            ?.onEach { _playerState.value = it }
-            ?.launchIn(scope)
-        observePlayerErrors()
-        observeBufferingTimeout()
+        
+        observationJob?.cancel()
+        observationJob = scope.launch {
+            launch {
+                player?.playerState?.collect { _playerState.value = it }
+            }
+            launch {
+                observePlayerErrorsInternal()
+            }
+            launch {
+                observeBufferingTimeoutInternal()
+            }
+        }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun observePlayerErrors() {
+    private suspend fun observePlayerErrorsInternal() {
         _currentChannel
             .filterNotNull()
             .flatMapLatest { player?.playerError ?: flowOf(null) }
             .filterNotNull()
             .distinctUntilChanged()
-            .onEach { errorMsg ->
+            .collect { errorMsg ->
                 val channelName = _currentChannel.value?.name
                 onError(Exception("Player error: $errorMsg (channel: $channelName)"))
                 _playerError.value = errorMsg
-                // Cast errors are on the receiver side (TV network, receiver crash, etc.)
-                // and do not mean the channel stream itself is down.
                 if (player?.isCastActiveFlow?.value != true) {
                     markCurrentChannelAsBroken()
                 }
             }
-            .catch { e -> Log.e(TAG, "Error observing player errors", e) }
-            .launchIn(scope)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun observeBufferingTimeout() {
+    private suspend fun observeBufferingTimeoutInternal() {
         _currentChannel
             .filterNotNull()
             .flatMapLatest { player?.bufferingTimeout ?: flowOf(false) }
             .filter { it }
             .distinctUntilChanged()
-            .onEach {
+            .collect {
                 Log.d(TAG, "Buffering timeout detected, marking channel as broken")
                 if (player?.isCastActiveFlow?.value != true) {
                     markCurrentChannelAsBroken()
                 }
             }
-            .catch { e -> Log.e(TAG, "Error observing buffering timeout", e) }
-            .launchIn(scope)
+    }
+
+    // Cleaning up old placeholder methods
+    private fun stopObserving() {
+        observationJob?.cancel()
+        observationJob = null
     }
 
     private fun markCurrentChannelAsBroken() {

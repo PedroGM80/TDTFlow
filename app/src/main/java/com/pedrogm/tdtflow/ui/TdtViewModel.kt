@@ -2,13 +2,10 @@ package com.pedrogm.tdtflow.ui
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
-import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.pedrogm.tdtflow.R
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.domain.ChannelFilterLogic
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
@@ -20,6 +17,8 @@ import com.pedrogm.tdtflow.player.PlayerState
 import com.pedrogm.tdtflow.player.TdtPlayer
 import com.pedrogm.tdtflow.util.Constants
 import com.pedrogm.tdtflow.util.TimeConstants
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,15 +34,16 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
+import javax.inject.Inject
 
 @HiltViewModel
 @UnstableApi
@@ -69,7 +69,7 @@ class TdtViewModel(
         getNowPlayingUseCase = getNowPlayingUseCase,
         brokenChannelTracker = brokenChannelTracker,
         loadError = { e ->
-            context.getString(R.string.error_loading_channels, e.localizedMessage ?: "Unknown")
+            context.getString(R.string.error_loading_channels, e.localizedMessage ?: context.getString(R.string.unknown_error))
         },
         playerControllerFactory = { scope ->
             PlayerController(

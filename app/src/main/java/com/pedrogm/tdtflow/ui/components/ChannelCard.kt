@@ -8,9 +8,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,12 +15,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -38,16 +40,13 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.Surface
 import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.unit.sp
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
@@ -91,7 +90,7 @@ fun ChannelCard(
                     }
                 ),
             shape = RoundedCornerShape(dimensionResource(R.dimen.radius_large)),
-            border = if (isSelected) BorderStroke(2.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)) else null,
+            border = if (isSelected) BorderStroke(dimensionResource(R.dimen.stroke_thin), MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)) else null,
             colors = CardDefaults.cardColors(
                 containerColor = if (isSelected) {
                     MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.9f)
@@ -100,7 +99,7 @@ fun ChannelCard(
                 }
             ),
             elevation = CardDefaults.cardElevation(
-                defaultElevation = if (isSelected) dimensionResource(R.dimen.elevation_high) else 2.dp
+                defaultElevation = if (isSelected) dimensionResource(R.dimen.elevation_high) else dimensionResource(R.dimen.elevation_low)
             )
         ) {
             Column(
@@ -151,7 +150,7 @@ fun ChannelCard(
                     Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_tiny)))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         LiveIndicator(
-                            size = 10.dp,
+                            size = dimensionResource(R.dimen.size_live_indicator_small),
                             modifier = Modifier.padding(end = dimensionResource(R.dimen.spacing_tiny))
                         )
                         Text(
@@ -159,7 +158,7 @@ fun ChannelCard(
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 10.sp
+                            fontSize = dimensionResource(R.dimen.text_size_tiny).value.sp
                         )
                     }
                 }
@@ -174,8 +173,8 @@ fun ChannelCard(
                 },
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(4.dp)
-                    .size(32.dp)
+                    .padding(dimensionResource(R.dimen.spacing_tiny))
+                    .size(dimensionResource(R.dimen.icon_size_card_logo))
                     .background(
                         color = if (isFavorite) MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.8f)
                                 else MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
@@ -190,7 +189,7 @@ fun ChannelCard(
                         stringResource(R.string.add_to_favorites)
                     },
                     tint = if (isFavorite) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(18.dp)
+                    modifier = Modifier.size(dimensionResource(R.dimen.icon_size_action))
                 )
             }
         }

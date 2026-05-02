@@ -1,8 +1,16 @@
 package com.pedrogm.tdtflow.ui.components
 
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -11,11 +19,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.sp
-import com.composables.icons.lucide.Lucide
-import com.composables.icons.lucide.Sun
-import com.composables.icons.lucide.Volume2
+import com.pedrogm.tdtflow.R
 
 @Composable
 fun GestureOverlay(
@@ -31,8 +37,11 @@ fun GestureOverlay(
     ) {
         Box(
             modifier = Modifier
-                .size(120.dp)
-                .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(16.dp)),
+                .size(dimensionResource(R.dimen.loading_animation_size))
+                .background(
+                    Color.Black.copy(alpha = 0.6f),
+                    RoundedCornerShape(dimensionResource(R.dimen.radius_music_card))
+                ),
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -40,18 +49,18 @@ fun GestureOverlay(
                     imageVector = icon,
                     contentDescription = null,
                     tint = Color.White,
-                    modifier = Modifier.size(48.dp)
+                    modifier = Modifier.size(dimensionResource(R.dimen.icon_size_extra_large))
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_small)))
                 Text(
                     text = "$value%",
                     color = Color.White,
-                    fontSize = 18.sp
+                    fontSize = dimensionResource(R.dimen.text_size_overlay).value.sp
                 )
                 Text(
                     text = label,
                     color = Color.White.copy(alpha = 0.7f),
-                    fontSize = 12.sp
+                    fontSize = dimensionResource(R.dimen.text_size_small).value.sp
                 )
             }
         }

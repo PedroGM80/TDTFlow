@@ -81,4 +81,7 @@
     <string name="favorites_import_error">Error: el fitxer no conté un JSON de preferits vàlid</string>
     <string name="favorites_export_error">Error en exportar els preferits</string>
     <string name="cast_playing_on_tv">Reproduint a la TV</string>
+    <string name="media_type_radio">Ràdio</string>
+    <string name="media_type_tv">Televisió</string>
+    <string name="unknown_error">Desconegut</string>
 </resources>

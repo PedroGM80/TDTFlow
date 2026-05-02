@@ -5,7 +5,6 @@ import android.app.PictureInPictureParams
 import android.os.Build
 import android.util.Rational
 import androidx.compose.foundation.background
-import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,12 +16,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Maximize
@@ -78,7 +77,7 @@ internal fun VideoPlayerHeader(
             Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_small)))
         }
 
-        CastButton(modifier = Modifier.size(32.dp))
+        CastButton(modifier = Modifier.size(dimensionResource(R.dimen.icon_size_card_logo)))
 
         IconButton(onClick = {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

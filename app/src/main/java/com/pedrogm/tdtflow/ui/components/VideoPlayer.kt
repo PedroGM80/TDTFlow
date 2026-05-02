@@ -25,7 +25,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -191,28 +190,28 @@ internal fun CastActiveOverlay(
                 name = channel.name,
                 category = channel.category,
                 modifier = Modifier
-                    .size(72.dp)
-                    .clip(RoundedCornerShape(12.dp)),
-                iconSize = 40.dp
+                    .size(dimensionResource(R.dimen.icon_size_cast_logo))
+                    .clip(RoundedCornerShape(dimensionResource(R.dimen.radius_medium))),
+                iconSize = dimensionResource(R.dimen.icon_size_channel_chip)
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_medium)))
             Icon(
                 imageVector = Lucide.Tv,
                 contentDescription = null,
                 tint = Color.White.copy(alpha = 0.8f),
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(dimensionResource(R.dimen.icon_size_medium))
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_tiny)))
             Text(
                 text = channel.name,
                 color = Color.White,
-                fontSize = 14.sp,
+                fontSize = dimensionResource(R.dimen.text_size_medium).value.sp,
                 style = MaterialTheme.typography.labelLarge
             )
             Text(
                 text = stringResource(R.string.cast_playing_on_tv),
                 color = Color.White.copy(alpha = 0.6f),
-                fontSize = 12.sp,
+                fontSize = dimensionResource(R.dimen.text_size_small).value.sp,
                 style = MaterialTheme.typography.labelSmall
             )
         }

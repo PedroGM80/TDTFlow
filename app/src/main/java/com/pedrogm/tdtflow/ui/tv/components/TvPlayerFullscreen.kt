@@ -40,7 +40,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
@@ -164,15 +163,15 @@ internal fun TvPlayerFullscreen(viewModel: TdtViewModel, channelName: String) {
                             style = M3Theme.typography.titleLarge,
                             fontWeight = FontWeight.Bold
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_tiny)))
                         LinearProgressIndicator(
                             progress = { program.progress() },
                             modifier = Modifier
                                                         .fillMaxWidth(0.6f)
-                                                        .height(4.dp)
+                                                        .height(dimensionResource(R.dimen.spacing_tiny))
                                                         .background(
                                                             Color.White.copy(alpha = 0.1f),
-                                                            RoundedCornerShape(2.dp)
+                                                            RoundedCornerShape(dimensionResource(R.dimen.radius_extra_small))
                                                         ),
                             color = AppColors.liveIndicator,
                             trackColor = Color.Transparent,
@@ -187,7 +186,7 @@ internal fun TvPlayerFullscreen(viewModel: TdtViewModel, channelName: String) {
                         imageVector = Lucide.ChevronUp,
                         contentDescription = null,
                         tint = Color.White.copy(alpha = 0.5f),
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(dimensionResource(R.dimen.icon_size_medium))
                     )
                     Text(
                         text = stringResource(R.string.live_indicator),
@@ -199,7 +198,7 @@ internal fun TvPlayerFullscreen(viewModel: TdtViewModel, channelName: String) {
                         imageVector = Lucide.ChevronDown,
                         contentDescription = null,
                         tint = Color.White.copy(alpha = 0.5f),
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(dimensionResource(R.dimen.icon_size_medium))
                     )
                 }
             }

@@ -65,11 +65,27 @@ class TdtPlayer(
             castPlayerListener = null
             field = value
             isCastActive = value != null && value !== _exoPlayer
+
+            // Clear any previous errors and timeouts when switching players.
+            _playerError.value = null
+            cancelBufferingTimeout()
+
             // Attach listener to the new CastPlayer so we track its state.
             if (isCastActive && value != null) {
                 val listener = makeCastPlayerListener(value)
                 value.addListener(listener)
                 castPlayerListener = listener
+                
+                // Force an immediate state update to match the new player
+                val playbackState = value.playbackState
+                if (playbackState != Player.STATE_IDLE) {
+                    _playerState.value = when (playbackState) {
+                        Player.STATE_BUFFERING -> PlayerState.BUFFERING
+                        Player.STATE_READY -> if (value.playWhenReady) PlayerState.PLAYING else PlayerState.PAUSED
+                        Player.STATE_ENDED -> PlayerState.ENDED
+                        else -> PlayerState.IDLE
+                    }
+                }
             }
         }
 
@@ -99,6 +115,8 @@ class TdtPlayer(
     private fun createExoPlayer(): ExoPlayer {
         return ExoPlayer.Builder(context)
             .setLoadControl(createLoadControl(currentBuffer))
+            // Keeps the network radio active for HLS streams even if the screen is off.
+            .setWakeMode(C.WAKE_MODE_NETWORK)
             // Required so that setMediaItem() calls (e.g. when Cast disconnects and
             // switchPlayer restores local playback) use our custom data source factory
             // with the correct User-Agent, timeouts, and cross-protocol redirect support.
@@ -151,12 +169,14 @@ class TdtPlayer(
         if (currentBuffer == newBuffer) return
         currentBuffer = newBuffer
 
-        val isPlaying = _exoPlayer?.isPlaying == true
+        val playWhenReady = _exoPlayer?.playWhenReady ?: true
         val currentUrl = currentStreamUrl
         val currentPos = _exoPlayer?.currentPosition ?: 0L
 
         _exoPlayer?.release()
-        _exoPlayer = createExoPlayer()
+        _exoPlayer = createExoPlayer().apply {
+            this.playWhenReady = playWhenReady
+        }
         // Notify PlaybackService so it can update mediaSession.player before the old
         // (now-released) ExoPlayer receives any further notification control commands.
         onExoPlayerRecreated?.invoke(_exoPlayer!!)
@@ -164,9 +184,11 @@ class TdtPlayer(
         // If Cast is active, ExoPlayer will be restored when Cast disconnects via
         // onCastSessionUnavailable — no need to prepare it now.
         if (currentUrl != null && !isCastActive) {
-            play(currentUrl)
-            _exoPlayer?.seekTo(currentPos)
-            if (!isPlaying) _exoPlayer?.pause()
+            currentMediaItem?.let { item ->
+                restoreExoPlayer(item)
+                _exoPlayer?.seekTo(currentPos)
+                if (!playWhenReady) _exoPlayer?.pause()
+            }
         }
     }
 
@@ -217,7 +239,11 @@ class TdtPlayer(
                         Log.i(TAG, "Cast session available — url=$currentStreamUrl")
                         sessionPlayer = cp
                         exoPlayer.stop()
-                        currentMediaItem?.let { item ->
+                        
+                        val item = currentMediaItem ?: return
+                        // Only play if the TV isn't already playing this specific item.
+                        // This prevents stuttering during quick reconnections.
+                        if (cp.currentMediaItem?.mediaId != item.mediaId) {
                             cp.setMediaItem(item)
                             cp.prepare()
                             cp.play()
@@ -233,10 +259,19 @@ class TdtPlayer(
                 if (cp.isCastSessionAvailable) {
                     Log.i(TAG, "Cast session already active on init")
                     sessionPlayer = cp
-                    currentMediaItem?.let { item ->
-                        cp.setMediaItem(item)
-                        cp.prepare()
-                        cp.play()
+                    // Sync local state from the TV if the app just started.
+                    if (currentMediaItem == null && cp.currentMediaItem != null) {
+                        currentMediaItem = cp.currentMediaItem
+                        currentStreamUrl = currentMediaItem?.mediaId
+                        Log.d(TAG, "Synced state from existing Cast session: $currentStreamUrl")
+                    } else {
+                        currentMediaItem?.let { item ->
+                            if (cp.currentMediaItem?.mediaId != item.mediaId) {
+                                cp.setMediaItem(item)
+                                cp.prepare()
+                                cp.play()
+                            }
+                        }
                     }
                 }
             }
@@ -350,6 +385,8 @@ class TdtPlayer(
         if (isCastActive) return
         bufferingTimeoutJob = playerScope.launch {
             delay(TimeConstants.BUFFERING_TIMEOUT_MS)
+            // Double check isCastActive after delay to avoid race conditions when connecting to Cast.
+            if (isCastActive) return@launch
             Log.w(TAG, "Buffering timeout for: $currentStreamUrl")
             _bufferingTimeout.value = true
             _playerState.value = PlayerState.ERROR
@@ -380,7 +417,10 @@ class TdtPlayer(
 
         val mediaMetadata = MediaMetadata.Builder()
             .setTitle(channelName.ifEmpty { null })
-            .setSubtitle(if (isRadio) "Radio" else "Televisión")
+            .setSubtitle(
+                if (isRadio) context.getString(R.string.media_type_radio)
+                else context.getString(R.string.media_type_tv)
+            )
             .setArtworkUri(channelLogo.ifEmpty { null }?.toUri())
             .setMediaType(if (isRadio) MediaMetadata.MEDIA_TYPE_MUSIC else MediaMetadata.MEDIA_TYPE_TV_SHOW)
             .setIsPlayable(true)
@@ -397,6 +437,8 @@ class TdtPlayer(
 
         val castP = sessionPlayer?.takeIf { isCastActive }
         if (castP != null) {
+            // Defensive: ensure local player is stopped when casting a new channel.
+            exoPlayer.stop()
             // Cast is active: send to receiver only. ExoPlayer will be loaded with this
             // channel by PlaybackService.switchPlayer when Cast disconnects.
             castP.setMediaItem(mediaItem)
@@ -410,6 +452,7 @@ class TdtPlayer(
             }
             exoPlayer.setMediaSource(source)
             exoPlayer.prepare()
+            exoPlayer.play()
         }
     }
 
@@ -447,7 +490,8 @@ class TdtPlayer(
         _castPlayer = null
         cancelBufferingTimeout()
         playerScope.cancel()
-        exoPlayer.release()
+        _exoPlayer?.release()
+        _exoPlayer = null
         _playerState.value = PlayerState.IDLE
     }
 
