@@ -86,6 +86,7 @@ internal fun VideoPlayerHeader(
                     .build()
                 (context as? Activity)?.enterPictureInPictureMode(params)
             } else {
+                @Suppress("DEPRECATION")
                 (context as? Activity)?.enterPictureInPictureMode()
             }
         }) {
