@@ -4,6 +4,8 @@ import android.content.Context
 import android.util.Log
 import androidx.annotation.OptIn
 import androidx.core.net.toUri
+import androidx.media3.cast.CastPlayer
+import androidx.media3.cast.SessionAvailabilityListener
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
@@ -17,7 +19,9 @@ import androidx.media3.exoplayer.hls.HlsMediaSource
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.upstream.DefaultLoadErrorHandlingPolicy
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy
+import com.google.android.gms.cast.framework.CastContext
 import com.pedrogm.tdtflow.R
+import com.pedrogm.tdtflow.cast.TdtMediaItemConverter
 import com.pedrogm.tdtflow.data.IOptionsPreferences
 import com.pedrogm.tdtflow.ui.options.AppBuffer
 import com.pedrogm.tdtflow.util.TimeConstants
@@ -46,7 +50,7 @@ class TdtPlayer(
     var onExoPlayerRecreated: ((ExoPlayer) -> Unit)? = null
 
     /**
-     * Set by PlaybackService to the CastPlayer when a Cast session starts, null when it ends.
+     * Set by [initCast] to the CastPlayer when a Cast session starts, null when it ends.
      * The setter attaches/detaches a player listener so playerState reflects Cast playback
      * rather than the idle local ExoPlayer.
      */
@@ -79,6 +83,7 @@ class TdtPlayer(
     val isCastActiveFlow: StateFlow<Boolean> = _isCastActiveFlow.asStateFlow()
 
     private var castPlayerListener: Player.Listener? = null
+    private var _castPlayer: CastPlayer? = null
 
     // ── ExoPlayer ────────────────────────────────────────────────────
 
@@ -156,8 +161,8 @@ class TdtPlayer(
         // (now-released) ExoPlayer receives any further notification control commands.
         onExoPlayerRecreated?.invoke(_exoPlayer!!)
 
-        // If Cast is active, ExoPlayer will be reloaded when Cast disconnects via
-        // PlaybackService.switchPlayer — no need to prepare it now.
+        // If Cast is active, ExoPlayer will be restored when Cast disconnects via
+        // onCastSessionUnavailable — no need to prepare it now.
         if (currentUrl != null && !isCastActive) {
             play(currentUrl)
             _exoPlayer?.seekTo(currentPos)
@@ -200,6 +205,57 @@ class TdtPlayer(
                 }
             }
         }
+        initCast()
+    }
+
+    private fun initCast() {
+        try {
+            val castContext = CastContext.getSharedInstance(appContext)
+            _castPlayer = CastPlayer(castContext, TdtMediaItemConverter()).also { cp ->
+                cp.setSessionAvailabilityListener(object : SessionAvailabilityListener {
+                    override fun onCastSessionAvailable() {
+                        Log.i(TAG, "Cast session available — url=$currentStreamUrl")
+                        sessionPlayer = cp
+                        exoPlayer.stop()
+                        currentMediaItem?.let { item ->
+                            cp.setMediaItem(item)
+                            cp.prepare()
+                            cp.play()
+                        }
+                    }
+                    override fun onCastSessionUnavailable() {
+                        Log.i(TAG, "Cast session unavailable, restoring ExoPlayer")
+                        val item = currentMediaItem
+                        sessionPlayer = null
+                        item?.let { restoreExoPlayer(it) }
+                    }
+                })
+                if (cp.isCastSessionAvailable) {
+                    Log.i(TAG, "Cast session already active on init")
+                    sessionPlayer = cp
+                    currentMediaItem?.let { item ->
+                        cp.setMediaItem(item)
+                        cp.prepare()
+                        cp.play()
+                    }
+                }
+            }
+        } catch (_: Exception) {
+            Log.d(TAG, "Cast not available on this device")
+        }
+    }
+
+    private fun restoreExoPlayer(item: MediaItem) {
+        val url = item.localConfiguration?.uri?.toString() ?: return
+        Log.i(TAG, "Restoring ExoPlayer with url=$url")
+        val source = if (url.contains("m3u8", ignoreCase = true)) {
+            hlsMediaSourceFactory.createMediaSource(item)
+        } else {
+            mediaSourceFactory.createMediaSource(item)
+        }
+        exoPlayer.setMediaSource(source)
+        exoPlayer.prepare()
+        exoPlayer.play()
     }
 
     // ── Player listeners ─────────────────────────────────────────────
@@ -385,7 +441,10 @@ class TdtPlayer(
     }
 
     fun release() {
-        sessionPlayer = null  // triggers setter: removes CastPlayer listener
+        sessionPlayer = null  // removes CastPlayer listener
+        _castPlayer?.setSessionAvailabilityListener(null)
+        _castPlayer?.release()
+        _castPlayer = null
         cancelBufferingTimeout()
         playerScope.cancel()
         exoPlayer.release()
