@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.unit.dp
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.util.AnimationConstants
 
@@ -39,9 +42,9 @@ fun ChannelGridSkeleton(
 
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.min_grid_cell_size)),
-        contentPadding = PaddingValues(dimensionResource(R.dimen.spacing_small)),
-        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small)),
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small)),
+        contentPadding = PaddingValues(dimensionResource(R.dimen.spacing_medium)),
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium)),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium)),
         modifier = modifier,
         userScrollEnabled = false
     ) {
@@ -53,38 +56,43 @@ fun ChannelGridSkeleton(
 
 @Composable
 private fun ChannelCardSkeleton(shimmerBrush: Brush) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = RoundedCornerShape(dimensionResource(R.dimen.radius_large))
-            )
-            .padding(dimensionResource(R.dimen.spacing_medium))
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(dimensionResource(R.dimen.radius_large)),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        // Logo placeholder
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(1f)
-                .background(
-                    brush = shimmerBrush,
-                    shape = RoundedCornerShape(dimensionResource(R.dimen.radius_small))
-                )
-        )
+                .padding(dimensionResource(R.dimen.spacing_medium))
+        ) {
+            // Logo placeholder
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
+                    .background(
+                        brush = shimmerBrush,
+                        shape = RoundedCornerShape(dimensionResource(R.dimen.radius_small))
+                    )
+            )
 
-        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_small)))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_small)))
 
-        // Name placeholder
-        Box(
-            modifier = Modifier
-                .fillMaxWidth(0.7f)
-                .height(dimensionResource(R.dimen.spacing_medium))
-                .background(
-                    brush = shimmerBrush,
-                    shape = RoundedCornerShape(dimensionResource(R.dimen.radius_small))
-                )
-        )
+            // Name placeholder
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.7f)
+                    .height(dimensionResource(R.dimen.spacing_medium))
+                    .background(
+                        brush = shimmerBrush,
+                        shape = RoundedCornerShape(dimensionResource(R.dimen.radius_small))
+                    )
+            )
+        }
     }
 }
 

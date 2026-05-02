@@ -11,6 +11,8 @@ permissions:
   contents: read
   security-events: write
 
+# Job-level permissions override this where needed (e.g. github-release uses contents: write)
+
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   MOCK_GOOGLE_SERVICES: >-
@@ -147,16 +149,51 @@ jobs:
           fi
           echo "$ENCODED_STRING" | base64 --decode > app/release.jks
 
-      - name: Build Release Bundle
+      - name: Build Release Bundle & APK
         env:
           RELEASE_KEYSTORE_PATH: release.jks
           RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
           RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
-        run: bash gradlew bundleRelease
+        run: bash gradlew bundleRelease assembleRelease
 
-      - name: Upload Release Bundle
+      - name: Upload Release Bundle (AAB)
         uses: actions/upload-artifact@v4
         with:
           name: release-bundle
           path: app/build/outputs/bundle/release/*.aab
+
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-apk
+          path: app/build/outputs/apk/release/*.apk
+
+  # ── 4. GitHub Release (solo en tags v*) ─────────────────────────────────
+  github-release:
+    name: Publish GitHub Release
+    needs: build-release
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download Release Bundle (AAB)
+        uses: actions/download-artifact@v4
+        with:
+          name: release-bundle
+          path: release-artifacts
+
+      - name: Download Release APK
+        uses: actions/download-artifact@v4
+        with:
+          name: release-apk
+          path: release-artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: TDTFlow ${{ github.ref_name }}
+          generate_release_notes: true
+          files: release-artifacts/*

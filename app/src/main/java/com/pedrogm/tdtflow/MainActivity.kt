@@ -43,10 +43,6 @@ class MainActivity : AppCompatActivity() {
             return
         }
         enableEdgeToEdge()
-        WindowInsetsControllerCompat(window, window.decorView).apply {
-            hide(WindowInsetsCompat.Type.systemBars())
-            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val pipParams = PictureInPictureParams.Builder()
                 .setAspectRatio(Rational(16, 9))

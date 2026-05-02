@@ -8,6 +8,7 @@
     <string name="no_channels_found">No s\'han trobat canals</string>
     <string name="close">Tanca</string>
     <string name="fullscreen_description">Pantalla completa</string>
+    <string name="pip_description">Imatge sobre imatge (PiP)</string>
     <string name="error_description">Error</string>
     <string name="playback_error">Error de reproducció</string>
     <string name="retry_button">Torna-ho a intentar</string>
@@ -73,6 +74,11 @@
     <string name="remove_from_favorites">Treu dels preferits</string>
     <string name="brightness">Brillantor</string>
     <string name="volume">Volum</string>
-    <string name="export_favorites">Exportar preferits (Portapapers)</string>
-    <string name="import_favorites">Importar preferits (Portapapers)</string>
+    <string name="export_favorites">Exporta preferits (JSON)</string>
+    <string name="import_favorites">Importa preferits (JSON)</string>
+    <string name="favorites_exported">Preferits exportats correctament</string>
+    <string name="favorites_imported">Preferits importats correctament</string>
+    <string name="favorites_import_error">Error: el fitxer no conté un JSON de preferits vàlid</string>
+    <string name="favorites_export_error">Error en exportar els preferits</string>
+    <string name="cast_playing_on_tv">Reproduint a la TV</string>
 </resources>

@@ -47,11 +47,9 @@ internal fun ChannelContent(
     favoriteIds: Set<String> = emptySet(),
     onToggleFavorite: (String) -> Unit = {}
 ) {
-    val context = LocalContext.current
     LaunchedEffect(uiState.channels) {
-        if (uiState.channels.isNotEmpty()) {
-            LogoPreloader.preload(context, uiState.channels)
-        }
+        // Precarga eliminada para mejorar la velocidad inicial. 
+        // El grid cargará los logos bajo demanda según se necesiten en pantalla.
     }
 
     val contentState = when {
@@ -62,7 +60,7 @@ internal fun ChannelContent(
     }
 
     PullToRefreshBox(
-        isRefreshing = uiState.isLoading,
+        isRefreshing = uiState.isLoading && uiState.channels.isNotEmpty(),
         onRefresh = { viewModel.onIntent(TdtIntent.Retry) },
         modifier = modifier
     ) {
@@ -76,7 +74,7 @@ internal fun ChannelContent(
             modifier = Modifier.fillMaxSize()
         ) { state ->
             when (state) {
-                ChannelContentState.Loading -> ChannelGridSkeleton()
+                ChannelContentState.Loading -> ChannelGridSkeleton(modifier = Modifier.fillMaxSize())
                 ChannelContentState.Error -> Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center

@@ -8,6 +8,7 @@
     <string name="no_channels_found">No channels found</string>
     <string name="close">Close</string>
     <string name="fullscreen_description">Full screen</string>
+    <string name="pip_description">Picture-in-Picture (PiP)</string>
     <string name="error_description">Error</string>
     <string name="playback_error">Playback error</string>
     <string name="retry_button">Retry</string>
@@ -73,6 +74,11 @@
     <string name="remove_from_favorites">Remove from favorites</string>
     <string name="brightness">Brightness</string>
     <string name="volume">Volume</string>
-    <string name="export_favorites">Export favorites (Clipboard)</string>
-    <string name="import_favorites">Import favorites (Clipboard)</string>
+    <string name="export_favorites">Export favorites (JSON)</string>
+    <string name="import_favorites">Import favorites (JSON)</string>
+    <string name="favorites_exported">Favorites exported successfully</string>
+    <string name="favorites_imported">Favorites imported successfully</string>
+    <string name="favorites_import_error">Error: file does not contain a valid favorites JSON</string>
+    <string name="favorites_export_error">Error exporting favorites</string>
+    <string name="cast_playing_on_tv">Playing on TV</string>
 </resources>

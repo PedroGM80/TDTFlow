@@ -115,6 +115,7 @@ dependencies {
     implementation(libs.media3.session)
     implementation(libs.media3.cast)
     implementation(libs.androidx.mediarouter)
+    implementation(libs.play.services.cast.framework)
 
     // TV
     implementation(libs.tv.compose.material)
