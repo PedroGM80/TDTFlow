@@ -2,7 +2,7 @@
 # Android & Kotlin
 androidGradlePlugin = "9.2.0"
 hiltAndroidGradlePlugin = "2.59.2"
-kotlin = "2.3.20"
+kotlin = "2.3.21"
 ksp = "2.3.6"
 
 # Hilt
@@ -31,7 +31,7 @@ kotlinxCoroutines = "1.10.2"
 kotlinxSerialization = "1.11.0"
 
 # Ktor
-ktor = "3.4.2"
+ktor = "3.4.3"
 
 # Networking & Serialization
 coil = "2.7.0"
