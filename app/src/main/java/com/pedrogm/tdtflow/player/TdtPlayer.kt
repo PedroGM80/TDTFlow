@@ -230,6 +230,7 @@ class TdtPlayer(
         initCast()
     }
 
+    @Suppress("DEPRECATION")
     private fun initCast() {
         try {
             val castContext = CastContext.getSharedInstance(appContext)
@@ -483,6 +484,7 @@ class TdtPlayer(
         _bufferingTimeout.value = false
     }
 
+    @Suppress("DEPRECATION")
     fun release() {
         sessionPlayer = null  // removes CastPlayer listener
         _castPlayer?.setSessionAvailabilityListener(null)
