@@ -81,4 +81,7 @@
     <string name="favorites_import_error">Error: el archivo no contiene un JSON de favoritos válido</string>
     <string name="favorites_export_error">Error al exportar los favoritos</string>
     <string name="cast_playing_on_tv">Reproduciendo en TV</string>
+    <string name="media_type_radio">Radio</string>
+    <string name="media_type_tv">Televisión</string>
+    <string name="unknown_error">Desconocido</string>
 </resources>

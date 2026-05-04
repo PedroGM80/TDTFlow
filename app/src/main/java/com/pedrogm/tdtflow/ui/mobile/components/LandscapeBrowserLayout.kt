@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import com.pedrogm.tdtflow.ui.components.channelItemsWithRadioSeparator
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Icon
@@ -31,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Search
@@ -44,6 +42,7 @@ import com.pedrogm.tdtflow.ui.TdtViewModel
 import com.pedrogm.tdtflow.ui.components.CategoryFilter
 import com.pedrogm.tdtflow.ui.components.ChannelCard
 import com.pedrogm.tdtflow.ui.components.SearchBar
+import com.pedrogm.tdtflow.ui.components.channelItemsWithRadioSeparator
 import com.pedrogm.tdtflow.ui.favorites.FavoritesIntent
 import com.pedrogm.tdtflow.ui.favorites.FavoritesViewModel
 
@@ -59,7 +58,7 @@ internal fun LandscapeBrowserLayout(
     var showSearch by remember { mutableStateOf(false) }
 
     // En horizontal móvil, usamos un tamaño de celda más pequeño para aprovechar el espacio
-    val horizontalGridSize = 120.dp
+    val horizontalGridSize = dimensionResource(R.dimen.min_grid_cell_size_landscape)
 
     Box(
         modifier = Modifier
@@ -73,7 +72,10 @@ internal fun LandscapeBrowserLayout(
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                     .statusBarsPadding()
-                    .padding(horizontal = dimensionResource(R.dimen.spacing_medium), vertical = 4.dp),
+                    .padding(
+                        horizontal = dimensionResource(R.dimen.spacing_medium),
+                        vertical = dimensionResource(R.dimen.spacing_tiny)
+                    ),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -83,14 +85,35 @@ internal fun LandscapeBrowserLayout(
                     color = MaterialTheme.colorScheme.primary
                 )
                 Spacer(Modifier.weight(1f))
-                IconButton(onClick = onNavigateToFavorites, modifier = Modifier.size(32.dp)) {
-                    Icon(Icons.Outlined.FavoriteBorder, contentDescription = null, modifier = Modifier.size(20.dp))
+                IconButton(
+                    onClick = onNavigateToFavorites,
+                    modifier = Modifier.size(dimensionResource(R.dimen.icon_size_card_logo))
+                ) {
+                    Icon(
+                        Icons.Outlined.FavoriteBorder,
+                        contentDescription = null,
+                        modifier = Modifier.size(dimensionResource(R.dimen.icon_size_action))
+                    )
                 }
-                IconButton(onClick = { showSearch = !showSearch }, modifier = Modifier.size(32.dp)) {
-                    Icon(if (showSearch) Lucide.X else Lucide.Search, contentDescription = null, modifier = Modifier.size(20.dp))
+                IconButton(
+                    onClick = { showSearch = !showSearch },
+                    modifier = Modifier.size(dimensionResource(R.dimen.icon_size_card_logo))
+                ) {
+                    Icon(
+                        if (showSearch) Lucide.X else Lucide.Search,
+                        contentDescription = null,
+                        modifier = Modifier.size(dimensionResource(R.dimen.icon_size_action))
+                    )
                 }
-                IconButton(onClick = onShowOptions, modifier = Modifier.size(32.dp)) {
-                    Icon(Lucide.Settings, contentDescription = null, modifier = Modifier.size(20.dp))
+                IconButton(
+                    onClick = onShowOptions,
+                    modifier = Modifier.size(dimensionResource(R.dimen.icon_size_card_logo))
+                ) {
+                    Icon(
+                        Lucide.Settings,
+                        contentDescription = null,
+                        modifier = Modifier.size(dimensionResource(R.dimen.icon_size_action))
+                    )
                 }
             }
 

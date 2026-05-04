@@ -39,6 +39,10 @@ class TdtMediaItemConverter : MediaItemConverter {
         ).apply {
             mediaItem.mediaMetadata.title?.toString()?.takeIf { it.isNotEmpty() }?.let {
                 putString(CastMetadata.KEY_TITLE, it)
+                // For radio/music, the subtitle is often used for the "Artist" or "Station" name
+                if (isRadio) {
+                    putString(CastMetadata.KEY_ARTIST, it)
+                }
             }
             mediaItem.mediaMetadata.artworkUri?.let { addImage(WebImage(it)) }
         }

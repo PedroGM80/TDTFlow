@@ -29,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.unit.dp
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.util.AnimationConstants
 
@@ -62,7 +61,7 @@ private fun ChannelCardSkeleton(shimmerBrush: Brush) {
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = dimensionResource(R.dimen.elevation_low))
     ) {
         Column(
             modifier = Modifier

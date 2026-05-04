@@ -134,6 +134,7 @@ dependencies {
     // Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+    implementation(libs.hilt.lifecycle.viewmodel.compose)
     implementation(libs.hilt.navigation.compose)
 
     // testFixtures — dependencies needed by the shared fake source set

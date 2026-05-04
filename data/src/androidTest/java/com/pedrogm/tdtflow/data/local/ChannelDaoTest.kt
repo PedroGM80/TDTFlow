@@ -3,7 +3,7 @@ package com.pedrogm.tdtflow.data.local
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -31,7 +31,7 @@ class ChannelDaoTest {
     }
 
     @Test
-    fun insertAndGetAllChannels() = runBlocking {
+    fun insertAndGetAllChannels() = runTest {
         val channels = listOf(
             ChannelEntity(url = "url1", name = "Channel 1", logo = "logo1", category = "GENERAL"),
             ChannelEntity(url = "url2", name = "Channel 2", logo = "logo2", category = "NEWS")
@@ -45,7 +45,7 @@ class ChannelDaoTest {
     }
 
     @Test
-    fun deleteAllChannels() = runBlocking {
+    fun deleteAllChannels() = runTest {
         val channels = listOf(
             ChannelEntity(url = "url1", name = "Channel 1", logo = "logo1", category = "GENERAL")
         )

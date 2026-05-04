@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import com.pedrogm.tdtflow.ui.components.channelItemsWithRadioSeparator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,6 +37,7 @@ import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.filterByUrls
 import com.pedrogm.tdtflow.ui.components.ChannelCard
 import com.pedrogm.tdtflow.ui.components.EmptyState
+import com.pedrogm.tdtflow.ui.components.channelItemsWithRadioSeparator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -58,9 +58,10 @@ fun FavoritesScreen(
     val scope = rememberCoroutineScope()
 
     val userMessage = uiState.userMessage
+    val userMessageText = userMessage?.let { resourceId -> stringResource(resourceId) }
     LaunchedEffect(userMessage) {
-        if (userMessage != null) {
-            snackbarHostState.showSnackbar(context.getString(userMessage))
+        userMessageText?.let { message ->
+            snackbarHostState.showSnackbar(message)
             viewModel.onIntent(FavoritesIntent.MessageShown)
         }
     }
