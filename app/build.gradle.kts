@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -13,6 +15,15 @@ val androidMinSdk: String by project
 val androidTargetSdk: String by project
 val jvmVersion: String by project
 
+val versionPropsFile = rootProject.file("version.properties")
+val versionProps = Properties()
+if (versionPropsFile.exists()) {
+    versionPropsFile.inputStream().use { versionProps.load(it) }
+}
+
+val vCode = versionProps.getProperty("versionCode")?.toInt() ?: 1
+val vName = versionProps.getProperty("versionName") ?: "1.0.0"
+
 configure<com.android.build.api.dsl.ApplicationExtension> {
     namespace = "com.pedrogm.tdtflow"
     compileSdk = androidCompileSdk.toInt()
@@ -21,8 +32,8 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
         applicationId = "com.pedrogm.tdtflow"
         minSdk = androidMinSdk.toInt()
         targetSdk = androidTargetSdk.toInt()
-        versionCode = 3
-        versionName = "1.1.0"
+        versionCode = vCode
+        versionName = vName
     }
 
     signingConfigs {

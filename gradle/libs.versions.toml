@@ -1,6 +1,6 @@
 [versions]
 # Android & Kotlin
-androidGradlePlugin = "9.2.0"
+androidGradlePlugin = "9.2.1"
 hiltAndroidGradlePlugin = "2.59.2"
 kotlin = "2.3.21"
 ksp = "2.3.6"
@@ -20,10 +20,10 @@ androidxActivity = "1.13.0"
 androidxAppCompat = "1.7.1"
 androidxLifecycle = "2.10.0"
 androidxNavigation = "2.9.8"
-androidxComposeBom = "2026.04.01"
+androidxComposeBom = "2026.05.00"
 androidxMedia3 = "1.10.0"
 androidxDataStore = "1.2.1"
-tvMaterial = "1.1.0-rc01"
+tvMaterial = "1.1.0"
 androidxRoom = "2.8.4"
 
 # Kotlin
