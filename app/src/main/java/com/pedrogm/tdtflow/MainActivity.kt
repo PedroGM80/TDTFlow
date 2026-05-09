@@ -8,23 +8,12 @@ import android.os.Bundle
 import android.util.Rational
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.core.os.LocaleListCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import com.pedrogm.tdtflow.navigation.AppNavGraph
 import com.pedrogm.tdtflow.ui.TdtViewModel
-import com.pedrogm.tdtflow.ui.options.AppLanguage
-import com.pedrogm.tdtflow.ui.options.AppTheme
 import com.pedrogm.tdtflow.ui.options.OptionsMenuViewModel
-import com.pedrogm.tdtflow.ui.theme.TDTFlowTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

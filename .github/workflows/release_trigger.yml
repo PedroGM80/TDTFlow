@@ -1,0 +1,45 @@
+name: Trigger New Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: 'Type of version bump'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  bump-and-tag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all tags
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Run Version Bump Script
+        run: bash scripts/bump_version.sh ${{ github.event.inputs.bump_type }}
+
+      - name: Commit and Push Changes
+        run: |
+          VERSION_NAME=$(grep 'versionName=' version.properties | cut -d'=' -f2)
+          git add version.properties
+          git commit -m "chore: bump version to v$VERSION_NAME"
+          git push origin master # or your main branch
+
+      - name: Create and Push Tag
+        run: |
+          VERSION_NAME=$(grep 'versionName=' version.properties | cut -d'=' -f2)
+          git tag "v$VERSION_NAME"
+          git push origin "v$VERSION_NAME"
