@@ -6,6 +6,7 @@ import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import com.pedrogm.tdtflow.ui.options.components.OptionsMenuContent
 import com.pedrogm.tdtflow.ui.theme.TDTFlowTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -26,7 +27,7 @@ class OptionsMenuScreenTest {
         composeTestRule.setContent {
             TDTFlowTheme {
                 OptionsMenuContent(
-                    uiState = state,
+                    state = state,
                     onIntent = onIntent,
                     showBrokenChannels = showBrokenChannels,
                     onToggleBroken = onToggleBroken

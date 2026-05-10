@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,16 +28,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pedrogm.tdtflow.R
-import com.pedrogm.tdtflow.ui.options.components.*
+import com.pedrogm.tdtflow.ui.options.components.BrokenChannelsSectionTv
+import com.pedrogm.tdtflow.ui.options.components.BufferSectionTv
+import com.pedrogm.tdtflow.ui.options.components.LanguageSectionTv
+import com.pedrogm.tdtflow.ui.options.components.OptionsMenuContent
+import com.pedrogm.tdtflow.ui.options.components.ThemeSectionTv
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -82,7 +83,7 @@ fun OptionsMenuScreen(
                 Surface(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .width(380.dp)
+                        .width(dimensionResource(R.dimen.options_panel_width_tv))
                         .clickable(enabled = false) {},
                     color = MaterialTheme.colorScheme.surface,
                     tonalElevation = dimensionResource(R.dimen.elevation_high)
@@ -132,7 +133,10 @@ fun OptionsMenuScreen(
                 },
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
                 containerColor = MaterialTheme.colorScheme.surface,
-                shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+                shape = RoundedCornerShape(
+                    topStart = dimensionResource(R.dimen.radius_extra_large),
+                    topEnd = dimensionResource(R.dimen.radius_extra_large)
+                )
             ) {
                 OptionsMenuContent(
                     state = state,

@@ -28,7 +28,8 @@ fun TvScreen(
     viewModel: TdtViewModel,
     favoritesViewModel: FavoritesViewModel,
     optionsViewModel: OptionsMenuViewModel,
-    onNavigateToFavorites: () -> Unit
+    onNavigateToFavorites: () -> Unit,
+    onExit: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isPlaying = uiState.isPlaying && uiState.currentChannel != null && viewModel.player != null
@@ -43,17 +44,21 @@ fun TvScreen(
             label = "tv_screen_transition",
             modifier = Modifier.fillMaxSize()
         ) { playing ->
-            if (playing) {
-                uiState.currentChannel?.let { channel ->
-                    TvPlayerFullscreen(viewModel = viewModel, channelName = channel.name)
+            when {
+                playing -> {
+                    uiState.currentChannel?.let { channel ->
+                        TvPlayerFullscreen(viewModel = viewModel, channelName = channel.name)
+                    }
                 }
-            } else {
-                TvChannelBrowser(
-                    viewModel = viewModel,
-                    favoritesViewModel = favoritesViewModel,
-                    optionsViewModel = optionsViewModel,
-                    onNavigateToFavorites = onNavigateToFavorites
-                )
+                else -> {
+                    TvChannelBrowser(
+                        viewModel = viewModel,
+                        favoritesViewModel = favoritesViewModel,
+                        optionsViewModel = optionsViewModel,
+                        onNavigateToFavorites = onNavigateToFavorites,
+                        onExit = onExit
+                    )
+                }
             }
         }
 

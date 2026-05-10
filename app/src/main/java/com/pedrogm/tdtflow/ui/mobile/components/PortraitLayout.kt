@@ -33,6 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.Power
 import com.composables.icons.lucide.RefreshCw
 import com.composables.icons.lucide.Search
 import com.composables.icons.lucide.Settings
@@ -49,6 +50,7 @@ import com.pedrogm.tdtflow.ui.favorites.FavoritesIntent
 import com.pedrogm.tdtflow.ui.favorites.FavoritesViewModel
 import com.pedrogm.tdtflow.util.TimeConstants
 import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 
 @androidx.annotation.OptIn(UnstableApi::class)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,7 +63,8 @@ internal fun PortraitLayout(
     onToggleSearch: () -> Unit,
     isPlaying: Boolean,
     onShowFavorites: () -> Unit,
-    onShowOptions: () -> Unit
+    onShowOptions: () -> Unit,
+    onExit: () -> Unit
 ) {
     val favoritesState by favoritesViewModel.uiState.collectAsStateWithLifecycle()
     val favoriteIds = favoritesState.favoriteIds
@@ -71,7 +74,7 @@ internal fun PortraitLayout(
     LaunchedEffect(uiState.error) {
         val capturedError = uiState.error
         if (capturedError != null && uiState.channels.isNotEmpty()) {
-            delay(TimeConstants.OVERLAY_AUTO_HIDE_DELAY_MS)
+            delay(TimeConstants.OVERLAY_AUTO_HIDE_DELAY_MS.milliseconds)
             if (viewModel.uiState.value.error == capturedError) {
                 viewModel.onIntent(TdtIntent.DismissError)
             }
@@ -87,6 +90,7 @@ internal fun PortraitLayout(
                 onToggleSearch = onToggleSearch,
                 onRetry = { viewModel.onIntent(TdtIntent.Retry) },
                 onShowOptions = onShowOptions,
+                onExit = onExit,
                 scrollBehavior = scrollBehavior
             )
         }
@@ -142,6 +146,7 @@ private fun MobileTopBar(
     onToggleSearch: () -> Unit,
     onRetry: () -> Unit,
     onShowOptions: () -> Unit,
+    onExit: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
 ) {
     TopAppBar(
@@ -172,6 +177,13 @@ private fun MobileTopBar(
             }
             IconButton(onClick = onShowOptions) {
                 Icon(Lucide.Settings, contentDescription = stringResource(R.string.options_title))
+            }
+            IconButton(onClick = onExit) {
+                Icon(
+                    imageVector = Lucide.Power,
+                    contentDescription = stringResource(R.string.exit_app),
+                    tint = MaterialTheme.colorScheme.error
+                )
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(

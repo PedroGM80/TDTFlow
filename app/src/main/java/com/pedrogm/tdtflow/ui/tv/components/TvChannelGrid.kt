@@ -11,7 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.ui.components.EmptyState
@@ -42,7 +41,7 @@ internal fun TvChannelGrid(
             columns = GridCells.Adaptive(minSize = cardWidth),
             contentPadding = PaddingValues(
                 start = paddingTv,
-                top = 0.dp,
+                top = dimensionResource(R.dimen.elevation_none),
                 end = paddingTv,
                 bottom = paddingTv
             ),

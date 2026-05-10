@@ -26,6 +26,7 @@ fun MobileScreen(
     favoritesViewModel: FavoritesViewModel,
     optionsViewModel: OptionsMenuViewModel,
     onNavigateToFavorites: () -> Unit = {},
+    onExit: () -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -46,7 +47,8 @@ fun MobileScreen(
             onToggleSearch = { showSearch = !showSearch },
             isPlaying = isPlaying,
             onShowFavorites = onNavigateToFavorites,
-            onShowOptions = { optionsViewModel.onIntent(OptionsMenuIntent.Open) }
+            onShowOptions = { optionsViewModel.onIntent(OptionsMenuIntent.Open) },
+            onExit = onExit
         )
         // En móviles horizontal con reproducción, modo inmersivo
         isLandscape && isPlaying -> LandscapeFullscreenPlayer(
@@ -59,7 +61,8 @@ fun MobileScreen(
             favoritesViewModel = favoritesViewModel,
             uiState = uiState,
             onNavigateToFavorites = onNavigateToFavorites,
-            onShowOptions = { optionsViewModel.onIntent(OptionsMenuIntent.Open) }
+            onShowOptions = { optionsViewModel.onIntent(OptionsMenuIntent.Open) },
+            onExit = onExit
         )
         // Por defecto (móvil vertical), diseño retrato
         else -> PortraitLayout(
@@ -70,7 +73,8 @@ fun MobileScreen(
             onToggleSearch = { showSearch = !showSearch },
             isPlaying = isPlaying,
             onShowFavorites = onNavigateToFavorites,
-            onShowOptions = { optionsViewModel.onIntent(OptionsMenuIntent.Open) }
+            onShowOptions = { optionsViewModel.onIntent(OptionsMenuIntent.Open) },
+            onExit = onExit
         )
     }
 

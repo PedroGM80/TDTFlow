@@ -5,20 +5,11 @@ import android.view.KeyEvent
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.core.os.LocaleListCompat
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.media3.common.util.UnstableApi
 import com.pedrogm.tdtflow.ui.TdtIntent
 import com.pedrogm.tdtflow.ui.TdtViewModel
-import com.pedrogm.tdtflow.ui.options.AppLanguage
-import com.pedrogm.tdtflow.ui.options.AppTheme
 import com.pedrogm.tdtflow.ui.options.OptionsMenuIntent
 import com.pedrogm.tdtflow.ui.options.OptionsMenuViewModel
-import com.pedrogm.tdtflow.ui.theme.TDTFlowTheme
-import androidx.media3.common.util.UnstableApi
 import com.pedrogm.tdtflow.ui.tv.TvNavGraph
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -35,7 +26,11 @@ class TvActivity : AppCompatActivity() {
             com.pedrogm.tdtflow.ui.components.TdtAppScaffold(optionsViewModel = optionsViewModel) {
                 TvNavGraph(
                     viewModel = viewModel,
-                    optionsViewModel = optionsViewModel
+                    optionsViewModel = optionsViewModel,
+                    onExit = {
+                        finishAndRemoveTask()
+                        System.exit(0)
+                    }
                 )
             }
         }

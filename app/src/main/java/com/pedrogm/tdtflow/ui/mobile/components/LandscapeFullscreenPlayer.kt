@@ -26,13 +26,12 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Sun
 import com.composables.icons.lucide.Volume2
@@ -41,8 +40,8 @@ import com.pedrogm.tdtflow.player.PlayerState
 import com.pedrogm.tdtflow.ui.TdtIntent
 import com.pedrogm.tdtflow.ui.TdtUiState
 import com.pedrogm.tdtflow.ui.TdtViewModel
-import com.pedrogm.tdtflow.domain.model.ChannelCategory
 import com.pedrogm.tdtflow.ui.components.AudioVisualizer
+import com.pedrogm.tdtflow.ui.components.CastActiveOverlay
 import com.pedrogm.tdtflow.ui.components.GestureOverlay
 import com.pedrogm.tdtflow.ui.theme.AppColors
 import com.pedrogm.tdtflow.util.TimeConstants
@@ -55,6 +54,9 @@ internal fun LandscapeFullscreenPlayer(
     uiState: TdtUiState
 ) {
     val view = LocalView.current
+    val isCastActive by (viewModel.player?.isCastActiveFlow
+        ?: kotlinx.coroutines.flow.flowOf(false))
+        .collectAsStateWithLifecycle(initialValue = false)
     var showOverlay by remember { mutableStateOf(false) }
     var showBrightnessOverlay by remember { mutableStateOf(false) }
     var showVolumeOverlay by remember { mutableStateOf(false) }
@@ -65,7 +67,7 @@ internal fun LandscapeFullscreenPlayer(
 
     DisposableEffect(Unit) {
         val window = (view.context as Activity).window
-        val controller = WindowCompat.getInsetsController(window, view)
+        val controller = WindowInsetsControllerCompat(window, view)
         controller.hide(WindowInsetsCompat.Type.systemBars())
         controller.systemBarsBehavior =
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
@@ -149,7 +151,7 @@ internal fun LandscapeFullscreenPlayer(
         AndroidView(
             factory = { context ->
                 PlayerView(context).apply {
-                    player = viewModel.player?.exoPlayer
+                    player = viewModel.player?.activePlayer()
                     this.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
                     useController = false
                     setShowNextButton(false)
@@ -157,13 +159,27 @@ internal fun LandscapeFullscreenPlayer(
                     setBackgroundColor(android.graphics.Color.BLACK)
                 }
             },
+            update = { playerView ->
+                playerView.player = viewModel.player?.activePlayer()
+            },
             modifier = Modifier.fillMaxSize()
         )
 
-        if (uiState.currentChannel?.category == ChannelCategory.MUSIC) {
+        if (uiState.currentChannel?.isRadio == true) {
             AudioVisualizer(
                 channel = uiState.currentChannel,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(AppColors.Player.background)
+            )
+        }
+
+        if (isCastActive && uiState.currentChannel != null && uiState.currentChannel.isRadio != true) {
+            CastActiveOverlay(
+                channel = uiState.currentChannel,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(AppColors.Player.background)
             )
         }
 

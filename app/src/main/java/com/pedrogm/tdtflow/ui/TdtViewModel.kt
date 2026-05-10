@@ -2,13 +2,10 @@ package com.pedrogm.tdtflow.ui
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
-import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.pedrogm.tdtflow.R
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.domain.ChannelFilterLogic
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
@@ -20,6 +17,8 @@ import com.pedrogm.tdtflow.player.PlayerState
 import com.pedrogm.tdtflow.player.TdtPlayer
 import com.pedrogm.tdtflow.util.Constants
 import com.pedrogm.tdtflow.util.TimeConstants
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,15 +34,16 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
+import javax.inject.Inject
 
 @HiltViewModel
 @UnstableApi
@@ -69,7 +69,7 @@ class TdtViewModel(
         getNowPlayingUseCase = getNowPlayingUseCase,
         brokenChannelTracker = brokenChannelTracker,
         loadError = { e ->
-            context.getString(R.string.error_loading_channels, e.localizedMessage ?: "Unknown")
+            context.getString(R.string.error_loading_channels, e.localizedMessage ?: context.getString(R.string.unknown_error))
         },
         playerControllerFactory = { scope ->
             PlayerController(
@@ -145,13 +145,18 @@ class TdtViewModel(
 
     // ── Estado UI combinado ─────────────────────────────────────────
 
-    private val _partialUiState: StateFlow<PartialState> = combine(
+    val uiState: StateFlow<TdtUiState> = combine(
         _filteredChannels,
         playerController.currentChannel,
         _selectedCategory,
         _searchQuery,
         _isLoading,
-        _nowPlaying
+        _nowPlaying,
+        _channels,
+        _error,
+        brokenChannelTracker.brokenUrls,
+        _showBrokenChannels,
+        playerController.playerState
     ) { args ->
         @Suppress("UNCHECKED_CAST")
         val filtered = args[0] as List<Channel>
@@ -160,52 +165,27 @@ class TdtViewModel(
         val query = args[3] as String
         val loading = args[4] as Boolean
         val nowPlaying = args[5] as Program?
-
-        PartialState(
-            filtered = filtered,
-            current = current,
-            category = category,
-            query = query,
-            loading = loading,
-            nowPlaying = nowPlaying
-        )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(TimeConstants.FLOW_SUBSCRIPTION_TIMEOUT_MS),
-        initialValue = PartialState(emptyList(), null, null, Constants.EMPTY_STRING, true, null)
-    )
-
-    val uiState: StateFlow<TdtUiState> = combine(
-        _partialUiState,
-        _channels,
-        _error,
-        brokenChannelTracker.brokenUrls,
-        _showBrokenChannels,
-        playerController.playerState
-    ) { args ->
         @Suppress("UNCHECKED_CAST")
-        val partial = args[0] as PartialState
+        val channels = args[6] as List<Channel>
+        val error = args[7] as String?
         @Suppress("UNCHECKED_CAST")
-        val channels = args[1] as List<Channel>
-        val error = args[2] as String?
-        @Suppress("UNCHECKED_CAST")
-        val brokenUrls = args[3] as Set<String>
-        val showBroken = args[4] as Boolean
-        val playerState = args[5] as PlayerState
+        val brokenUrls = args[8] as Set<String>
+        val showBroken = args[9] as Boolean
+        val playerState = args[10] as PlayerState
 
         TdtUiState(
             channels = channels,
-            filteredChannels = partial.filtered,
-            currentChannel = partial.current,
-            selectedCategory = partial.category,
-            searchQuery = partial.query,
-            isLoading = partial.loading,
-            isPlaying = partial.current != null,
+            filteredChannels = filtered,
+            currentChannel = current,
+            selectedCategory = category,
+            searchQuery = query,
+            isLoading = loading,
+            isPlaying = current != null,
             error = error,
             brokenChannelsCount = brokenUrls.size,
             showBrokenChannels = showBroken,
             playerState = playerState,
-            nowPlaying = partial.nowPlaying
+            nowPlaying = nowPlaying
         )
     }.stateIn(
         scope = viewModelScope,
@@ -327,14 +307,3 @@ class TdtViewModel(
         playerController.release()
     }
 }
-
-// ── Estado parcial para el combine intermedio ───────────────────────────
-
-private data class PartialState(
-    val filtered: List<Channel>,
-    val current: Channel?,
-    val category: ChannelCategory?,
-    val query: String,
-    val loading: Boolean,
-    val nowPlaying: Program? = null
-)

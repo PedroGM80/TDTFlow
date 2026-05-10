@@ -52,33 +52,35 @@ class ChannelRepositoryImpl(
     }
 
     private suspend fun loadChannels(): List<Channel> = withContext(ioDispatcher) {
-        val fallback = fallbackChannels()
         try {
             Log.d(TAG, "Loading channels from TDTChannels API...")
 
-            // Fetch TV and Radio in parallel — halves load time vs sequential
-            val tvDeferred = async { fetchTvChannels() }
-            val radioDeferred = async { fetchRadioChannels() }
-            val tvResponse = tvDeferred.await()
-            val radioResponse = radioDeferred.await()
+            // Build fallback list concurrently with network requests
+            val fallbackDeferred = async { fallbackChannels() }
+            val tvResponseDeferred = async { fetchTvChannels() }
+            val radioResponseDeferred = async { fetchRadioChannels() }
 
-            if (tvResponse == null && radioResponse == null) {
-                Log.w(TAG, "Spain not found in responses, using fallback")
-                return@withContext fallback
+            val tvChannelsDeferred = async { mapTvChannels(tvResponseDeferred.await()) }
+            val radioChannelsDeferred = async { mapRadioChannels(radioResponseDeferred.await()) }
+
+            val tvChannels = tvChannelsDeferred.await()
+            val radioChannels = radioChannelsDeferred.await()
+
+            if (tvChannels.isEmpty() && radioChannels.isEmpty()) {
+                Log.w(TAG, "Spain not found or mapping failed, using fallback")
+                return@withContext fallbackDeferred.await()
             }
-
-            val tvChannels = mapTvChannels(tvResponse)
-            val radioChannels = mapRadioChannels(radioResponse)
 
             Log.d(TAG, "Mapped ${tvChannels.size} TV + ${radioChannels.size} radio channels")
 
             val apiChannels = tvChannels + radioChannels
-            val combined = mergeWithFallback(fallback, apiChannels)
+            val combined = mergeWithFallback(fallbackDeferred.await(), apiChannels)
 
             Log.d(TAG, "Total combined channels: ${combined.size}")
             combined
         } catch (e: Exception) {
             Log.e(TAG, "Error loading TDTChannels: ${e.message}", e)
+            val fallback = fallbackChannels()
             Log.d(TAG, "Using only ${fallback.size} fallback channels")
             onError(e)
             fallback
@@ -95,24 +97,20 @@ class ChannelRepositoryImpl(
             .onFailure { Log.w(TAG, "Radio fetch failed: ${it.message}") }
             .getOrNull()
 
-    private suspend fun mapTvChannels(response: TdtChannelsResponse?): List<Channel> =
-        withContext(ioDispatcher) {
-            response?.countries?.firstOrNull { it.name == DEFAULT_REGION }?.ambits?.flatMap { ambit ->
+    private fun mapTvChannels(response: TdtChannelsResponse?): List<Channel> =
+        response?.countries?.firstOrNull { it.name == DEFAULT_REGION }?.ambits?.flatMap { ambit ->
+            ambit.channels.mapNotNull { channel ->
+                channel.toChannel(ambitName = ambit.name, isRadioManual = false)
+            }
+        } ?: emptyList()
+
+    private fun mapRadioChannels(response: TdtChannelsResponse?): List<Channel> =
+        response?.countries?.firstOrNull { it.name == DEFAULT_REGION }?.ambits
+            ?.flatMap { ambit ->
                 ambit.channels.mapNotNull { channel ->
-                    channel.toChannel(ambitName = ambit.name, isRadioManual = false)
+                    channel.toChannel(ambitName = ambit.name, isRadioManual = true)
                 }
             } ?: emptyList()
-        }
-
-    private suspend fun mapRadioChannels(response: TdtChannelsResponse?): List<Channel> =
-        withContext(ioDispatcher) {
-            response?.countries?.firstOrNull { it.name == DEFAULT_REGION }?.ambits
-                ?.flatMap { ambit ->
-                    ambit.channels.mapNotNull { channel ->
-                        channel.toChannel(ambitName = ambit.name, isRadioManual = true)
-                    }
-                } ?: emptyList()
-        }
 
     private fun mergeWithFallback(fallback: List<Channel>, apiChannels: List<Channel>): List<Channel> =
         mergeChannelsWithFallback(fallback, apiChannels)

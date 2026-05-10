@@ -10,7 +10,9 @@ import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
 import com.pedrogm.tdtflow.domain.usecase.AddFavoriteUseCase
+import com.pedrogm.tdtflow.domain.usecase.ClearFavoritesUseCase
 import com.pedrogm.tdtflow.domain.usecase.GetFavoritesUseCase
+import com.pedrogm.tdtflow.domain.usecase.ImportFavoritesUseCase
 import com.pedrogm.tdtflow.domain.usecase.RemoveFavoriteUseCase
 import com.pedrogm.tdtflow.fakes.FakeFavoritesRepository
 import com.pedrogm.tdtflow.ui.theme.TDTFlowTheme
@@ -55,7 +57,9 @@ class FavoritesScreenTest {
         return FavoritesViewModel(
             addFavorite = AddFavoriteUseCase(repo),
             removeFavorite = RemoveFavoriteUseCase(repo),
-            getFavorites = GetFavoritesUseCase(repo)
+            getFavorites = GetFavoritesUseCase(repo),
+            importFavorites = ImportFavoritesUseCase(repo),
+            clearFavorites = ClearFavoritesUseCase(repo)
         )
     }
 

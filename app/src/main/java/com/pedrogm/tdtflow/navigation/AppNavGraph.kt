@@ -7,7 +7,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.compose.NavHost
@@ -26,7 +26,8 @@ import com.pedrogm.tdtflow.util.AnimationConstants
 fun AppNavGraph(
     viewModel: TdtViewModel,
     optionsViewModel: OptionsMenuViewModel,
-    favoritesViewModel: FavoritesViewModel = hiltViewModel()
+    favoritesViewModel: FavoritesViewModel = hiltViewModel(),
+    onExit: () -> Unit = {}
 ) {
     val navController = rememberNavController()
 
@@ -43,7 +44,8 @@ fun AppNavGraph(
                 viewModel = viewModel,
                 favoritesViewModel = favoritesViewModel,
                 optionsViewModel = optionsViewModel,
-                onNavigateToFavorites = { navController.navigate(Route.Favorites) }
+                onNavigateToFavorites = { navController.navigate(Route.Favorites) },
+                onExit = onExit
             )
         }
         composable<Route.Favorites>(

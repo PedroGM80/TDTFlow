@@ -10,9 +10,13 @@ import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.data.NoOpOptionsPreferences
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
+import com.pedrogm.tdtflow.domain.repository.EpgRepository
 import com.pedrogm.tdtflow.domain.usecase.AddFavoriteUseCase
+import com.pedrogm.tdtflow.domain.usecase.ClearFavoritesUseCase
 import com.pedrogm.tdtflow.domain.usecase.GetChannelsUseCase
 import com.pedrogm.tdtflow.domain.usecase.GetFavoritesUseCase
+import com.pedrogm.tdtflow.domain.usecase.GetNowPlayingUseCase
+import com.pedrogm.tdtflow.domain.usecase.ImportFavoritesUseCase
 import com.pedrogm.tdtflow.domain.usecase.RemoveFavoriteUseCase
 import com.pedrogm.tdtflow.fakes.FakeBrokenChannelTracker
 import com.pedrogm.tdtflow.fakes.FakeChannelsRepository
@@ -22,6 +26,8 @@ import com.pedrogm.tdtflow.ui.TdtViewModel
 import com.pedrogm.tdtflow.ui.favorites.FavoritesViewModel
 import com.pedrogm.tdtflow.ui.options.OptionsMenuViewModel
 import com.pedrogm.tdtflow.ui.theme.TDTFlowTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.flowOf
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -41,11 +47,15 @@ class MobileScreenTest {
         error: Throwable? = null
     ): TdtViewModel {
         val tracker = FakeBrokenChannelTracker()
+        val epgRepo = object : EpgRepository {
+            override fun getNowPlaying(channelUrl: String) = flowOf(null)
+        }
         return TdtViewModel(
             getChannelsUseCase = GetChannelsUseCase(FakeChannelsRepository(channels = channels, error = error)),
+            getNowPlayingUseCase = GetNowPlayingUseCase(epgRepo),
             brokenChannelTracker = tracker,
-            loadError = { e -> "Error: ${e.message}" },
-            playerControllerFactory = { scope ->
+            loadError = { e: Throwable -> "Error: ${e.message}" },
+            playerControllerFactory = { scope: CoroutineScope ->
                 PlayerController(
                     playerFactory = { error("No player in UI tests") },
                     brokenChannelTracker = tracker,
@@ -60,7 +70,9 @@ class MobileScreenTest {
         return FavoritesViewModel(
             addFavorite = AddFavoriteUseCase(repo),
             removeFavorite = RemoveFavoriteUseCase(repo),
-            getFavorites = GetFavoritesUseCase(repo)
+            getFavorites = GetFavoritesUseCase(repo),
+            importFavorites = ImportFavoritesUseCase(repo),
+            clearFavorites = ClearFavoritesUseCase(repo)
         )
     }
 

@@ -30,7 +30,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
@@ -84,7 +83,10 @@ fun TvFavoritesScreen(
                 ),
                 scale = ClickableSurfaceDefaults.scale(focusedScale = 1.1f),
                 border = ClickableSurfaceDefaults.border(
-                    focusedBorder = Border(border = BorderStroke(2.dp, Color.White), shape = RoundedCornerShape(dimensionResource(R.dimen.radius_extra_large)))
+                    focusedBorder = Border(
+                        border = BorderStroke(dimensionResource(R.dimen.stroke_thin), Color.White),
+                        shape = RoundedCornerShape(dimensionResource(R.dimen.radius_extra_large))
+                    )
                 )
             ) {
                 Icon(
@@ -148,9 +150,17 @@ private fun TvFavoriteChannelRow(
                 focusedContainerColor = M3Theme.colorScheme.primary
             ),
             scale = ClickableSurfaceDefaults.scale(focusedScale = 1.04f),
-            glow = ClickableSurfaceDefaults.glow(focusedGlow = Glow(elevationColor = M3Theme.colorScheme.primary.copy(alpha = 0.5f), elevation = 10.dp)),
+            glow = ClickableSurfaceDefaults.glow(
+                focusedGlow = Glow(
+                    elevationColor = M3Theme.colorScheme.primary.copy(alpha = 0.5f),
+                    elevation = dimensionResource(R.dimen.elevation_high)
+                )
+            ),
             border = ClickableSurfaceDefaults.border(
-                focusedBorder = Border(border = BorderStroke(2.dp, Color.White), shape = RoundedCornerShape(dimensionResource(R.dimen.radius_large)))
+                focusedBorder = Border(
+                    border = BorderStroke(dimensionResource(R.dimen.stroke_thin), Color.White),
+                    shape = RoundedCornerShape(dimensionResource(R.dimen.radius_large))
+                )
             ),
             modifier = Modifier.weight(1f)
         ) {
@@ -163,7 +173,9 @@ private fun TvFavoriteChannelRow(
                     AsyncImage(
                         model = channel.logo,
                         contentDescription = null,
-                        modifier = Modifier.size(48.dp).clip(RoundedCornerShape(8.dp)),
+                        modifier = Modifier
+                            .size(dimensionResource(R.dimen.icon_size_extra_large))
+                            .clip(RoundedCornerShape(dimensionResource(R.dimen.radius_small))),
                         contentScale = ContentScale.Fit
                     )
                 }
@@ -171,7 +183,7 @@ private fun TvFavoriteChannelRow(
                     Text(text = channel.name, color = Color.White, style = M3Theme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     Text(text = stringResource(channel.category.toStringRes()), color = Color.White.copy(alpha = 0.6f), style = M3Theme.typography.bodySmall)
                 }
-                if (isSelected) LiveIndicator(size = 12.dp)
+                if (isSelected) LiveIndicator(size = dimensionResource(R.dimen.size_live_indicator_large))
             }
         }
 
@@ -184,14 +196,19 @@ private fun TvFavoriteChannelRow(
             ),
             scale = ClickableSurfaceDefaults.scale(focusedScale = 1.1f),
             border = ClickableSurfaceDefaults.border(
-                focusedBorder = Border(border = BorderStroke(2.dp, Color.Red), shape = RoundedCornerShape(dimensionResource(R.dimen.radius_large)))
+                focusedBorder = Border(
+                    border = BorderStroke(dimensionResource(R.dimen.stroke_thin), Color.Red),
+                    shape = RoundedCornerShape(dimensionResource(R.dimen.radius_large))
+                )
             )
         ) {
             Icon(
                 imageVector = Icons.Filled.Favorite,
                 contentDescription = null,
                 tint = Color.Red,
-                modifier = Modifier.padding(dimensionResource(R.dimen.spacing_large)).size(24.dp)
+                modifier = Modifier
+                    .padding(dimensionResource(R.dimen.spacing_large))
+                    .size(dimensionResource(R.dimen.icon_size_medium))
             )
         }
     }

@@ -7,8 +7,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
+import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.ui.theme.AppColors
 
 /**
@@ -18,7 +19,7 @@ import com.pedrogm.tdtflow.ui.theme.AppColors
 @Composable
 fun LiveIndicator(
     modifier: Modifier = Modifier,
-    size: Dp = 8.dp
+    size: Dp = dimensionResource(R.dimen.size_live_indicator)
 ) {
     Box(
         modifier = modifier

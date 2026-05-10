@@ -1,17 +1,35 @@
 package com.pedrogm.tdtflow.ui.tv.components
 
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme as M3Theme
-import androidx.compose.material3.Text
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.runtime.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -24,9 +42,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.tv.material3.*
+import androidx.tv.material3.Border
+import androidx.tv.material3.ClickableSurfaceDefaults
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.Glow
+import androidx.tv.material3.Surface
 import coil.compose.AsyncImage
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.domain.model.Channel
@@ -34,6 +55,7 @@ import com.pedrogm.tdtflow.ui.components.LiveIndicator
 import com.pedrogm.tdtflow.ui.components.toLucideIcon
 import com.pedrogm.tdtflow.ui.theme.AppColors
 import com.pedrogm.tdtflow.util.AnimationConstants
+import androidx.compose.material3.MaterialTheme as M3Theme
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -47,7 +69,7 @@ internal fun TvChannelCard(
     val radiusLarge = dimensionResource(R.dimen.radius_large)
     val spacingMedium = dimensionResource(R.dimen.spacing_medium)
     val spacingTiny = dimensionResource(R.dimen.spacing_tiny)
-    val logoSize = dimensionResource(R.dimen.card_logo_size_tv) + 16.dp
+    val logoSize = dimensionResource(R.dimen.card_logo_size_tv) + dimensionResource(R.dimen.spacing_large)
 
     val shape = remember(radiusLarge) { RoundedCornerShape(radiusLarge) }
     var isFocused by remember { mutableStateOf(false) }
@@ -80,16 +102,16 @@ internal fun TvChannelCard(
         glow = ClickableSurfaceDefaults.glow(
             focusedGlow = Glow(
                 elevationColor = M3Theme.colorScheme.primary.copy(alpha = 0.5f),
-                elevation = 16.dp
+                elevation = dimensionResource(R.dimen.elevation_extra_high)
             )
         ),
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
-                border = BorderStroke(2.dp, Color.White),
+                border = BorderStroke(dimensionResource(R.dimen.stroke_thin), Color.White),
                 shape = shape
             ),
             border = if (isSelected) Border(
-                border = BorderStroke(1.dp, M3Theme.colorScheme.primary.copy(alpha = 0.5f)),
+                border = BorderStroke(dimensionResource(R.dimen.elevation_extra_low), M3Theme.colorScheme.primary.copy(alpha = 0.5f)),
                 shape = shape
             ) else Border.None
         )
@@ -126,7 +148,7 @@ internal fun TvChannelCard(
                         imageVector = channel.category.toLucideIcon(),
                         contentDescription = null,
                         tint = Color.White.copy(alpha = 0.6f),
-                        modifier = Modifier.size(40.dp)
+                        modifier = Modifier.size(dimensionResource(R.dimen.icon_size_channel_chip))
                     )
                 }
             }
@@ -135,7 +157,7 @@ internal fun TvChannelCard(
             Column(
                 modifier = Modifier
                     .padding(horizontal = spacingMedium)
-                    .padding(bottom = spacingMedium + 4.dp),
+                    .padding(bottom = spacingMedium + dimensionResource(R.dimen.spacing_tiny)),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(spacingMedium))
@@ -157,20 +179,20 @@ internal fun TvChannelCard(
                     )
 
                     if (isFavorite) {
-                        Spacer(modifier = Modifier.width(6.dp))
+                        Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_extra_small)))
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
                             tint = AppColors.favoriteHeart,
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.size(dimensionResource(R.dimen.icon_size_favorite))
                         )
                     } else if (isFocused) {
-                        Spacer(modifier = Modifier.width(6.dp))
+                        Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_extra_small)))
                         Icon(
                             imageVector = Icons.Outlined.FavoriteBorder,
                             contentDescription = null,
                             tint = Color.White.copy(alpha = 0.4f),
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.size(dimensionResource(R.dimen.icon_size_favorite))
                         )
                     }
                 }
@@ -180,14 +202,14 @@ internal fun TvChannelCard(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.alpha(liveAlpha)
                     ) {
-                        LiveIndicator(size = 8.dp)
+                        LiveIndicator(size = dimensionResource(R.dimen.size_live_indicator))
                         Spacer(modifier = Modifier.width(spacingTiny))
                         Text(
                             text = stringResource(R.string.live_indicator),
                             color = AppColors.liveIndicator,
                             style = M3Theme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 11.sp
+                            fontSize = dimensionResource(R.dimen.text_size_channel_name).value.sp
                         )
                     }
                 } else {
@@ -195,7 +217,7 @@ internal fun TvChannelCard(
                         text = channel.category.name.lowercase().replaceFirstChar { it.uppercase() },
                         color = Color.White.copy(alpha = 0.6f),
                         style = M3Theme.typography.labelSmall,
-                        fontSize = 11.sp,
+                        fontSize = dimensionResource(R.dimen.text_size_channel_name).value.sp,
                         fontWeight = FontWeight.Medium
                     )
                 }
