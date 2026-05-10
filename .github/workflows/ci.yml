@@ -169,7 +169,42 @@ jobs:
           name: release-apk
           path: app/build/outputs/apk/release/*.apk
 
-  # ── 4. GitHub Release (solo en tags v*) ─────────────────────────────────
+  # ── 4. Crear Tag semántico en master ────────────────────────────────────
+  create-tag:
+    name: Create Version Tag
+    needs: build-release
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.read_version.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Read versionName
+        id: read_version
+        run: |
+          VERSION=$(grep '^versionName=' version.properties | cut -d'=' -f2)
+          echo "tag=v${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Push tag if not exists
+        run: |
+          TAG="${{ steps.read_version.outputs.tag }}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists — skipping."
+          else
+            git config user.name  "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git tag "$TAG"
+            git push origin "$TAG"
+            echo "Tag $TAG created and pushed."
+          fi
+
+  # ── 5. GitHub Release (solo en tags v*) ─────────────────────────────────
   github-release:
     name: Publish GitHub Release
     needs: build-release
