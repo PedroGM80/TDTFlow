@@ -41,7 +41,11 @@ class MainActivity : AppCompatActivity() {
         }
         setContent {
             com.pedrogm.tdtflow.ui.components.TdtAppScaffold(optionsViewModel = optionsViewModel) {
-                AppNavGraph(viewModel = viewModel, optionsViewModel = optionsViewModel)
+                AppNavGraph(
+                    viewModel = viewModel,
+                    optionsViewModel = optionsViewModel,
+                    onExit = { finish() }
+                )
             }
         }
     }

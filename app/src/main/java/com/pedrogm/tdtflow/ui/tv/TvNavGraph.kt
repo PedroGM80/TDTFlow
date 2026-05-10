@@ -23,7 +23,8 @@ import com.pedrogm.tdtflow.util.AnimationConstants
 fun TvNavGraph(
     viewModel: TdtViewModel,
     optionsViewModel: OptionsMenuViewModel,
-    favoritesViewModel: FavoritesViewModel = hiltViewModel()
+    favoritesViewModel: FavoritesViewModel = hiltViewModel(),
+    onExit: () -> Unit = {}
 ) {
     val navController = rememberNavController()
 
@@ -40,7 +41,8 @@ fun TvNavGraph(
                 viewModel = viewModel,
                 favoritesViewModel = favoritesViewModel,
                 optionsViewModel = optionsViewModel,
-                onNavigateToFavorites = { navController.navigate(Route.TvFavorites) }
+                onNavigateToFavorites = { navController.navigate(Route.TvFavorites) },
+                onExit = onExit
             )
         }
         composable<Route.TvFavorites> {

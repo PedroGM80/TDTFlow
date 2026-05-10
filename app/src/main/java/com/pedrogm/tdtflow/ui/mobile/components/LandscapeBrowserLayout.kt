@@ -32,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.Power
 import com.composables.icons.lucide.Search
 import com.composables.icons.lucide.Settings
 import com.composables.icons.lucide.X
@@ -52,7 +53,8 @@ internal fun LandscapeBrowserLayout(
     favoritesViewModel: FavoritesViewModel,
     uiState: TdtUiState,
     onNavigateToFavorites: () -> Unit,
-    onShowOptions: () -> Unit
+    onShowOptions: () -> Unit,
+    onExit: () -> Unit
 ) {
     val favoritesState by favoritesViewModel.uiState.collectAsStateWithLifecycle()
     var showSearch by remember { mutableStateOf(false) }
@@ -112,6 +114,17 @@ internal fun LandscapeBrowserLayout(
                     Icon(
                         Lucide.Settings,
                         contentDescription = null,
+                        modifier = Modifier.size(dimensionResource(R.dimen.icon_size_action))
+                    )
+                }
+                IconButton(
+                    onClick = onExit,
+                    modifier = Modifier.size(dimensionResource(R.dimen.icon_size_card_logo))
+                ) {
+                    Icon(
+                        Lucide.Power,
+                        contentDescription = stringResource(R.string.exit_app),
+                        tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(dimensionResource(R.dimen.icon_size_action))
                     )
                 }

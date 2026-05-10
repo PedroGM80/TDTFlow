@@ -84,4 +84,5 @@
     <string name="media_type_radio">Radio</string>
     <string name="media_type_tv">Televisión</string>
     <string name="unknown_error">Desconocido</string>
+    <string name="exit_app">Salir de la aplicación</string>
 </resources>

@@ -49,6 +49,7 @@ internal fun TvChannelBrowser(
     favoritesViewModel: FavoritesViewModel,
     optionsViewModel: OptionsMenuViewModel,
     onNavigateToFavorites: () -> Unit,
+    onExit: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val favoritesState by favoritesViewModel.uiState.collectAsStateWithLifecycle()
@@ -76,7 +77,8 @@ internal fun TvChannelBrowser(
                 showSearch = showSearch,
                 onToggleSearch = { showSearch = !showSearch },
                 onNavigateToFavorites = onNavigateToFavorites,
-                onShowOptions = { optionsViewModel.onIntent(OptionsMenuIntent.Open) }
+                onShowOptions = { optionsViewModel.onIntent(OptionsMenuIntent.Open) },
+                onExit = onExit
             )
 
             if (showSearch) {
