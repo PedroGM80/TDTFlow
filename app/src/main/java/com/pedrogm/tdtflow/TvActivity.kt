@@ -12,6 +12,7 @@ import com.pedrogm.tdtflow.ui.options.OptionsMenuIntent
 import com.pedrogm.tdtflow.ui.options.OptionsMenuViewModel
 import com.pedrogm.tdtflow.ui.tv.TvNavGraph
 import dagger.hilt.android.AndroidEntryPoint
+import kotlin.system.exitProcess
 
 @AndroidEntryPoint
 @androidx.annotation.OptIn(UnstableApi::class)
@@ -29,7 +30,7 @@ class TvActivity : AppCompatActivity() {
                     optionsViewModel = optionsViewModel,
                     onExit = {
                         finishAndRemoveTask()
-                        System.exit(0)
+                        exitProcess(0)
                     }
                 )
             }

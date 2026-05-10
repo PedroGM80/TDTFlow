@@ -54,10 +54,10 @@ internal fun LandscapeBrowserLayout(
     uiState: TdtUiState,
     onNavigateToFavorites: () -> Unit,
     onShowOptions: () -> Unit,
-    onExit: () -> Unit
+    onExit: () -> Unit,
 ) {
     val favoritesState by favoritesViewModel.uiState.collectAsStateWithLifecycle()
-    var showSearch by remember { mutableStateOf(false) }
+    var showSearch by remember { mutableStateOf(value = false) }
 
     // En horizontal móvil, usamos un tamaño de celda más pequeño para aprovechar el espacio
     val horizontalGridSize = dimensionResource(R.dimen.min_grid_cell_size_landscape)
@@ -156,8 +156,7 @@ internal fun LandscapeBrowserLayout(
                         isSelected = channel == uiState.currentChannel,
                         onClick = { viewModel.onIntent(TdtIntent.SelectChannel(channel)) },
                         isFavorite = channel.url in favoritesState.favoriteIds,
-                        onToggleFavorite = { favoritesViewModel.onIntent(FavoritesIntent.ToggleFavorite(channel.url)) }
-                    )
+                    ) { favoritesViewModel.onIntent(FavoritesIntent.ToggleFavorite(channel.url)) }
                 }
             }
         }

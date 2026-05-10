@@ -27,7 +27,7 @@ fun AppNavGraph(
     viewModel: TdtViewModel,
     optionsViewModel: OptionsMenuViewModel,
     favoritesViewModel: FavoritesViewModel = hiltViewModel(),
-    onExit: () -> Unit = {}
+    onExit: () -> Unit = {},
 ) {
     val navController = rememberNavController()
 
@@ -72,8 +72,7 @@ fun AppNavGraph(
                     viewModel.onIntent(TdtIntent.SelectChannel(channel))
                     navController.popBackStack()
                 },
-                onBack = { navController.popBackStack() }
-            )
+            ) { navController.popBackStack() }
         }
     }
 }

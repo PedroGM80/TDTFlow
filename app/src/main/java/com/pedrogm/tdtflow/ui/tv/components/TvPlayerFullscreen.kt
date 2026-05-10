@@ -57,9 +57,8 @@ import com.pedrogm.tdtflow.ui.components.toLucideIcon
 import com.pedrogm.tdtflow.ui.theme.AppColors
 import com.pedrogm.tdtflow.util.TimeConstants
 import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 import androidx.compose.material3.MaterialTheme as M3Theme
-
-private const val TOTAL_OPACITY = 100f
 
 @androidx.annotation.OptIn(UnstableApi::class)
 @Composable
@@ -69,7 +68,7 @@ internal fun TvPlayerFullscreen(viewModel: TdtViewModel, channelName: String) {
 
     LaunchedEffect(uiState.currentChannel, showOsd) {
         if (showOsd) {
-            delay(TimeConstants.TV_OVERLAY_HIDE_DELAY_MS)
+            delay(TimeConstants.TV_OVERLAY_HIDE_DELAY_MS.milliseconds)
             showOsd = false
         }
     }
@@ -84,9 +83,6 @@ internal fun TvPlayerFullscreen(viewModel: TdtViewModel, channelName: String) {
                 onClick = { showOsd = true }
             )
     ) {
-        val isCastActive by (viewModel.player?.isCastActiveFlow
-            ?: kotlinx.coroutines.flow.flowOf(false))
-            .collectAsStateWithLifecycle(initialValue = false)
 
         AndroidView(
             factory = { context ->
@@ -180,7 +176,6 @@ internal fun TvPlayerFullscreen(viewModel: TdtViewModel, channelName: String) {
                     }
                 }
 
-                // Indicador de Zapping
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(
                         imageVector = Lucide.ChevronUp,

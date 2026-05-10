@@ -17,11 +17,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.liveRegion
-import androidx.compose.ui.semantics.semantics
 import androidx.media3.common.util.UnstableApi
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.ui.TdtIntent
@@ -32,7 +29,6 @@ import com.pedrogm.tdtflow.ui.components.ChannelGridSkeleton
 import com.pedrogm.tdtflow.ui.components.EmptyState
 import com.pedrogm.tdtflow.ui.components.ErrorState
 import com.pedrogm.tdtflow.ui.components.channelItemsWithRadioSeparator
-import com.pedrogm.tdtflow.ui.util.LogoPreloader
 import com.pedrogm.tdtflow.util.AnimationConstants
 
 internal enum class ChannelContentState { Loading, Error, Empty, Grid }

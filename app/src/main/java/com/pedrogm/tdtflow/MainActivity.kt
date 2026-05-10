@@ -15,6 +15,7 @@ import com.pedrogm.tdtflow.navigation.AppNavGraph
 import com.pedrogm.tdtflow.ui.TdtViewModel
 import com.pedrogm.tdtflow.ui.options.OptionsMenuViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlin.system.exitProcess
 
 @AndroidEntryPoint
 @androidx.annotation.OptIn(UnstableApi::class)
@@ -46,7 +47,7 @@ class MainActivity : AppCompatActivity() {
                     optionsViewModel = optionsViewModel,
                     onExit = {
                         finishAndRemoveTask()
-                        System.exit(0)
+                        exitProcess(0)
                     }
                 )
             }

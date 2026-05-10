@@ -64,7 +64,7 @@ internal fun PortraitLayout(
     isPlaying: Boolean,
     onShowFavorites: () -> Unit,
     onShowOptions: () -> Unit,
-    onExit: () -> Unit
+    onExit: () -> Unit,
 ) {
     val favoritesState by favoritesViewModel.uiState.collectAsStateWithLifecycle()
     val favoriteIds = favoritesState.favoriteIds
@@ -73,7 +73,7 @@ internal fun PortraitLayout(
     // Auto-dismiss player errors after 4 seconds
     LaunchedEffect(uiState.error) {
         val capturedError = uiState.error
-        if (capturedError != null && uiState.channels.isNotEmpty()) {
+        if ((capturedError != null) && uiState.channels.isNotEmpty()) {
             delay(TimeConstants.OVERLAY_AUTO_HIDE_DELAY_MS.milliseconds)
             if (viewModel.uiState.value.error == capturedError) {
                 viewModel.onIntent(TdtIntent.DismissError)
@@ -109,8 +109,7 @@ internal fun PortraitLayout(
             PortraitSearchSection(
                 showSearch = showSearch,
                 query = uiState.searchQuery,
-                onQueryChange = { viewModel.onIntent(TdtIntent.Search(it)) }
-            )
+            ) { viewModel.onIntent(TdtIntent.Search(it)) }
 
             CategoryFilter(
                 selectedCategory = uiState.selectedCategory,

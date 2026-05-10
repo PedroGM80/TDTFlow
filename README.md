@@ -1,8 +1,8 @@
 # TDTFlow — Spanish Free-to-Air TV & Radio
 
 [![CI](https://github.com/PedroGM80/TDTFlow/actions/workflows/ci.yml/badge.svg)](https://github.com/PedroGM80/TDTFlow/actions/workflows/ci.yml)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.3.20-7F52FF.svg?style=flat&logo=kotlin&logoColor=white)](https://kotlinlang.org)
-[![AGP](https://img.shields.io/badge/AGP-9.2.0-02303A.svg?style=flat&logo=gradle)](https://developer.android.com/build)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.3.21-7F52FF.svg?style=flat&logo=kotlin&logoColor=white)](https://kotlinlang.org)
+[![AGP](https://img.shields.io/badge/AGP-9.2.1-02303A.svg?style=flat&logo=gradle)](https://developer.android.com/build)
 [![Media3](https://img.shields.io/badge/Media3-1.10.0-4285F4.svg?style=flat&logo=android&logoColor=white)](https://developer.android.com/media/media3)
 [![License](https://img.shields.io/badge/License-MIT-22C55E.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Phone%20·%20Tablet%20·%20TV-3DDC84.svg?logo=android&logoColor=white)](https://www.android.com)
@@ -38,6 +38,7 @@
 - **Real-time search** with 300 ms debounce to minimise recompositions.
 - **Now Playing info** — current programme title displayed via EPG integration on the player overlay.
 - **Broken channel detection** — automatic marking after an 8-second buffering timeout or a playback error; counter shown in the UI with options to retry individual channels or revalidate all.
+- **Exit button** — dedicated power icon on the main screen for all platforms to fully terminate the app and remove it from recent tasks.
 - **Persistent favourites** — stored in DataStore, restored across sessions, accessible from a dedicated screen; supports **import / export to/from JSON files** (Android Storage Access Framework) for easy backup and sharing.
 - **Persistent preferences** — theme (Light / Dark / System), app language (ES / EN / CA / System), and **player buffer mode** (Fast / Balanced / Stable) backed by DataStore Preferences.
 
@@ -45,11 +46,11 @@
 
 | Form factor | Layout |
 |---|---|
-| Phone portrait | TopAppBar · search · category chips · adaptive grid · player overlay |
+| Phone portrait | TopAppBar · search · category chips · adaptive grid · player overlay · **Exit button** |
 | Phone landscape (playing) | Fullscreen immersive player · Aspect Ratio Fit (no cropping) · Brightness/Volume gestures · Audio visualizer overlay for radio channels · PiP button in header |
-| Phone landscape (browsing) | Fullscreen channel grid · Minimalist tap-to-reveal overlay with transparency |
+| Phone landscape (browsing) | Fullscreen channel grid · Minimalist tap-to-reveal overlay with transparency · **Exit button** |
 | Tablet | Scaled portrait / landscape layout identical to phone |
-| Android TV | TV Material 3 · Adaptive grid with centered cards · Focus glow · Scale animations |
+| Android TV | TV Material 3 · Adaptive grid with centered cards · Focus glow · Scale animations · **Exit button in header** |
 
 - **Edge-to-edge** — `enableEdgeToEdge()` extends content behind system bars; Scaffold padding adjusts automatically via window insets.
 - **Options panel** — accessible on every form factor: theme selector, language selector, broken channel toggle, revalidation action, and player buffer mode.
@@ -168,14 +169,14 @@ Cast session ends
 
 | Category | Technology | Version |
 |---|---|---|
-| Language | Kotlin (K2 compiler) | 2.3.20 |
-| Build | Android Gradle Plugin | 9.2.0 |
-| UI | Jetpack Compose + Material 3 | BOM 2026.04.01 |
-| TV UI | TV Material 3 | 1.1.0-rc01 |
+| Language | Kotlin (K2 compiler) | 2.3.21 |
+| Build | Android Gradle Plugin | 9.2.1 |
+| UI | Jetpack Compose + Material 3 | BOM 2026.05.00 |
+| TV UI | TV Material 3 | 1.1.0 |
 | DI | Hilt / javax.inject | 2.59.2 / 1 |
 | Media | AndroidX Media3 / ExoPlayer | 1.10.0 |
 | Cast | Media3 Cast + MediaRouter | 1.10.0 / 1.8.1 |
-| Networking | Ktor (client + serialization) | 3.4.2 |
+| Networking | Ktor (client + serialization) | 3.4.3 |
 | Image loading | Coil | 2.7.0 |
 | Serialization | Kotlinx Serialization JSON | 1.11.0 |
 | Coroutines | Kotlinx Coroutines | 1.10.2 |
@@ -235,12 +236,39 @@ Connect an Android TV device or start an Android TV emulator (API 24+). The app 
 
 Test fakes (`FakeChannelsRepository`, `FakeFavoritesRepository`, `FakeBrokenChannelTracker`) and reusable fixtures (`TestChannels`) live in a shared `testFixtures` source set, eliminating duplication between unit and instrumented tests.
 
-**CI pipeline (GitHub Actions):**
+**CI pipeline (GitHub Actions — `ci.yml`):**
 
 ```
-push / PR  →  Lint (Codacy SARIF + Android lint)
-           →  Unit tests + JaCoCo coverage upload
-           →  Release AAB (keystore signing, master/develop/tags only)
+push / PR  →  1. Lint (Codacy SARIF + Android Lint)
+           →  2. Unit tests + JaCoCo coverage upload
+           →  3. Build Release AAB + APK (keystore signing, master / develop / tags)
+           →  4. Create version tag vX.Y.Z  ← master only, reads version.properties
+           →  5. Publish GitHub Release     ← triggered by the new tag push
+```
+
+Release artifacts (AAB + APK) are automatically attached to the GitHub Release.
+
+---
+
+## Version Management
+
+Version is tracked in `version.properties` at the repository root:
+
+```properties
+versionCode=4
+versionName=1.2.0
+```
+
+**Automated bump via GitHub Actions:**
+
+Go to **Actions → Trigger New Release** → choose `patch`, `minor`, or `major`. The workflow runs `scripts/bump_version.sh`, commits the updated `version.properties` to `master`, creates and pushes the corresponding `vX.Y.Z` tag, and the main CI pipeline then builds and publishes the release automatically.
+
+**Manual bump:**
+
+```bash
+bash scripts/bump_version.sh patch   # 1.2.0 → 1.2.1
+bash scripts/bump_version.sh minor   # 1.2.0 → 1.3.0
+bash scripts/bump_version.sh major   # 1.2.0 → 2.0.0
 ```
 
 ---
@@ -257,6 +285,7 @@ TDTFlow/
 │       │   ├── di/                 # Hilt AppModule
 │       │   ├── navigation/         # Routes (typed), AppNavGraph
 │       │   ├── player/             # TdtPlayer, PlayerController, PlayerState
+│       │   ├── cast/               # TdtMediaItemConverter, CastOptionsProvider
 │       │   ├── service/            # PlaybackService (MediaSessionService)
 │       │   └── ui/
 │       │       ├── components/     # Shared composables (ChannelCard, VideoPlayer,
@@ -277,21 +306,27 @@ TDTFlow/
 │       └── testFixtures/java/...   # Shared fakes for unit + instrumented tests
 ├── domain/                     # Pure Kotlin business logic
 │   └── src/main/java/.../
-│       ├── model/              # Channel, ChannelCategory
+│       ├── model/              # Channel, ChannelCategory, Program
 │       ├── repository/         # Repository interfaces
 │       ├── usecase/            # GetChannels, AddFavorite, GetNowPlaying …
 │       ├── tracker/            # BrokenChannelTracker interface
 │       └── ChannelFilterLogic  # Filter + search algorithm
-└── data/                       # Data layer
-    └── src/main/java/.../
-        ├── di/                 # NetworkModule (Hilt)
-        ├── remote/             # Ktor client, TdtApi, ChannelMapper, MapperConstants
-        ├── local/              # Room database, ChannelDao, ChannelEntity
-        ├── repository/         # ChannelRepositoryImpl, FavoritesRepositoryImpl,
-        │                       # MockEpgRepositoryImpl
-        ├── fallback/           # FallbackChannels (100+ hardcoded)
-        ├── BrokenChannelTrackerImpl
-        └── OptionsDataStore    # DataStore-backed preferences
+├── data/                       # Data layer
+│   └── src/main/java/.../
+│       ├── di/                 # NetworkModule, DatabaseModule (Hilt)
+│       ├── remote/             # Ktor client, TdtApi, ChannelMapper, MapperConstants
+│       ├── local/              # Room database, ChannelDao, ChannelEntity
+│       ├── repository/         # ChannelRepositoryImpl, FavoritesRepositoryImpl,
+│       │                       # MockEpgRepositoryImpl
+│       ├── fallback/           # FallbackChannels (50+ hardcoded)
+│       ├── BrokenChannelTrackerImpl
+│       └── OptionsDataStore    # DataStore-backed preferences
+├── scripts/
+│   └── bump_version.sh         # Semantic version bumping (major/minor/patch)
+├── version.properties          # Source of truth for versionName + versionCode
+└── .github/workflows/
+    ├── ci.yml                  # Lint → Tests → Build → Tag → Release
+    └── release_trigger.yml     # Manual version bump via workflow_dispatch
 ```
 
 ---
