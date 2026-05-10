@@ -27,7 +27,10 @@ class TvActivity : AppCompatActivity() {
                 TvNavGraph(
                     viewModel = viewModel,
                     optionsViewModel = optionsViewModel,
-                    onExit = { finish() }
+                    onExit = {
+                        finishAndRemoveTask()
+                        System.exit(0)
+                    }
                 )
             }
         }

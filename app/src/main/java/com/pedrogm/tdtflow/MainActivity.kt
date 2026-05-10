@@ -44,7 +44,10 @@ class MainActivity : AppCompatActivity() {
                 AppNavGraph(
                     viewModel = viewModel,
                     optionsViewModel = optionsViewModel,
-                    onExit = { finish() }
+                    onExit = {
+                        finishAndRemoveTask()
+                        System.exit(0)
+                    }
                 )
             }
         }
