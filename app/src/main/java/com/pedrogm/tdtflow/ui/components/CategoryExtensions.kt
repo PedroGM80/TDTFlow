@@ -3,6 +3,7 @@ package com.pedrogm.tdtflow.ui.components
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.composables.icons.lucide.Baby
 import com.composables.icons.lucide.Clapperboard
+import com.composables.icons.lucide.Globe
 import com.composables.icons.lucide.LayoutGrid
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Music
@@ -22,6 +23,7 @@ fun ChannelCategory.toLucideIcon(): ImageVector = when (this) {
     ChannelCategory.ENTERTAINMENT -> Lucide.Clapperboard
     ChannelCategory.REGIONAL -> Lucide.TvMinimalPlay
     ChannelCategory.MUSIC -> Lucide.Music
+    ChannelCategory.INTERNATIONAL -> Lucide.Globe
     ChannelCategory.OTHER -> Lucide.LayoutGrid
 }
 
@@ -34,5 +36,6 @@ fun ChannelCategory.toStringRes(): Int = when (this) {
     ChannelCategory.ENTERTAINMENT -> R.string.category_entertainment
     ChannelCategory.REGIONAL -> R.string.category_regional
     ChannelCategory.MUSIC -> R.string.category_music
+    ChannelCategory.INTERNATIONAL -> R.string.category_international
     ChannelCategory.OTHER -> R.string.category_other
 }

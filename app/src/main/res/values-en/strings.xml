@@ -24,6 +24,7 @@
     <string name="category_entertainment">Entertainment</string>
     <string name="category_regional">Regional</string>
     <string name="category_music">Music</string>
+    <string name="category_international">International</string>
     <string name="category_other">Other</string>
 
     <!-- Broken channels -->

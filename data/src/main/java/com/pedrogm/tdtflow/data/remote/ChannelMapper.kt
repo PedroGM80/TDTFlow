@@ -9,7 +9,11 @@ import com.pedrogm.tdtflow.domain.model.ChannelCategory
  */
 private val FORMAT_PRIORITY = listOf("m3u8", "aac", "mp3", "stream")
 
-fun TdtChannel.toChannel(ambitName: String, isRadioManual: Boolean? = null): Channel? {
+fun TdtChannel.toChannel(
+    ambitName: String,
+    isRadioManual: Boolean? = null,
+    forcedCategory: ChannelCategory? = null
+): Channel? {
     // Prioridad de formatos: m3u8 > aac > mp3 > stream — una sola pasada
     val (format, stream) = FORMAT_PRIORITY
         .firstNotNullOfOrNull { fmt -> options.find { it.format == fmt }?.run { fmt to url } }
@@ -20,7 +24,7 @@ fun TdtChannel.toChannel(ambitName: String, isRadioManual: Boolean? = null): Cha
         return null
     }
 
-    val mappedCategory = mapAmbitToCategory(ambitName)
+    val mappedCategory = forcedCategory ?: mapAmbitToCategory(ambitName)
     val isRadioAmbit = isRadioAmbit(ambitName)
     
     val isRadioName = MapperConstants.RADIO_KEYWORDS.any { name.contains(it, ignoreCase = true) } &&

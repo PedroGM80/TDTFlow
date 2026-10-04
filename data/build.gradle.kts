@@ -21,6 +21,10 @@ configure<com.android.build.api.dsl.LibraryExtension> {
         sourceCompatibility = JavaVersion.toVersion(jvmVersion)
         targetCompatibility = JavaVersion.toVersion(jvmVersion)
     }
+
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
 }
 
 kotlin {

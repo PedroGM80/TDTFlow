@@ -212,6 +212,23 @@ class ChannelMapperTest {
         assertEquals(ChannelCategory.GENERAL, result.category)
     }
 
+    @Test
+    fun `forcedCategory overrides ambit-based mapping`() {
+        // Even a Spain-only ambit like "Generalistas" must yield INTERNATIONAL
+        // when the channel belongs to a non-Spain country.
+        val result = tdtChannel().toChannel(
+            "Generalistas",
+            forcedCategory = ChannelCategory.INTERNATIONAL
+        )!!
+        assertEquals(ChannelCategory.INTERNATIONAL, result.category)
+    }
+
+    @Test
+    fun `forcedCategory null falls back to ambit-based mapping`() {
+        val result = tdtChannel().toChannel("Generalistas", forcedCategory = null)!!
+        assertEquals(ChannelCategory.GENERAL, result.category)
+    }
+
     // ── toChannel: isRadio detection ────────────────────────────────────────
 
     @Test

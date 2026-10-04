@@ -25,5 +25,6 @@ enum class ChannelCategory {
     ENTERTAINMENT,
     REGIONAL,
     MUSIC,
+    INTERNATIONAL,
     OTHER
 }

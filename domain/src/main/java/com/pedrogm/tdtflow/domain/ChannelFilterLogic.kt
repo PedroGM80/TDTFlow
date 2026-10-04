@@ -34,8 +34,9 @@ object ChannelFilterLogic {
     ): Sequence<Channel> =
         filter { channel ->
             if (category == null) {
-                // "Todos" hides MUSIC channels (audio-only)
-                channel.category != ChannelCategory.MUSIC
+                // "Todos" hides MUSIC (audio-only) and INTERNATIONAL (opt-in) channels
+                channel.category != ChannelCategory.MUSIC &&
+                    channel.category != ChannelCategory.INTERNATIONAL
             } else {
                 channel.category == category
             }

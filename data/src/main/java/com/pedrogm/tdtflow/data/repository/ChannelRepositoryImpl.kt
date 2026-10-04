@@ -8,6 +8,7 @@ import com.pedrogm.tdtflow.data.remote.TdtApi
 import com.pedrogm.tdtflow.data.remote.TdtChannelsResponse
 import com.pedrogm.tdtflow.data.remote.toChannel
 import com.pedrogm.tdtflow.domain.model.Channel
+import com.pedrogm.tdtflow.domain.model.ChannelCategory
 import com.pedrogm.tdtflow.domain.repository.ChannelRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
@@ -67,7 +68,7 @@ class ChannelRepositoryImpl(
             val radioChannels = radioChannelsDeferred.await()
 
             if (tvChannels.isEmpty() && radioChannels.isEmpty()) {
-                Log.w(TAG, "Spain not found or mapping failed, using fallback")
+                Log.w(TAG, "No countries found or mapping failed, using fallback")
                 return@withContext fallbackDeferred.await()
             }
 
@@ -98,19 +99,34 @@ class ChannelRepositoryImpl(
             .getOrNull()
 
     private fun mapTvChannels(response: TdtChannelsResponse?): List<Channel> =
-        response?.countries?.firstOrNull { it.name == DEFAULT_REGION }?.ambits?.flatMap { ambit ->
-            ambit.channels.mapNotNull { channel ->
-                channel.toChannel(ambitName = ambit.name, isRadioManual = false)
+        response?.countries.orEmpty().flatMap { country ->
+            val forcedCategory = country.name.takeUnless { it == DEFAULT_REGION }
+                ?.let { ChannelCategory.INTERNATIONAL }
+            country.ambits.flatMap { ambit ->
+                ambit.channels.mapNotNull { channel ->
+                    channel.toChannel(
+                        ambitName = ambit.name,
+                        isRadioManual = false,
+                        forcedCategory = forcedCategory
+                    )
+                }
             }
-        } ?: emptyList()
+        }
 
     private fun mapRadioChannels(response: TdtChannelsResponse?): List<Channel> =
-        response?.countries?.firstOrNull { it.name == DEFAULT_REGION }?.ambits
-            ?.flatMap { ambit ->
+        response?.countries.orEmpty().flatMap { country ->
+            val forcedCategory = country.name.takeUnless { it == DEFAULT_REGION }
+                ?.let { ChannelCategory.INTERNATIONAL }
+            country.ambits.flatMap { ambit ->
                 ambit.channels.mapNotNull { channel ->
-                    channel.toChannel(ambitName = ambit.name, isRadioManual = true)
+                    channel.toChannel(
+                        ambitName = ambit.name,
+                        isRadioManual = true,
+                        forcedCategory = forcedCategory
+                    )
                 }
-            } ?: emptyList()
+            }
+        }
 
     private fun mergeWithFallback(fallback: List<Channel>, apiChannels: List<Channel>): List<Channel> =
         mergeChannelsWithFallback(fallback, apiChannels)

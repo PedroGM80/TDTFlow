@@ -3,13 +3,18 @@ package com.pedrogm.tdtflow.data.repository
 import com.pedrogm.tdtflow.data.local.ChannelDao
 import com.pedrogm.tdtflow.data.local.ChannelEntity
 import com.pedrogm.tdtflow.data.remote.TdtApi
+import com.pedrogm.tdtflow.data.remote.TdtAmbit
+import com.pedrogm.tdtflow.data.remote.TdtChannel
 import com.pedrogm.tdtflow.data.remote.TdtChannelsResponse
+import com.pedrogm.tdtflow.data.remote.TdtCountry
+import com.pedrogm.tdtflow.data.remote.TdtOption
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 private class FakeChannelDao : ChannelDao {
@@ -18,9 +23,12 @@ private class FakeChannelDao : ChannelDao {
     override suspend fun deleteAll() = Unit
 }
 
-private class FakeTdtApi : TdtApi {
-    override suspend fun getTvChannels(): TdtChannelsResponse = TdtChannelsResponse()
-    override suspend fun getRadioChannels(): TdtChannelsResponse = TdtChannelsResponse()
+private class FakeTdtApi(
+    private val tvResponse: TdtChannelsResponse = TdtChannelsResponse(),
+    private val radioResponse: TdtChannelsResponse = TdtChannelsResponse()
+) : TdtApi {
+    override suspend fun getTvChannels(): TdtChannelsResponse = tvResponse
+    override suspend fun getRadioChannels(): TdtChannelsResponse = radioResponse
 }
 
 class ChannelRepositoryImplTest {
@@ -84,5 +92,42 @@ class ChannelRepositoryImplTest {
         repository.getChannels().first()
 
         assertEquals(false, errorCalled)
+    }
+
+    // ── multi-country mapping ───────────────────────────────────────────────
+
+    private fun tdtChannel(name: String, url: String) = TdtChannel(
+        name = name,
+        web = null,
+        logo = "",
+        epgId = "",
+        options = listOf(TdtOption(format = "m3u8", url = url, geo = null, resolution = null, language = null)),
+        extraInfo = null
+    )
+
+    @Test
+    fun `channels from non-Spain countries are tagged INTERNATIONAL`() = runTest {
+        val tvResponse = TdtChannelsResponse(
+            countries = listOf(
+                TdtCountry(
+                    name = "Spain",
+                    ambits = listOf(TdtAmbit(name = "Generalistas", channels = listOf(tdtChannel("La 1", "https://es-la1.m3u8"))))
+                ),
+                TdtCountry(
+                    name = "International",
+                    ambits = listOf(TdtAmbit(name = "Generalistas", channels = listOf(tdtChannel("BBC World", "https://bbc-world.m3u8"))))
+                )
+            )
+        )
+        val api = FakeTdtApi(tvResponse = tvResponse)
+        val repository = ChannelRepositoryImpl(tdtApi = api, channelDao = fakeDao, ioDispatcher = testDispatcher)
+
+        val result = repository.getChannels().first()
+
+        val spainChannel = result.first { it.url == "https://es-la1.m3u8" }
+        val internationalChannel = result.first { it.url == "https://bbc-world.m3u8" }
+        assertEquals(ChannelCategory.GENERAL, spainChannel.category)
+        assertEquals(ChannelCategory.INTERNATIONAL, internationalChannel.category)
+        assertTrue(result.any { it.url == "https://bbc-world.m3u8" })
     }
 }

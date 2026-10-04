@@ -152,6 +152,40 @@ class ChannelFilterLogicTest {
     }
 
     @Test
+    fun `category null (Todos) also hides INTERNATIONAL channels`() {
+        val internationalChannel = channel(name = "BBC World", url = "bbc.m3u8", category = ChannelCategory.INTERNATIONAL)
+        val channels = sampleChannels + internationalChannel
+
+        val result = ChannelFilterLogic.applyFilters(
+            channels = channels,
+            category = null,
+            query = "",
+            brokenUrls = emptySet(),
+            showBroken = true
+        )
+
+        assertTrue(result.none { it.category == ChannelCategory.INTERNATIONAL })
+    }
+
+    @Test
+    fun `category INTERNATIONAL returns only INTERNATIONAL channels`() {
+        val internationalChannel = channel(name = "BBC World", url = "bbc.m3u8", category = ChannelCategory.INTERNATIONAL)
+        val channels = sampleChannels + internationalChannel
+
+        val result = ChannelFilterLogic.applyFilters(
+            channels = channels,
+            category = ChannelCategory.INTERNATIONAL,
+            query = "",
+            brokenUrls = emptySet(),
+            showBroken = true
+        )
+
+        assertTrue(result.all { it.category == ChannelCategory.INTERNATIONAL })
+        assertEquals(1, result.size)
+        assertEquals("BBC World", result.first().name)
+    }
+
+    @Test
     fun `category OTHER returns only OTHER channels`() {
         val otherChannel = channel(name = "Shopping TV", url = "shopping.m3u8", category = ChannelCategory.OTHER)
         val channels = sampleChannels + otherChannel
