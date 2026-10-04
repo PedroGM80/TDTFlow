@@ -221,6 +221,15 @@ internal fun TvChannelCard(
                         fontWeight = FontWeight.Medium
                     )
                 }
+
+                if (isFocused && !isFavorite) {
+                    Text(
+                        text = stringResource(R.string.tv_favorite_hint),
+                        color = Color.White.copy(alpha = 0.5f),
+                        style = M3Theme.typography.labelSmall,
+                        fontSize = dimensionResource(R.dimen.text_size_badge).value.sp
+                    )
+                }
             }
         }
     }
