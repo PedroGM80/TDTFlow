@@ -13,6 +13,7 @@ import com.pedrogm.tdtflow.domain.model.Program
 import com.pedrogm.tdtflow.domain.tracker.BrokenChannelTracker
 import com.pedrogm.tdtflow.domain.usecase.GetChannelsUseCase
 import com.pedrogm.tdtflow.domain.usecase.GetNowPlayingUseCase
+import com.pedrogm.tdtflow.domain.usecase.GetProgramScheduleUseCase
 import com.pedrogm.tdtflow.player.PlayerState
 import com.pedrogm.tdtflow.player.TdtPlayer
 import com.pedrogm.tdtflow.util.Constants
@@ -50,6 +51,7 @@ import javax.inject.Inject
 class TdtViewModel(
     private val getChannelsUseCase: GetChannelsUseCase,
     private val getNowPlayingUseCase: GetNowPlayingUseCase,
+    private val getProgramScheduleUseCase: GetProgramScheduleUseCase,
     private val brokenChannelTracker: BrokenChannelTracker,
     private val loadError: (Throwable) -> String,
     /** Factory receives the ViewModel's coroutine scope so PlayerController can launch jobs. */
@@ -61,12 +63,14 @@ class TdtViewModel(
     @Inject constructor(
         getChannelsUseCase: GetChannelsUseCase,
         getNowPlayingUseCase: GetNowPlayingUseCase,
+        getProgramScheduleUseCase: GetProgramScheduleUseCase,
         brokenChannelTracker: BrokenChannelTracker,
         tdtPlayer: TdtPlayer,
         @ApplicationContext context: Context
     ) : this(
         getChannelsUseCase = getChannelsUseCase,
         getNowPlayingUseCase = getNowPlayingUseCase,
+        getProgramScheduleUseCase = getProgramScheduleUseCase,
         brokenChannelTracker = brokenChannelTracker,
         loadError = { e ->
             context.getString(R.string.error_loading_channels, e.localizedMessage ?: context.getString(R.string.unknown_error))
@@ -93,8 +97,12 @@ class TdtViewModel(
     private val _isLoading = MutableStateFlow(true)
     private val _error = MutableStateFlow<String?>(null)
     private val _showBrokenChannels = MutableStateFlow(false)
+    private val _scheduleVisible = MutableStateFlow(false)
+    private val _isScheduleLoading = MutableStateFlow(false)
+    private val _schedule = MutableStateFlow<List<Program>>(emptyList())
 
     private var loadJob: Job? = null
+    private var scheduleJob: Job? = null
 
     // ── Flow derivado: búsqueda con debounce ────────────────────────
 
@@ -134,7 +142,7 @@ class TdtViewModel(
     @OptIn(ExperimentalCoroutinesApi::class)
     private val _nowPlaying: StateFlow<Program?> = playerController.currentChannel
         .flatMapLatest { channel ->
-            if (channel != null) getNowPlayingUseCase(channel.url)
+            if (channel != null) getNowPlayingUseCase(channel.epgId)
             else flowOf(null)
         }
         .stateIn(
@@ -156,7 +164,10 @@ class TdtViewModel(
         _error,
         brokenChannelTracker.brokenUrls,
         _showBrokenChannels,
-        playerController.playerState
+        playerController.playerState,
+        _scheduleVisible,
+        _isScheduleLoading,
+        _schedule
     ) { args ->
         @Suppress("UNCHECKED_CAST")
         val filtered = args[0] as List<Channel>
@@ -172,6 +183,10 @@ class TdtViewModel(
         val brokenUrls = args[8] as Set<String>
         val showBroken = args[9] as Boolean
         val playerState = args[10] as PlayerState
+        val scheduleVisible = args[11] as Boolean
+        val isScheduleLoading = args[12] as Boolean
+        @Suppress("UNCHECKED_CAST")
+        val schedule = args[13] as List<Program>
 
         TdtUiState(
             channels = channels,
@@ -185,7 +200,10 @@ class TdtViewModel(
             brokenChannelsCount = brokenUrls.size,
             showBrokenChannels = showBroken,
             playerState = playerState,
-            nowPlaying = nowPlaying
+            nowPlaying = nowPlaying,
+            scheduleVisible = scheduleVisible,
+            isScheduleLoading = isScheduleLoading,
+            schedule = schedule
         )
     }.stateIn(
         scope = viewModelScope,
@@ -226,6 +244,8 @@ class TdtViewModel(
             is TdtIntent.SeekRelative -> playerController.seekRelative(intent.offsetMs)
             is TdtIntent.NextChannel -> navigateChannel(1)
             is TdtIntent.PreviousChannel -> navigateChannel(-1)
+            is TdtIntent.ShowSchedule -> showSchedule()
+            is TdtIntent.DismissSchedule -> dismissSchedule()
         }
     }
 
@@ -284,6 +304,25 @@ class TdtViewModel(
         brokenChannelTracker.unmarkAsBroken(channel.url)
     }
 
+    private fun showSchedule() {
+        val channel = playerController.currentChannel.value ?: return
+        scheduleJob?.cancel()
+        _schedule.value = emptyList()
+        _isScheduleLoading.value = true
+        _scheduleVisible.value = true
+        scheduleJob = getProgramScheduleUseCase(channel.epgId)
+            .onEach { programs ->
+                _schedule.value = programs
+                _isScheduleLoading.value = false
+            }
+            .launchIn(viewModelScope)
+    }
+
+    private fun dismissSchedule() {
+        scheduleJob?.cancel()
+        _scheduleVisible.value = false
+    }
+
     private fun navigateChannel(delta: Int) {
         val currentList = uiState.value.filteredChannels
         val currentChannel = uiState.value.currentChannel ?: return
@@ -304,6 +343,7 @@ class TdtViewModel(
     override fun onCleared() {
         super.onCleared()
         loadJob?.cancel()
+        scheduleJob?.cancel()
         playerController.release()
     }
 }

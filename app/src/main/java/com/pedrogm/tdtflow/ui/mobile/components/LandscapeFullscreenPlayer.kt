@@ -43,6 +43,7 @@ import com.pedrogm.tdtflow.ui.TdtViewModel
 import com.pedrogm.tdtflow.ui.components.AudioVisualizer
 import com.pedrogm.tdtflow.ui.components.CastActiveOverlay
 import com.pedrogm.tdtflow.ui.components.GestureOverlay
+import com.pedrogm.tdtflow.ui.components.ProgramScheduleDialog
 import com.pedrogm.tdtflow.ui.theme.AppColors
 import com.pedrogm.tdtflow.util.TimeConstants
 import kotlinx.coroutines.delay
@@ -212,6 +213,8 @@ internal fun LandscapeFullscreenPlayer(
         TopLandscapeOverlay(
             showOverlay = showOverlay,
             currentChannelName = uiState.currentChannel?.name ?: "",
+            nowPlaying = uiState.nowPlaying,
+            onShowSchedule = { viewModel.onIntent(TdtIntent.ShowSchedule) },
             onClose = { viewModel.onIntent(TdtIntent.StopPlayback) }
         )
 
@@ -223,5 +226,14 @@ internal fun LandscapeFullscreenPlayer(
             onCategorySelected = { viewModel.onIntent(TdtIntent.FilterByCategory(it)) },
             onChannelSelected = { viewModel.onIntent(TdtIntent.SelectChannel(it)) }
         )
+
+        if (uiState.scheduleVisible) {
+            ProgramScheduleDialog(
+                channelName = uiState.currentChannel?.name ?: "",
+                isLoading = uiState.isScheduleLoading,
+                schedule = uiState.schedule,
+                onDismiss = { viewModel.onIntent(TdtIntent.DismissSchedule) }
+            )
+        }
     }
 }

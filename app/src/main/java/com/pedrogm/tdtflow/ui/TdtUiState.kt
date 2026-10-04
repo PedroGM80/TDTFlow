@@ -18,5 +18,8 @@ data class TdtUiState(
     val brokenChannelsCount: Int = 0,
     val showBrokenChannels: Boolean = false,
     val playerState: PlayerState = PlayerState.IDLE,
-    val nowPlaying: Program? = null
+    val nowPlaying: Program? = null,
+    val scheduleVisible: Boolean = false,
+    val isScheduleLoading: Boolean = false,
+    val schedule: List<Program> = emptyList()
 )

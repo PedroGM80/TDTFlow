@@ -5,7 +5,7 @@ data class Program(
     val description: String? = null,
     val startTime: Long, // Epoch millis
     val endTime: Long,   // Epoch millis
-    val channelUrl: String
+    val channelId: String
 )
 
 fun Program.isNow(): Boolean {

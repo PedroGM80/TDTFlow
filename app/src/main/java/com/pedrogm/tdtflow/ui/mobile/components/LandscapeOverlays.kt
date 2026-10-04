@@ -35,11 +35,13 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.composables.icons.lucide.Info
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.X
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
+import com.pedrogm.tdtflow.domain.model.Program
 import com.pedrogm.tdtflow.ui.components.CategoryFilter
 import com.pedrogm.tdtflow.ui.theme.AppColors
 
@@ -47,6 +49,8 @@ import com.pedrogm.tdtflow.ui.theme.AppColors
 internal fun BoxScope.TopLandscapeOverlay(
     showOverlay: Boolean,
     currentChannelName: String,
+    nowPlaying: Program? = null,
+    onShowSchedule: (() -> Unit)? = null,
     onClose: () -> Unit
 ) {
     AnimatedVisibility(
@@ -55,7 +59,7 @@ internal fun BoxScope.TopLandscapeOverlay(
         exit = fadeOut() + slideOutVertically { -it },
         modifier = Modifier.align(Alignment.TopCenter)
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
@@ -67,29 +71,48 @@ internal fun BoxScope.TopLandscapeOverlay(
                     horizontal = dimensionResource(R.dimen.spacing_large),
                     vertical = dimensionResource(R.dimen.spacing_medium)
                 )
-                .statusBarsPadding(),
-            verticalAlignment = Alignment.CenterVertically
+                .statusBarsPadding()
         ) {
-            Box(
-                modifier = Modifier
-                    .size(dimensionResource(R.dimen.size_live_indicator))
-                    .clip(CircleShape)
-                    .background(AppColors.liveIndicator)
-            )
-            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_small)))
-            Text(
-                text = currentChannelName,
-                color = Color.White,
-                fontWeight = FontWeight.Bold,
-                fontSize = dimensionResource(R.dimen.text_size_large).value.sp,
-                modifier = Modifier.weight(1f)
-            )
-            IconButton(onClick = onClose) {
-                Icon(
-                    Lucide.X,
-                    contentDescription = stringResource(R.string.close),
-                    tint = Color.White
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(dimensionResource(R.dimen.size_live_indicator))
+                        .clip(CircleShape)
+                        .background(AppColors.liveIndicator)
                 )
+                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_small)))
+                Text(
+                    text = currentChannelName,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = dimensionResource(R.dimen.text_size_large).value.sp,
+                    modifier = Modifier.weight(1f)
+                )
+                IconButton(onClick = onClose) {
+                    Icon(
+                        Lucide.X,
+                        contentDescription = stringResource(R.string.close),
+                        tint = Color.White
+                    )
+                }
+            }
+
+            if (nowPlaying != null && onShowSchedule != null) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = nowPlaying.title,
+                        color = Color.White.copy(alpha = 0.85f),
+                        fontSize = dimensionResource(R.dimen.text_size_small).value.sp,
+                        maxLines = 1
+                    )
+                    IconButton(onClick = onShowSchedule) {
+                        Icon(
+                            imageVector = Lucide.Info,
+                            contentDescription = stringResource(R.string.show_program_schedule),
+                            tint = Color.White.copy(alpha = 0.85f)
+                        )
+                    }
+                }
             }
         }
     }

@@ -8,10 +8,11 @@ import com.pedrogm.tdtflow.data.BrokenChannelTrackerImpl
 import com.pedrogm.tdtflow.data.IOptionsPreferences
 import com.pedrogm.tdtflow.data.OptionsDataStore
 import com.pedrogm.tdtflow.data.repository.ChannelRepositoryImpl
+import com.pedrogm.tdtflow.data.repository.EpgRepositoryImpl
 import com.pedrogm.tdtflow.data.repository.FavoritesRepositoryImpl
-import com.pedrogm.tdtflow.data.repository.MockEpgRepositoryImpl
 import com.pedrogm.tdtflow.domain.repository.EpgRepository
 import com.pedrogm.tdtflow.domain.usecase.GetNowPlayingUseCase
+import com.pedrogm.tdtflow.domain.usecase.GetProgramScheduleUseCase
 import com.pedrogm.tdtflow.domain.repository.ChannelRepository
 import com.pedrogm.tdtflow.domain.repository.FavoritesRepository
 import com.pedrogm.tdtflow.domain.tracker.BrokenChannelTracker
@@ -98,11 +99,18 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideEpgRepository(): EpgRepository = MockEpgRepositoryImpl()
+    fun provideEpgRepository(
+        tdtApi: com.pedrogm.tdtflow.data.remote.TdtApi,
+        @Named("IO") ioDispatcher: CoroutineDispatcher
+    ): EpgRepository = EpgRepositoryImpl(tdtApi = tdtApi, ioDispatcher = ioDispatcher)
 
     @Provides
     fun provideGetNowPlayingUseCase(repo: EpgRepository): GetNowPlayingUseCase =
         GetNowPlayingUseCase(repo)
+
+    @Provides
+    fun provideGetProgramScheduleUseCase(repo: EpgRepository): GetProgramScheduleUseCase =
+        GetProgramScheduleUseCase(repo)
 
     @Provides
     @Singleton

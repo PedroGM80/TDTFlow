@@ -23,8 +23,9 @@
 
 ### Content & Streaming
 
-- **100+ TDT channels** — national (La 1, La 2, 24h, Clan, Teledeporte, TRECE), regional (TV3, ETB, Canal Sur, Aragón TV, IB3…) and thematic.
-- **50+ radio stations** — Cadena SER, COPE, RNE, Onda Cero, LOS40, Rock FM, Kiss FM, Europa FM, Cadena Dial, Radio Marca, regional Catalan and Andalusian stations and more.
+- **400+ Spanish TDT channels** — national (La 1, La 2, 24h, Clan, Teledeporte, TRECE), regional (TV3, ETB, Canal Sur, Aragón TV, IB3…) and thematic.
+- **900+ radio stations** — Cadena SER, COPE, RNE, Onda Cero, LOS40, Rock FM, Kiss FM, Europa FM, Cadena Dial, Radio Marca, regional Catalan and Andalusian stations and more.
+- **International channels** — an opt-in "International" category surfaces 300+ additional TV channels and 50+ radio stations, kept out of the default Spain-focused browsing view.
 - **HLS & MP3/AAC streaming** via AndroidX Media3 / ExoPlayer with custom HTTP timeouts and cross-protocol redirect support.
 - **Background playback** — `PlaybackService` (Media3 `MediaSessionService`) keeps audio running when the app is minimised or the screen turns off, with a persistent notification and media controls.
 - **Google Cast** — stream to Chromecast and Cast-compatible Smart TVs (Sony Bravia, etc.) via Media3 Cast + `TdtMediaItemConverter`: `STREAM_TYPE_LIVE`, correct MIME types for HLS / MP3 / AAC, `UNKNOWN_DURATION` for unbounded live streams, full channel-switch / seek / pause routing to the active Cast session, and seamless ExoPlayer resume on Cast disconnect.
@@ -33,10 +34,10 @@
 
 ### Smart Functionality
 
-- **8 category filters** — General, News, Sports, Kids, Entertainment, Regional, Music, Other.
+- **9 category filters** — General, News, Sports, Kids, Entertainment, Regional, Music, International, Other.
 - **Radio / TV visual separator** — channels are automatically classified as radio (by stream format, ambit name, or channel name) and displayed in a clearly separated section within each mixed-content category.
 - **Real-time search** with 300 ms debounce to minimise recompositions.
-- **Now Playing info** — current programme title displayed via EPG integration on the player overlay.
+- **Real EPG (programme guide)** — "Now Playing" on the player overlay and a full per-channel schedule dialog, both backed by the live tdtchannels.com EPG feed (not mocked data).
 - **Broken channel detection** — automatic marking after an 8-second buffering timeout or a playback error; counter shown in the UI with options to retry individual channels or revalidate all.
 - **Exit button** — dedicated power icon on the main screen for all platforms to fully terminate the app and remove it from recent tasks.
 - **Persistent favourites** — stored in SharedPreferences, restored across sessions, accessible from a dedicated screen; supports **import / export to/from JSON files** (Android Storage Access Framework) for easy backup and sharing.

@@ -29,6 +29,8 @@ private class FakeTdtApi(
 ) : TdtApi {
     override suspend fun getTvChannels(): TdtChannelsResponse = tvResponse
     override suspend fun getRadioChannels(): TdtChannelsResponse = radioResponse
+    override suspend fun getTvEpg(): List<com.pedrogm.tdtflow.data.remote.TdtEpgChannelEntry> = emptyList()
+    override suspend fun getRadioEpg(): List<com.pedrogm.tdtflow.data.remote.TdtEpgChannelEntry> = emptyList()
 }
 
 class ChannelRepositoryImplTest {

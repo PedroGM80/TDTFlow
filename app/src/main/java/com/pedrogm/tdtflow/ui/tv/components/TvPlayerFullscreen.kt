@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
@@ -46,6 +47,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.PlayerView
 import com.composables.icons.lucide.ChevronDown
 import com.composables.icons.lucide.ChevronUp
+import com.composables.icons.lucide.Info
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Tv
 import com.pedrogm.tdtflow.R
@@ -53,6 +55,7 @@ import com.pedrogm.tdtflow.domain.model.progress
 import com.pedrogm.tdtflow.player.PlayerState
 import com.pedrogm.tdtflow.ui.TdtIntent
 import com.pedrogm.tdtflow.ui.TdtViewModel
+import com.pedrogm.tdtflow.ui.components.ProgramScheduleDialog
 import com.pedrogm.tdtflow.ui.components.toLucideIcon
 import com.pedrogm.tdtflow.ui.theme.AppColors
 import com.pedrogm.tdtflow.util.TimeConstants
@@ -153,12 +156,22 @@ internal fun TvPlayerFullscreen(viewModel: TdtViewModel, channelName: String) {
 
                     uiState.nowPlaying?.let { program ->
                         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_small)))
-                        Text(
-                            text = program.title,
-                            color = Color.White,
-                            style = M3Theme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = program.title,
+                                color = Color.White,
+                                style = M3Theme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_small)))
+                            IconButton(onClick = { viewModel.onIntent(TdtIntent.ShowSchedule) }) {
+                                Icon(
+                                    imageVector = Lucide.Info,
+                                    contentDescription = stringResource(R.string.show_program_schedule),
+                                    tint = Color.White
+                                )
+                            }
+                        }
                         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_tiny)))
                         LinearProgressIndicator(
                             progress = { program.progress() },
@@ -212,6 +225,15 @@ internal fun TvPlayerFullscreen(viewModel: TdtViewModel, channelName: String) {
             ) {
                 Text(uiState.error!!)
             }
+        }
+
+        if (uiState.scheduleVisible) {
+            ProgramScheduleDialog(
+                channelName = channelName,
+                isLoading = uiState.isScheduleLoading,
+                schedule = uiState.schedule,
+                onDismiss = { viewModel.onIntent(TdtIntent.DismissSchedule) }
+            )
         }
     }
 }

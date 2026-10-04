@@ -16,6 +16,7 @@ import com.pedrogm.tdtflow.domain.usecase.ClearFavoritesUseCase
 import com.pedrogm.tdtflow.domain.usecase.GetChannelsUseCase
 import com.pedrogm.tdtflow.domain.usecase.GetFavoritesUseCase
 import com.pedrogm.tdtflow.domain.usecase.GetNowPlayingUseCase
+import com.pedrogm.tdtflow.domain.usecase.GetProgramScheduleUseCase
 import com.pedrogm.tdtflow.domain.usecase.ImportFavoritesUseCase
 import com.pedrogm.tdtflow.domain.usecase.RemoveFavoriteUseCase
 import com.pedrogm.tdtflow.fakes.FakeBrokenChannelTracker
@@ -48,11 +49,13 @@ class MobileScreenTest {
     ): TdtViewModel {
         val tracker = FakeBrokenChannelTracker()
         val epgRepo = object : EpgRepository {
-            override fun getNowPlaying(channelUrl: String) = flowOf(null)
+            override fun getNowPlaying(epgId: String) = flowOf(null)
+            override fun getSchedule(epgId: String) = flowOf(emptyList<com.pedrogm.tdtflow.domain.model.Program>())
         }
         return TdtViewModel(
             getChannelsUseCase = GetChannelsUseCase(FakeChannelsRepository(channels = channels, error = error)),
             getNowPlayingUseCase = GetNowPlayingUseCase(epgRepo),
+            getProgramScheduleUseCase = GetProgramScheduleUseCase(epgRepo),
             brokenChannelTracker = tracker,
             loadError = { e: Throwable -> "Error: ${e.message}" },
             playerControllerFactory = { scope: CoroutineScope ->

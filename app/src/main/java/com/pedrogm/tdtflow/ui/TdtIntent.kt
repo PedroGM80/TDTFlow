@@ -17,4 +17,6 @@ sealed class TdtIntent {
     data class SeekRelative(val offsetMs: Long) : TdtIntent()
     data object NextChannel : TdtIntent()
     data object PreviousChannel : TdtIntent()
+    data object ShowSchedule : TdtIntent()
+    data object DismissSchedule : TdtIntent()
 }

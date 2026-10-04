@@ -5,9 +5,9 @@ import com.pedrogm.tdtflow.domain.repository.EpgRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class GetNowPlayingUseCase @Inject constructor(
+class GetProgramScheduleUseCase @Inject constructor(
     private val repository: EpgRepository
 ) {
-    operator fun invoke(epgId: String): Flow<Program?> =
-        repository.getNowPlaying(epgId)
+    operator fun invoke(epgId: String): Flow<List<Program>> =
+        repository.getSchedule(epgId)
 }

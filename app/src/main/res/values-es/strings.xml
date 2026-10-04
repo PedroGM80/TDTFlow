@@ -86,4 +86,7 @@
     <string name="media_type_tv">Televisión</string>
     <string name="unknown_error">Desconocido</string>
     <string name="exit_app">Salir de la aplicación</string>
+    <string name="program_schedule_title">Programación de %1$s</string>
+    <string name="program_schedule_empty">No hay información de programación disponible para este canal</string>
+    <string name="show_program_schedule">Ver programación</string>
 </resources>
