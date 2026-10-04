@@ -85,7 +85,10 @@ internal fun ChannelContent(
                     contentAlignment = Alignment.Center
                 ) {
                     EmptyState(
-                        message = stringResource(R.string.no_channels_found),
+                        message = stringResource(
+                            if (com.pedrogm.tdtflow.util.RestrictedChannels.matches(uiState.searchQuery)) R.string.restricted_channel_notice
+                            else R.string.no_channels_found
+                        ),
                         animationRes = R.raw.empty_animation
                     )
                 }

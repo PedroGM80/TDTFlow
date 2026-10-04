@@ -130,7 +130,8 @@ internal fun TvChannelBrowser(
                             currentChannel = uiState.currentChannel,
                             favoriteIds = favoritesState.favoriteIds,
                             onChannelClick = { viewModel.onIntent(TdtIntent.SelectChannel(it)) },
-                            onToggleFavorite = { favoritesViewModel.onIntent(FavoritesIntent.ToggleFavorite(it.url)) }
+                            onToggleFavorite = { favoritesViewModel.onIntent(FavoritesIntent.ToggleFavorite(it.url)) },
+                            searchQuery = uiState.searchQuery
                         )
                     }
                 }

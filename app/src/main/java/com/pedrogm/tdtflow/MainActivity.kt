@@ -15,7 +15,6 @@ import com.pedrogm.tdtflow.navigation.AppNavGraph
 import com.pedrogm.tdtflow.ui.TdtViewModel
 import com.pedrogm.tdtflow.ui.options.OptionsMenuViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlin.system.exitProcess
 
 @AndroidEntryPoint
 @androidx.annotation.OptIn(UnstableApi::class)
@@ -46,8 +45,8 @@ class MainActivity : AppCompatActivity() {
                     viewModel = viewModel,
                     optionsViewModel = optionsViewModel,
                     onExit = {
+                        viewModel.onIntent(com.pedrogm.tdtflow.ui.TdtIntent.StopPlayback)
                         finishAndRemoveTask()
-                        exitProcess(0)
                     }
                 )
             }

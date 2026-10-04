@@ -90,4 +90,5 @@
     <string name="program_schedule_empty">No schedule information available for this channel</string>
     <string name="show_program_schedule">View schedule</string>
     <string name="tv_favorite_hint">Press and hold to favourite</string>
+    <string name="restricted_channel_notice">This channel is not available. Atresmedia and Mediaset do not allow their channels to be streamed in third-party apps.</string>
 </resources>

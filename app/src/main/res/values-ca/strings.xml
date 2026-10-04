@@ -90,4 +90,5 @@
     <string name="program_schedule_empty">No hi ha informació de programació disponible per a aquest canal</string>
     <string name="show_program_schedule">Veure programació</string>
     <string name="tv_favorite_hint">Mantén premut per a preferit</string>
+    <string name="restricted_channel_notice">Aquest canal no està disponible. Atresmedia i Mediaset no permeten emetre els seus canals en aplicacions de tercers.</string>
 </resources>

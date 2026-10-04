@@ -23,7 +23,8 @@ internal fun TvChannelGrid(
     favoriteIds: Set<String>,
     onChannelClick: (Channel) -> Unit,
     onToggleFavorite: (Channel) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    searchQuery: String = ""
 ) {
     val paddingTv = dimensionResource(R.dimen.padding_tv)
     val spacingLarge = dimensionResource(R.dimen.spacing_large)
@@ -32,7 +33,10 @@ internal fun TvChannelGrid(
     if (channels.isEmpty()) {
         Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             EmptyState(
-                message = stringResource(R.string.no_channels_found),
+                message = stringResource(
+                    if (com.pedrogm.tdtflow.util.RestrictedChannels.matches(searchQuery)) R.string.restricted_channel_notice
+                    else R.string.no_channels_found
+                ),
                 animationRes = R.raw.empty_animation
             )
         }
