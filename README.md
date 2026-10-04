@@ -1,9 +1,9 @@
 # TDTFlow — Spanish Free-to-Air TV & Radio
 
 [![CI](https://github.com/PedroGM80/TDTFlow/actions/workflows/ci.yml/badge.svg)](https://github.com/PedroGM80/TDTFlow/actions/workflows/ci.yml)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.3.21-7F52FF.svg?style=flat&logo=kotlin&logoColor=white)](https://kotlinlang.org)
-[![AGP](https://img.shields.io/badge/AGP-9.2.1-02303A.svg?style=flat&logo=gradle)](https://developer.android.com/build)
-[![Media3](https://img.shields.io/badge/Media3-1.10.0-4285F4.svg?style=flat&logo=android&logoColor=white)](https://developer.android.com/media/media3)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.4.20-7F52FF.svg?style=flat&logo=kotlin&logoColor=white)](https://kotlinlang.org)
+[![AGP](https://img.shields.io/badge/AGP-9.4.1-02303A.svg?style=flat&logo=gradle)](https://developer.android.com/build)
+[![Media3](https://img.shields.io/badge/Media3-1.11.1-4285F4.svg?style=flat&logo=android&logoColor=white)](https://developer.android.com/media/media3)
 [![License](https://img.shields.io/badge/License-MIT-22C55E.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Phone%20·%20Tablet%20·%20TV-3DDC84.svg?logo=android&logoColor=white)](https://www.android.com)
 
@@ -39,7 +39,7 @@
 - **Now Playing info** — current programme title displayed via EPG integration on the player overlay.
 - **Broken channel detection** — automatic marking after an 8-second buffering timeout or a playback error; counter shown in the UI with options to retry individual channels or revalidate all.
 - **Exit button** — dedicated power icon on the main screen for all platforms to fully terminate the app and remove it from recent tasks.
-- **Persistent favourites** — stored in DataStore, restored across sessions, accessible from a dedicated screen; supports **import / export to/from JSON files** (Android Storage Access Framework) for easy backup and sharing.
+- **Persistent favourites** — stored in SharedPreferences, restored across sessions, accessible from a dedicated screen; supports **import / export to/from JSON files** (Android Storage Access Framework) for easy backup and sharing.
 - **Persistent preferences** — theme (Light / Dark / System), app language (ES / EN / CA / System), and **player buffer mode** (Fast / Balanced / Stable) backed by DataStore Preferences.
 
 ### Multi-Platform UI
@@ -169,25 +169,25 @@ Cast session ends
 
 | Category | Technology | Version |
 |---|---|---|
-| Language | Kotlin (K2 compiler) | 2.3.21 |
-| Build | Android Gradle Plugin | 9.2.1 |
-| UI | Jetpack Compose + Material 3 | BOM 2026.05.00 |
+| Language | Kotlin (K2 compiler) | 2.4.20 |
+| Build | Android Gradle Plugin | 9.4.1 |
+| UI | Jetpack Compose + Material 3 | BOM 2026.09.00 |
 | TV UI | TV Material 3 | 1.1.0 |
-| DI | Hilt / javax.inject | 2.59.2 / 1 |
-| Media | AndroidX Media3 / ExoPlayer | 1.10.0 |
-| Cast | Media3 Cast + MediaRouter | 1.10.0 / 1.8.1 |
-| Networking | Ktor (client + serialization) | 3.4.3 |
+| DI | Hilt / javax.inject | 2.60.1 / 1 |
+| Media | AndroidX Media3 / ExoPlayer | 1.11.1 |
+| Cast | Media3 Cast + MediaRouter | 1.11.1 / 1.8.1 |
+| Networking | Ktor (client + serialization) | 3.6.0 |
 | Image loading | Coil | 2.7.0 |
 | Serialization | Kotlinx Serialization JSON | 1.11.0 |
-| Coroutines | Kotlinx Coroutines | 1.10.2 |
-| Persistence | Room + DataStore Preferences | 2.8.4 / 1.2.1 |
+| Coroutines | Kotlinx Coroutines | 1.11.0 |
+| Persistence | Room + SharedPreferences + DataStore Preferences | 2.8.5 / — / 1.2.1 |
 | Icons | Lucide Icons | 1.1.0 |
-| Crash reporting | Firebase Crashlytics | BOM 34.12.0 |
+| Crash reporting | Firebase Crashlytics | BOM 34.19.0 |
 | Architecture | Clean Architecture · MVI | — |
 | Testing | JUnit 4 · Turbine · Coroutines Test · Compose UI Test | — |
 | Coverage | JaCoCo | 0.8.12 |
 | CI | GitHub Actions | — |
-| Min / Target SDK | API 24 / 35 | — |
+| Min / Target SDK | API 24 / 37 | — |
 
 ---
 
