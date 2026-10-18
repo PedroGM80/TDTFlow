@@ -20,6 +20,7 @@ import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.upstream.DefaultLoadErrorHandlingPolicy
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy
 import com.google.android.gms.cast.framework.CastContext
+import com.pedrogm.tdtflow.BuildConfig
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.cast.TdtMediaItemConverter
 import com.pedrogm.tdtflow.data.IOptionsPreferences
@@ -141,7 +142,7 @@ class TdtPlayer(
 
     @OptIn(UnstableApi::class)
     private val dataSourceFactory = DefaultHttpDataSource.Factory()
-        .setUserAgent("TDTFlow/1.1.0")
+        .setUserAgent("TDTFlow/${BuildConfig.VERSION_NAME}")
         .setConnectTimeoutMs(TimeConstants.PLAYER_CONNECT_TIMEOUT_MS)
         .setReadTimeoutMs(TimeConstants.PLAYER_READ_TIMEOUT_MS)
         .setAllowCrossProtocolRedirects(true)
@@ -458,7 +459,6 @@ class TdtPlayer(
     }
 
     fun getCurrentStreamUrl(): String? = currentStreamUrl
-    fun getCurrentMediaItem(): MediaItem? = currentMediaItem
 
     fun pause() {
         activePlayer().pause()

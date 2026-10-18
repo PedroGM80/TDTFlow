@@ -13,14 +13,13 @@
     <dimen name="padding_tv">48dp</dimen>
 
     <!-- Spacing — espaciado interno entre elementos (no padding de contenedor)
-         Escala: tiny=4 · small=8 · medium=12 · large=16 · extra_large=24 · bottom_sheet=32 -->
+         Escala: tiny=4 · small=8 · medium=12 · large=16 · extra_large=24 -->
     <dimen name="spacing_tiny">4dp</dimen>
     <dimen name="spacing_extra_small">6dp</dimen>
     <dimen name="spacing_small">8dp</dimen>
     <dimen name="spacing_medium">12dp</dimen>
     <dimen name="spacing_large">16dp</dimen>
     <dimen name="spacing_extra_large">24dp</dimen>
-    <dimen name="spacing_bottom_sheet">32dp</dimen>
 
     <!-- Icon Sizes
          small        : icono de chip/badge (14dp)

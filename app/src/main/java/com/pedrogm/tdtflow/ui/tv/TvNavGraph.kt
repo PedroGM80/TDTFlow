@@ -4,6 +4,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -25,8 +26,16 @@ fun TvNavGraph(
     optionsViewModel: OptionsMenuViewModel,
     favoritesViewModel: FavoritesViewModel = hiltViewModel(),
     onExit: () -> Unit = {},
+    onScreenView: (String) -> Unit = {},
 ) {
     val navController = rememberNavController()
+
+    LaunchedEffect(navController) {
+        navController.currentBackStackEntryFlow.collect { entry ->
+            // Type-safe routes are fully qualified class names; report the simple name.
+            entry.destination.route?.substringBefore('?')?.substringAfterLast('.')?.let(onScreenView)
+        }
+    }
 
     NavHost(
         navController = navController,

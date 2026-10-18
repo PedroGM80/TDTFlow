@@ -1,8 +1,10 @@
 package com.pedrogm.tdtflow.ui.mobile
 
 import android.content.res.Configuration
+import androidx.activity.compose.BackHandler
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,6 +29,7 @@ fun MobileScreen(
     optionsViewModel: OptionsMenuViewModel,
     onNavigateToFavorites: () -> Unit = {},
     onExit: () -> Unit = {},
+    isInPictureInPicture: Boolean = false,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -34,10 +37,28 @@ fun MobileScreen(
 
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-    val isTablet = configuration.smallestScreenWidthDp >= 600
+    val isTablet = configuration.smallestScreenWidthDp >= TABLET_MIN_WIDTH_DP
     val isPlaying = uiState.currentChannel != null
+    // Player and channel list side by side when there is enough horizontal room
+    // (tablets in landscape, unfolded foldables, desktop windows).
+    val useTwoPane = configuration.screenWidthDp >= EXPANDED_MIN_WIDTH_DP || (isTablet && isLandscape)
+
+    var tabletFullscreen by remember { mutableStateOf(false) }
+    LaunchedEffect(isPlaying, isTablet) {
+        if (!isPlaying || !isTablet) tabletFullscreen = false
+    }
+    BackHandler(enabled = tabletFullscreen) { tabletFullscreen = false }
 
     when {
+        // PiP window: only the video, no chrome.
+        isInPictureInPicture && isPlaying -> LandscapeFullscreenPlayer(
+            viewModel = viewModel,
+            uiState = uiState
+        )
+        isTablet && isPlaying && tabletFullscreen -> LandscapeFullscreenPlayer(
+            viewModel = viewModel,
+            uiState = uiState
+        )
         // En tablets, siempre preferimos el diseño completo
         isTablet -> PortraitLayout(
             viewModel = viewModel,
@@ -48,7 +69,9 @@ fun MobileScreen(
             isPlaying = isPlaying,
             onShowFavorites = onNavigateToFavorites,
             onShowOptions = { optionsViewModel.onIntent(OptionsMenuIntent.Open) },
-            onExit = onExit
+            onExit = onExit,
+            useTwoPane = useTwoPane,
+            onFullscreen = { tabletFullscreen = true }
         )
         // En móviles horizontal con reproducción, modo inmersivo
         isLandscape && isPlaying -> LandscapeFullscreenPlayer(
@@ -85,3 +108,6 @@ fun MobileScreen(
         onToggleBroken = { viewModel.onIntent(TdtIntent.ToggleShowBrokenChannels) }
     )
 }
+
+private const val TABLET_MIN_WIDTH_DP = 600
+private const val EXPANDED_MIN_WIDTH_DP = 840

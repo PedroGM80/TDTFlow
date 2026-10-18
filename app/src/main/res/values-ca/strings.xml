@@ -40,7 +40,6 @@
     <string name="empty_state_icon">Sense resultats</string>
     <string name="app_logo">Logotip de l\'aplicació</string>
     <string name="tv_icon">Icona de televisió</string>
-    <string name="channel_card_icon">Icona de canal</string>
 
     <!-- Opcions -->
     <string name="options_title">Opcions</string>
@@ -61,7 +60,6 @@
     <string name="options_buffer_stable">Estable (connexió lenta)</string>
 
     <!-- Accessibilitat TV -->
-    <string name="play_channel">Reprodueix %1$s</string>
     <string name="filter_category">Filtra per %1$s</string>
 
     <!-- Separador de ràdio -->

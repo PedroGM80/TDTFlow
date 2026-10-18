@@ -4,8 +4,9 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.pedrogm.tdtflow.R
+import com.pedrogm.tdtflow.analytics.NoOpTelemetry
+import com.pedrogm.tdtflow.analytics.Telemetry
 import com.pedrogm.tdtflow.domain.ChannelFilterLogic
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.domain.model.ChannelCategory
@@ -34,6 +35,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -56,6 +58,7 @@ class TdtViewModel(
     private val loadError: (Throwable) -> String,
     /** Factory receives the ViewModel's coroutine scope so PlayerController can launch jobs. */
     private val playerControllerFactory: (CoroutineScope) -> PlayerController,
+    private val telemetry: Telemetry = NoOpTelemetry,
     ioDispatcher: CoroutineDispatcher = Dispatchers.Default,
     private val searchDebounceMs: Long = TimeConstants.SEARCH_DEBOUNCE_MS
 ) : ViewModel() {
@@ -66,6 +69,7 @@ class TdtViewModel(
         getProgramScheduleUseCase: GetProgramScheduleUseCase,
         brokenChannelTracker: BrokenChannelTracker,
         tdtPlayer: TdtPlayer,
+        telemetry: Telemetry,
         @ApplicationContext context: Context
     ) : this(
         getChannelsUseCase = getChannelsUseCase,
@@ -81,9 +85,10 @@ class TdtViewModel(
                 brokenChannelTracker = brokenChannelTracker,
                 context = context,
                 scope = scope,
-                onError = { e -> FirebaseCrashlytics.getInstance().recordException(e) }
+                onError = telemetry::recordError
             )
-        }
+        },
+        telemetry = telemetry
     )
 
     // PlayerController is created here so it receives the live viewModelScope
@@ -223,7 +228,17 @@ class TdtViewModel(
         // Forward player errors into the shared _error state
         playerController.playerError
             .filterNotNull()
-            .onEach { _error.value = it }
+            .onEach {
+                _error.value = it
+                telemetry.logPlaybackError(playerController.currentChannel.value, it)
+            }
+            .launchIn(viewModelScope)
+        playerController.currentChannel
+            .onEach { telemetry.setCurrentChannel(it) }
+            .launchIn(viewModelScope)
+        debouncedQuery
+            .filter { it.trim().length >= MIN_SEARCH_LENGTH_TO_LOG }
+            .onEach { telemetry.logSearch(it.trim()) }
             .launchIn(viewModelScope)
     }
 
@@ -273,6 +288,7 @@ class TdtViewModel(
     private fun selectChannel(channel: Channel) {
         _error.value = null
         playerController.selectChannel(channel)
+        telemetry.logChannelPlay(channel, isCasting = playerController.player?.isCastActiveFlow?.value == true)
     }
 
     private fun filterByCategory(category: ChannelCategory?) {
@@ -306,6 +322,7 @@ class TdtViewModel(
 
     private fun showSchedule() {
         val channel = playerController.currentChannel.value ?: return
+        telemetry.logScheduleOpened(channel)
         scheduleJob?.cancel()
         _schedule.value = emptyList()
         _isScheduleLoading.value = true
@@ -341,9 +358,12 @@ class TdtViewModel(
     }
 
     override fun onCleared() {
-        super.onCleared()
         loadJob?.cancel()
         scheduleJob?.cancel()
         playerController.release()
+    }
+
+    private companion object {
+        const val MIN_SEARCH_LENGTH_TO_LOG = 2
     }
 }

@@ -40,7 +40,6 @@
     <string name="empty_state_icon">Sin resultados</string>
     <string name="app_logo">Logo de la aplicación</string>
     <string name="tv_icon">Icono de televisión</string>
-    <string name="channel_card_icon">Icono de canal</string>
 
     <!-- Opciones -->
     <string name="options_title">Opciones</string>
@@ -61,7 +60,6 @@
     <string name="options_buffer_stable">Estable (conexión lenta)</string>
 
     <!-- TV accesibilidad -->
-    <string name="play_channel">Reproducir %1$s</string>
     <string name="filter_category">Filtrar por %1$s</string>
 
     <!-- Separador de radio -->

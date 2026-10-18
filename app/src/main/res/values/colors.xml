@@ -32,12 +32,6 @@
     <color name="outline_light">#74777F</color>
 
     <!-- TV Specific Colors -->
-    <color name="tv_background">#0A0D12</color>
     <color name="tv_surface">#1E2128</color>
     <color name="tv_surface_focused">#42A5F5</color>
-    <color name="tv_card">#151820</color>
-    <color name="tv_card_focused">#1976D2</color>
-    <!-- Alphas -->
-    <integer name="alpha_medium_percent">50</integer>
-    <integer name="alpha_overlay_percent">90</integer>
 </resources>

@@ -3,6 +3,8 @@ package com.pedrogm.tdtflow.ui.favorites
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pedrogm.tdtflow.R
+import com.pedrogm.tdtflow.analytics.NoOpTelemetry
+import com.pedrogm.tdtflow.analytics.Telemetry
 import com.pedrogm.tdtflow.domain.usecase.AddFavoriteUseCase
 import com.pedrogm.tdtflow.domain.usecase.ClearFavoritesUseCase
 import com.pedrogm.tdtflow.domain.usecase.GetFavoritesUseCase
@@ -24,7 +26,8 @@ class FavoritesViewModel @Inject constructor(
     private val removeFavorite: RemoveFavoriteUseCase,
     private val importFavorites: ImportFavoritesUseCase,
     private val clearFavorites: ClearFavoritesUseCase,
-    getFavorites: GetFavoritesUseCase
+    getFavorites: GetFavoritesUseCase,
+    private val telemetry: Telemetry = NoOpTelemetry
 ) : ViewModel() {
 
     private val _userMessage = MutableStateFlow<Int?>(null)
@@ -47,8 +50,10 @@ class FavoritesViewModel @Inject constructor(
             is FavoritesIntent.ToggleFavorite -> {
                 if (intent.channelUrl in uiState.value.favoriteIds) {
                     removeFavorite.invoke(intent.channelUrl)
+                    telemetry.logFavoriteToggled(added = false)
                 } else {
                     addFavorite.invoke(intent.channelUrl)
+                    telemetry.logFavoriteToggled(added = true)
                 }
             }
             is FavoritesIntent.ImportFavorites -> {

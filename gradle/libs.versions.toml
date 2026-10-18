@@ -2,7 +2,7 @@
 # Android & Kotlin
 androidGradlePlugin = "9.4.1"
 hiltAndroidGradlePlugin = "2.60.1"
-kotlin = "2.4.20"
+kotlin = "2.4.21"
 ksp = "2.3.6"
 
 # Hilt
@@ -12,7 +12,7 @@ hiltNavigationCompose = "1.4.0"
 # Firebase
 googleServices = "4.5.0"
 firebaseCrashlyticsPlugin = "3.0.8"
-firebaseBom = "34.19.0"
+firebaseBom = "35.0.2"
 
 # AndroidX
 androidxCore = "1.19.1"
@@ -40,7 +40,7 @@ coil = "2.7.0"
 playServicesCastFramework = "22.3.1"
 
 # Lottie & Icons
-compottie = "2.3.2"
+compottie = "2.3.3"
 lucideIcons = "1.1.0"
 
 # Testing & Quality

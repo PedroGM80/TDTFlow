@@ -13,13 +13,9 @@ object AppColors {
     val radioSectionIcon = Color(0xFFFF5252)
     val favoriteHeart = Color(0xFFEF5350)
 
-    // Surface scrim (dark overlay behind drawers / bottom sheets)
-    val surfaceScrim = Color(0xFF121212)
-
     // Overlays and transparency
     object Overlay {
         val gradientTop = Color.Black.copy(alpha = 0.8f)
-        val gradientBottom = Color.Black.copy(alpha = 0.85f)
         val buffering = Color.White.copy(alpha = 0.7f)
     }
 

@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -28,8 +29,17 @@ fun AppNavGraph(
     optionsViewModel: OptionsMenuViewModel,
     favoritesViewModel: FavoritesViewModel = hiltViewModel(),
     onExit: () -> Unit = {},
+    isInPictureInPicture: Boolean = false,
+    onScreenView: (String) -> Unit = {},
 ) {
     val navController = rememberNavController()
+
+    LaunchedEffect(navController) {
+        navController.currentBackStackEntryFlow.collect { entry ->
+            // Type-safe routes are fully qualified class names; report the simple name.
+            entry.destination.route?.substringBefore('?')?.substringAfterLast('.')?.let(onScreenView)
+        }
+    }
 
     NavHost(
         navController = navController,
@@ -45,7 +55,8 @@ fun AppNavGraph(
                 favoritesViewModel = favoritesViewModel,
                 optionsViewModel = optionsViewModel,
                 onNavigateToFavorites = { navController.navigate(Route.Favorites) },
-                onExit = onExit
+                onExit = onExit,
+                isInPictureInPicture = isInPictureInPicture
             )
         }
         composable<Route.Favorites>(

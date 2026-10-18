@@ -3,6 +3,7 @@ package com.pedrogm.tdtflow.ui.mobile.components
 import android.app.Activity
 import android.content.Context
 import android.media.AudioManager
+import android.view.WindowManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
@@ -72,7 +73,13 @@ internal fun LandscapeFullscreenPlayer(
         controller.hide(WindowInsetsCompat.Type.systemBars())
         controller.systemBarsBehavior =
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        onDispose { }
+        onDispose {
+            // Leaving fullscreen (rotation, tablet exit, stop): restore bars and system brightness.
+            controller.show(WindowInsetsCompat.Type.systemBars())
+            window.attributes = window.attributes.apply {
+                screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+            }
+        }
     }
 
     LaunchedEffect(showOverlay) {
@@ -120,7 +127,7 @@ internal fun LandscapeFullscreenPlayer(
                         val isLeftSide = dragStartX < size.width / 2f
                         if (isLeftSide) {
                             brightnessAccumulator -= dragAmount
-                            if (kotlin.math.abs(brightnessAccumulator) >= 10f) {
+                            if (kotlin.math.abs(brightnessAccumulator) >= TimeConstants.GESTURE_DRAG_STEP_PX) {
                                 val activity = view.context as? Activity
                                 activity?.window?.attributes?.let { lp ->
                                     val current = if (lp.screenBrightness < 0) 0.5f else lp.screenBrightness
@@ -134,7 +141,7 @@ internal fun LandscapeFullscreenPlayer(
                             }
                         } else {
                             volumeAccumulator -= dragAmount
-                            if (kotlin.math.abs(volumeAccumulator) >= 10f) {
+                            if (kotlin.math.abs(volumeAccumulator) >= TimeConstants.GESTURE_DRAG_STEP_PX) {
                                 val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
                                 val currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
                                 val nextVolume = (currentVolume + (if (volumeAccumulator > 0) 1 else -1))

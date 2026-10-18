@@ -143,7 +143,6 @@ class PlayerController(
             }
     }
 
-    // Cleaning up old placeholder methods
     private fun stopObserving() {
         observationJob?.cancel()
         observationJob = null

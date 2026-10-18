@@ -1,6 +1,10 @@
 package com.pedrogm.tdtflow.ui.mobile.components
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -65,6 +69,8 @@ internal fun PortraitLayout(
     onShowFavorites: () -> Unit,
     onShowOptions: () -> Unit,
     onExit: () -> Unit,
+    useTwoPane: Boolean = false,
+    onFullscreen: (() -> Unit)? = null,
 ) {
     val favoritesState by favoritesViewModel.uiState.collectAsStateWithLifecycle()
     val favoriteIds = favoritesState.favoriteIds
@@ -95,17 +101,7 @@ internal fun PortraitLayout(
             )
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            PortraitPlayerSection(
-                viewModel = viewModel,
-                uiState = uiState,
-                isPlaying = isPlaying
-            )
-
+        val browser: @Composable ColumnScope.() -> Unit = {
             PortraitSearchSection(
                 showSearch = showSearch,
                 query = uiState.searchQuery,
@@ -127,6 +123,50 @@ internal fun PortraitLayout(
                 onToggleFavorite = { url -> favoritesViewModel.onIntent(FavoritesIntent.ToggleFavorite(url)) },
                 modifier = Modifier.fillMaxSize()
             )
+        }
+
+        if (useTwoPane && isPlaying) {
+            // Wide screens: player on the left, channel browser on the right, so the
+            // 16:9 video never pushes the channel list off screen.
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .weight(PLAYER_PANE_WEIGHT)
+                        .fillMaxHeight()
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    PortraitPlayerSection(
+                        viewModel = viewModel,
+                        uiState = uiState,
+                        isPlaying = isPlaying,
+                        onFullscreen = onFullscreen
+                    )
+                }
+                Column(
+                    modifier = Modifier
+                        .weight(1f - PLAYER_PANE_WEIGHT)
+                        .fillMaxHeight(),
+                    content = browser
+                )
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+            ) {
+                PortraitPlayerSection(
+                    viewModel = viewModel,
+                    uiState = uiState,
+                    isPlaying = isPlaying,
+                    onFullscreen = onFullscreen
+                )
+                browser()
+            }
         }
 
         PlayerErrorSnackbar(
@@ -197,7 +237,8 @@ private fun MobileTopBar(
 private fun PortraitPlayerSection(
     viewModel: TdtViewModel,
     uiState: TdtUiState,
-    isPlaying: Boolean
+    isPlaying: Boolean,
+    onFullscreen: (() -> Unit)? = null
 ) {
     val activePlayer = viewModel.player
     val activeChannel = uiState.currentChannel
@@ -207,7 +248,8 @@ private fun PortraitPlayerSection(
             playerState = uiState.playerState,
             channel = activeChannel,
             onClose = { viewModel.onIntent(TdtIntent.StopPlayback) },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            onFullscreen = onFullscreen
         )
     }
 }
@@ -246,3 +288,5 @@ private fun PlayerErrorSnackbar(
         }
     }
 }
+
+private const val PLAYER_PANE_WEIGHT = 0.6f

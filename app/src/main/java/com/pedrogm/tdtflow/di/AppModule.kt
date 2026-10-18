@@ -3,7 +3,10 @@ package com.pedrogm.tdtflow.di
 import android.content.Context
 import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.pedrogm.tdtflow.analytics.FirebaseTelemetry
+import com.pedrogm.tdtflow.analytics.Telemetry
 import com.pedrogm.tdtflow.data.BrokenChannelTrackerImpl
 import com.pedrogm.tdtflow.data.IOptionsPreferences
 import com.pedrogm.tdtflow.data.OptionsDataStore
@@ -46,20 +49,24 @@ object AppModule {
     fun provideIoDispatcher(): CoroutineDispatcher = Dispatchers.IO
 
     @Provides
-    @Named("Default")
-    fun provideDefaultDispatcher(): CoroutineDispatcher = Dispatchers.Default
-
-    @Provides
     @Singleton
     fun provideChannelRepository(
         tdtApi: com.pedrogm.tdtflow.data.remote.TdtApi,
         channelDao: com.pedrogm.tdtflow.data.local.ChannelDao,
-        @Named("IO") ioDispatcher: CoroutineDispatcher
+        @Named("IO") ioDispatcher: CoroutineDispatcher,
+        telemetry: Telemetry
     ): ChannelRepository = ChannelRepositoryImpl(
         tdtApi = tdtApi,
         channelDao = channelDao,
         ioDispatcher = ioDispatcher,
-        onError = { FirebaseCrashlytics.getInstance().recordException(it) }
+        onError = telemetry::recordError
+    )
+
+    @Provides
+    @Singleton
+    fun provideTelemetry(@ApplicationContext ctx: Context): Telemetry = FirebaseTelemetry(
+        analytics = FirebaseAnalytics.getInstance(ctx),
+        crashlytics = FirebaseCrashlytics.getInstance()
     )
 
     @Provides

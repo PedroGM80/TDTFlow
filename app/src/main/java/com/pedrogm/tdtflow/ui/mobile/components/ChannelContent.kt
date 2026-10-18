@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -43,11 +42,6 @@ internal fun ChannelContent(
     favoriteIds: Set<String> = emptySet(),
     onToggleFavorite: (String) -> Unit = {}
 ) {
-    LaunchedEffect(uiState.channels) {
-        // Precarga eliminada para mejorar la velocidad inicial. 
-        // El grid cargará los logos bajo demanda según se necesiten en pantalla.
-    }
-
     val contentState = when {
         uiState.isLoading && uiState.channels.isEmpty() -> ChannelContentState.Loading
         uiState.error != null && uiState.channels.isEmpty() -> ChannelContentState.Error
