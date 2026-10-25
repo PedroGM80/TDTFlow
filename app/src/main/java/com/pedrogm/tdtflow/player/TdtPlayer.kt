@@ -14,6 +14,7 @@ import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.DefaultLoadControl
+import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.hls.HlsMediaSource
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
@@ -113,8 +114,12 @@ class TdtPlayer(
             return _exoPlayer!!
         }
 
+    @OptIn(UnstableApi::class)
     private fun createExoPlayer(): ExoPlayer {
-        return ExoPlayer.Builder(context)
+        // Low-end TV boxes (Amlogic SoCs in Xiaomi Mi Box) can fail to initialise the primary
+        // hardware decoder; let ExoPlayer fall back to the next available one instead of erroring.
+        val renderersFactory = DefaultRenderersFactory(context).setEnableDecoderFallback(true)
+        return ExoPlayer.Builder(context, renderersFactory)
             .setLoadControl(createLoadControl(currentBuffer))
             // Keeps the network radio active for HLS streams even if the screen is off.
             .setWakeMode(C.WAKE_MODE_NETWORK)

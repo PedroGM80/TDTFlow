@@ -1,5 +1,6 @@
 package com.pedrogm.tdtflow.ui.components
 
+import android.view.View
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
@@ -11,7 +12,10 @@ fun CastButton(modifier: Modifier = Modifier) {
     AndroidView(
         factory = { context ->
             MediaRouteButton(context).apply {
-                CastButtonFactory.setUpMediaRouteButton(context, this)
+                // Throws on devices without Google Play services (Fire TV, Huawei, generic
+                // boxes): hide the button there instead of crashing.
+                runCatching { CastButtonFactory.setUpMediaRouteButton(context, this) }
+                    .onFailure { visibility = View.GONE }
             }
         },
         modifier = modifier

@@ -2,6 +2,7 @@ package com.pedrogm.tdtflow
 
 import android.app.PictureInPictureParams
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
@@ -44,7 +45,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val uiMode = resources.configuration.uiMode and Configuration.UI_MODE_TYPE_MASK
-        if (uiMode == Configuration.UI_MODE_TYPE_TELEVISION) {
+        // Some TV boxes (e.g. Xiaomi Mi Box with certain launchers) don't report TV ui mode,
+        // so also check for the leanback feature.
+        val isTv = uiMode == Configuration.UI_MODE_TYPE_TELEVISION ||
+            packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK)
+        if (isTv) {
             startActivity(Intent(this, TvActivity::class.java))
             finish()
             return
