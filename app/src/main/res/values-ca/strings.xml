@@ -89,4 +89,13 @@
     <string name="show_program_schedule">Veure programació</string>
     <string name="tv_favorite_hint">Mantén premut per a preferit</string>
     <string name="restricted_channel_notice">Aquest canal no està disponible. Atresmedia i Mediaset no permeten emetre els seus canals en aplicacions de tercers.</string>
+
+    <!-- Compartir -->
+    <string name="share_channel">Comparteix el canal</string>
+    <string name="share_channel_text">Estic veient %1$s en directe i gratis amb TDTFlow: %2$s</string>
+    <string name="share_app">Recomana TDTFlow</string>
+    <string name="share_app_description">Comparteix l\'app amb els teus amics i la família</string>
+    <string name="share_app_text">Mira la TDT i la ràdio en directe gratis amb TDTFlow: %1$s</string>
+    <string name="share_chooser_title">Comparteix amb</string>
+    <string name="options_share">Comparteix</string>
 </resources>

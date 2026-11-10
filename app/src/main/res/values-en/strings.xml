@@ -89,4 +89,13 @@
     <string name="show_program_schedule">View schedule</string>
     <string name="tv_favorite_hint">Press and hold to favourite</string>
     <string name="restricted_channel_notice">This channel is not available. Atresmedia and Mediaset do not allow their channels to be streamed in third-party apps.</string>
+
+    <!-- Compartir -->
+    <string name="share_channel">Share channel</string>
+    <string name="share_channel_text">I\'m watching %1$s live for free on TDTFlow: %2$s</string>
+    <string name="share_app">Recommend TDTFlow</string>
+    <string name="share_app_description">Share the app with friends and family</string>
+    <string name="share_app_text">Watch Spanish TV and radio live for free with TDTFlow: %1$s</string>
+    <string name="share_chooser_title">Share with</string>
+    <string name="options_share">Share</string>
 </resources>

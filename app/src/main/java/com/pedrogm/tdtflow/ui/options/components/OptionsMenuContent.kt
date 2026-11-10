@@ -53,6 +53,10 @@ internal fun OptionsMenuContent(
             onToggle = onToggleBroken
         )
 
+        HorizontalDivider(modifier = Modifier.padding(vertical = dimensionResource(R.dimen.spacing_medium)))
+
+        ShareSection()
+
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_large)))
     }
 }
