@@ -84,8 +84,7 @@ class TdtViewModel(
                 playerFactory = { tdtPlayer },
                 brokenChannelTracker = brokenChannelTracker,
                 context = context,
-                scope = scope,
-                onError = telemetry::recordError
+                scope = scope
             )
         },
         telemetry = telemetry

@@ -1,6 +1,7 @@
 package com.pedrogm.tdtflow.analytics
 
 import android.os.Bundle
+import androidx.core.net.toUri
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.pedrogm.tdtflow.domain.model.Channel
@@ -48,9 +49,13 @@ class FirebaseTelemetry(
         })
     }
 
+    // Un canal caído es algo esperado (depende de servidores ajenos): va a Analytics, agrupable
+    // por servidor, y como rastro en Crashlytics, no como excepción que tape los fallos reales.
     override fun logPlaybackError(channel: Channel?, message: String) {
+        crashlytics.log("playback error: ${channel?.name} - $message")
         analytics.logEvent(EVENT_PLAYBACK_ERROR, (channel?.toBundle() ?: Bundle()).apply {
             putString(PARAM_ERROR, message.limit())
+            putString(PARAM_STREAM_HOST, channel?.url?.toUri()?.host.orEmpty().limit())
         })
     }
 
@@ -98,6 +103,7 @@ class FirebaseTelemetry(
         const val PARAM_MEDIA_TYPE = "media_type"
         const val PARAM_OUTPUT = "output"
         const val PARAM_ERROR = "error_message"
+        const val PARAM_STREAM_HOST = "stream_host"
 
         const val PROP_FORM_FACTOR = "form_factor"
         const val KEY_CHANNEL = "current_channel"

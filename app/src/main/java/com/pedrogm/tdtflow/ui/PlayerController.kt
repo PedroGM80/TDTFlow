@@ -33,8 +33,7 @@ class PlayerController(
     private val playerFactory: () -> TdtPlayer,
     private val brokenChannelTracker: BrokenChannelTracker,
     private val scope: CoroutineScope,
-    private val context: Context? = null,
-    private val onError: (Throwable) -> Unit = {}
+    private val context: Context? = null
 ) {
     companion object {
         private const val TAG = "PlayerController"
@@ -120,8 +119,6 @@ class PlayerController(
             .filterNotNull()
             .distinctUntilChanged()
             .collect { errorMsg ->
-                val channelName = _currentChannel.value?.name
-                onError(Exception("Player error: $errorMsg (channel: $channelName)"))
                 _playerError.value = errorMsg
                 if (player?.isCastActiveFlow?.value != true) {
                     markCurrentChannelAsBroken()
