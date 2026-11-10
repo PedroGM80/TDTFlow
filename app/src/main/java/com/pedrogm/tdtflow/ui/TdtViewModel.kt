@@ -108,6 +108,9 @@ class TdtViewModel(
     private var loadJob: Job? = null
     private var scheduleJob: Job? = null
 
+    /** Canal pedido por un enlace compartido antes de que la lista termine de cargar. */
+    private var pendingChannelName: String? = null
+
     // ── Flow derivado: búsqueda con debounce ────────────────────────
 
     @OptIn(FlowPreview::class)
@@ -246,6 +249,7 @@ class TdtViewModel(
     fun onIntent(intent: TdtIntent) {
         when (intent) {
             is TdtIntent.SelectChannel -> selectChannel(intent.channel)
+            is TdtIntent.OpenChannelByName -> openChannelByName(intent.name)
             is TdtIntent.FilterByCategory -> filterByCategory(intent.category)
             is TdtIntent.Search -> search(intent.query)
             is TdtIntent.StopPlayback -> playerController.stop()
@@ -281,6 +285,7 @@ class TdtViewModel(
             }
             .onEach { channels ->
                 _channels.value = channels
+                playPendingChannel()
             }
             .launchIn(viewModelScope)
     }
@@ -290,6 +295,18 @@ class TdtViewModel(
         brokenChannelTracker.clearIfExpired()
         playerController.selectChannel(channel)
         telemetry.logChannelPlay(channel, isCasting = playerController.player?.isCastActiveFlow?.value == true)
+    }
+
+    private fun openChannelByName(name: String) {
+        pendingChannelName = name
+        playPendingChannel()
+    }
+
+    private fun playPendingChannel() {
+        val name = pendingChannelName ?: return
+        val channel = _channels.value.findByName(name) ?: return
+        pendingChannelName = null
+        selectChannel(channel)
     }
 
     private fun filterByCategory(category: ChannelCategory?) {
@@ -368,3 +385,6 @@ class TdtViewModel(
         const val MIN_SEARCH_LENGTH_TO_LOG = 2
     }
 }
+
+internal fun List<Channel>.findByName(name: String): Channel? =
+    firstOrNull { it.name.equals(name.trim(), ignoreCase = true) }

@@ -27,11 +27,14 @@ import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Maximize
 import com.composables.icons.lucide.Monitor
 import com.composables.icons.lucide.Music
+import com.composables.icons.lucide.Share2
 import com.composables.icons.lucide.X
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.domain.model.Channel
 import com.pedrogm.tdtflow.player.PlayerState
 import com.pedrogm.tdtflow.ui.theme.AppColors
+import com.pedrogm.tdtflow.util.ShareLinks
+import com.pedrogm.tdtflow.util.shareText
 
 @Composable
 internal fun VideoPlayerHeader(
@@ -78,6 +81,17 @@ internal fun VideoPlayerHeader(
         }
 
         CastButton(modifier = Modifier.size(dimensionResource(R.dimen.icon_size_card_logo)))
+
+        val shareText = stringResource(R.string.share_channel_text, channel.name, ShareLinks.channelUrl(channel.name))
+        val chooserTitle = stringResource(R.string.share_chooser_title)
+        IconButton(onClick = { context.shareText(shareText, chooserTitle) }) {
+            Icon(
+                Lucide.Share2,
+                contentDescription = stringResource(R.string.share_channel),
+                tint = AppColors.Player.foreground,
+                modifier = Modifier.size(dimensionResource(R.dimen.radius_extra_large))
+            )
+        }
 
         IconButton(onClick = {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

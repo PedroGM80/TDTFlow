@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver en directo con TDTFlow</title>
+    <meta name="description" content="Mira la TDT y la radio en directo gratis con TDTFlow, en tu móvil o Android TV.">
+    <meta property="og:title" content="Míralo en directo con TDTFlow">
+    <meta property="og:description" content="TDT y radio en directo gratis, en tu móvil o Android TV.">
+    <meta property="og:type" content="website">
+    <link rel="stylesheet" href="site.css">
+</head>
+<body>
+    <div class="container">
+        <h1>TDTFlow</h1>
+        <p id="message">Mira la TDT y la radio en directo gratis.</p>
+
+        <div class="links">
+            <a id="open-app" href="#" class="btn">Abrir en TDTFlow</a>
+            <a id="play-store" href="https://play.google.com/store/apps/details?id=com.pedrogm.tdtflow" class="btn">Descargar en Google Play</a>
+        </div>
+
+        <div class="footer">
+            &copy; 2026 TDTFlow Project.
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            var PLAY_URL = "https://play.google.com/store/apps/details?id=com.pedrogm.tdtflow";
+            var channel = new URLSearchParams(window.location.search).get("c");
+            var openApp = document.getElementById("open-app");
+
+            if (!channel) {
+                openApp.style.display = "none";
+                return;
+            }
+
+            // textContent: el nombre viene de la URL y no debe interpretarse como HTML.
+            document.getElementById("message").textContent = "Te han compartido " + channel + " en directo.";
+
+            // En Android, Chrome abre la app si está instalada y, si no, va a Google Play.
+            var deepLink = "intent://channel?c=" + encodeURIComponent(channel) +
+                "#Intent;scheme=tdtflow;package=com.pedrogm.tdtflow;" +
+                "S.browser_fallback_url=" + encodeURIComponent(PLAY_URL) + ";end";
+
+            if (/android/i.test(navigator.userAgent)) {
+                openApp.href = deepLink;
+                window.location.href = deepLink;
+            } else {
+                openApp.style.display = "none";
+            }
+        })();
+    </script>
+</body>
+</html>
