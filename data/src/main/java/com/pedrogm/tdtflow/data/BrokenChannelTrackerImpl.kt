@@ -21,7 +21,9 @@ class BrokenChannelTrackerImpl(
 
     companion object {
         private const val PREFS_NAME = "broken_channels_prefs"
-        private const val KEY_BROKEN_URLS = "broken_channel_urls"
+        // v2: descarta las marcas de versiones anteriores, que ocultaban por error canales que
+        // solo fallaban por el User-Agent o el Referer.
+        private const val KEY_BROKEN_URLS = "broken_channel_urls_v2"
         private const val KEY_LAST_CLEARED = "last_cleared_timestamp"
         const val DEFAULT_AUTO_CLEAR_INTERVAL_MS = 24 * 60 * 60 * 1000L
     }
@@ -38,6 +40,11 @@ class BrokenChannelTrackerImpl(
     override val brokenUrls: StateFlow<Set<String>> = _brokenUrls.asStateFlow()
 
     init {
+        clearIfExpired()
+    }
+
+    // En Android TV la app pasa días sin reiniciarse, así que no basta con comprobarlo al arrancar.
+    override fun clearIfExpired() {
         val lastCleared = prefs.getLong(KEY_LAST_CLEARED, 0L)
         if (System.currentTimeMillis() - lastCleared > autoClearIntervalMs) {
             clearAll()

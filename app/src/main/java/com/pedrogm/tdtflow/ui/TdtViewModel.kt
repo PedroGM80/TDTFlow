@@ -267,6 +267,7 @@ class TdtViewModel(
     // ── Acciones ────────────────────────────────────────────────────
 
     private fun loadChannels() {
+        brokenChannelTracker.clearIfExpired()
         loadJob?.cancel()
         loadJob = getChannelsUseCase()
             .onStart {
@@ -287,6 +288,7 @@ class TdtViewModel(
 
     private fun selectChannel(channel: Channel) {
         _error.value = null
+        brokenChannelTracker.clearIfExpired()
         playerController.selectChannel(channel)
         telemetry.logChannelPlay(channel, isCasting = playerController.player?.isCastActiveFlow?.value == true)
     }
