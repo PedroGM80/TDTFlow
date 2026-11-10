@@ -21,7 +21,6 @@ import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.upstream.DefaultLoadErrorHandlingPolicy
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy
 import com.google.android.gms.cast.framework.CastContext
-import com.pedrogm.tdtflow.BuildConfig
 import com.pedrogm.tdtflow.R
 import com.pedrogm.tdtflow.cast.TdtMediaItemConverter
 import com.pedrogm.tdtflow.data.IOptionsPreferences
@@ -147,7 +146,9 @@ class TdtPlayer(
 
     @OptIn(UnstableApi::class)
     private val dataSourceFactory = DefaultHttpDataSource.Factory()
-        .setUserAgent("TDTFlow/${BuildConfig.VERSION_NAME}")
+        // Varios servidores (101TV, PTV...) rechazan User-Agents que no son de navegador;
+        // TDTChannels los marca como UAG/UAGB.
+        .setUserAgent(BROWSER_USER_AGENT)
         .setConnectTimeoutMs(TimeConstants.PLAYER_CONNECT_TIMEOUT_MS)
         .setReadTimeoutMs(TimeConstants.PLAYER_READ_TIMEOUT_MS)
         .setAllowCrossProtocolRedirects(true)
@@ -413,9 +414,15 @@ class TdtPlayer(
         streamUrl: String,
         channelName: String = "",
         channelLogo: String = "",
-        isRadio: Boolean = false
+        isRadio: Boolean = false,
+        referer: String = ""
     ) {
         Log.d(TAG, "play: $streamUrl (isRadio=$isRadio, cast=$isCastActive)")
+
+        // Solo se reproduce un canal a la vez, así que las cabeceras del factory son las del canal actual.
+        dataSourceFactory.setDefaultRequestProperties(
+            if (referer.isEmpty()) emptyMap() else mapOf(REFERER_HEADER to referer)
+        )
 
         cancelBufferingTimeout()
         _playerError.value = null
@@ -506,6 +513,10 @@ class TdtPlayer(
 
     companion object {
         private const val TAG = "TdtPlayer"
+        private const val REFERER_HEADER = "Referer"
+        private const val BROWSER_USER_AGENT =
+            "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) " +
+                "Chrome/130.0.0.0 Mobile Safari/537.36"
 
         fun mimeTypeFor(url: String): String = when {
             url.contains("m3u8", ignoreCase = true) -> "application/x-mpegurl"
