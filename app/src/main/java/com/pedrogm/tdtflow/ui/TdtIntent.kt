@@ -5,6 +5,8 @@ import com.pedrogm.tdtflow.domain.model.ChannelCategory
 
 sealed class TdtIntent {
     data class SelectChannel(val channel: Channel) : TdtIntent()
+    /** Abre un canal por su nombre (enlace compartido); se reproduce en cuanto la lista lo contiene. */
+    data class OpenChannelByName(val name: String) : TdtIntent()
     data class FilterByCategory(val category: ChannelCategory?) : TdtIntent()
     data class Search(val query: String) : TdtIntent()
     data object StopPlayback : TdtIntent()

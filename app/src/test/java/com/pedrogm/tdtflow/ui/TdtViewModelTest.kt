@@ -302,6 +302,24 @@ class TdtViewModelTest {
 
     // Extension on TestScope so backgroundScope is accessible to start the
     // WhileSubscribed StateFlow chain before tests assert on uiState.value.
+    @Test
+    fun `findByName ignores case and surrounding spaces`() {
+        val channels = listOf(channel1, channel2, newsChannel)
+
+        assertEquals(channel2, channels.findByName("  la 2 "))
+        assertNull(channels.findByName("La 3"))
+    }
+
+    @Test
+    fun `OpenChannelByName with an unknown channel does not play anything`() = runTest {
+        fakeChannels.channels = listOf(channel1)
+        val vm = buildViewModel()
+
+        vm.onIntent(TdtIntent.OpenChannelByName("Canal inexistente"))
+
+        assertNull(vm.uiState.value.currentChannel)
+    }
+
     private val fakeEpgRepository = object : EpgRepository {
         override fun getNowPlaying(epgId: String): Flow<Program?> = flowOf(null)
         override fun getSchedule(epgId: String): Flow<List<Program>> = flowOf(emptyList())

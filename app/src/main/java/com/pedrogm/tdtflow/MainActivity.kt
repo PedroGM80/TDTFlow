@@ -22,6 +22,7 @@ import com.pedrogm.tdtflow.analytics.Telemetry
 import com.pedrogm.tdtflow.navigation.AppNavGraph
 import com.pedrogm.tdtflow.ui.TdtViewModel
 import com.pedrogm.tdtflow.ui.options.OptionsMenuViewModel
+import com.pedrogm.tdtflow.util.ShareLinks
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -59,6 +60,7 @@ class MainActivity : AppCompatActivity() {
         )
         enableEdgeToEdge()
         observePipEligibility()
+        if (savedInstanceState == null) openSharedChannel(intent)
         setContent {
             com.pedrogm.tdtflow.ui.components.TdtAppScaffold(optionsViewModel = optionsViewModel) {
                 AppNavGraph(
@@ -73,6 +75,20 @@ class MainActivity : AppCompatActivity() {
                 )
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        openSharedChannel(intent)
+    }
+
+    /** Reproduce el canal de un enlace compartido (tdtflow://channel?c=<nombre>). */
+    private fun openSharedChannel(intent: Intent?) {
+        val data = intent?.data ?: return
+        if (data.scheme != ShareLinks.DEEP_LINK_SCHEME || data.host != ShareLinks.DEEP_LINK_HOST) return
+        val name = data.getQueryParameter(ShareLinks.CHANNEL_PARAM)?.takeIf { it.isNotBlank() } ?: return
+        viewModel.onIntent(com.pedrogm.tdtflow.ui.TdtIntent.OpenChannelByName(name))
     }
 
     private fun observePipEligibility() {
