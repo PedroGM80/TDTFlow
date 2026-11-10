@@ -44,11 +44,14 @@ fun TdtChannel.toChannel(
 }
 
 /**
- * TDTChannels marca con REF, REFI1, REFG1... los streams que exigen cabecera Referer.
- * Se usa el origen de la web oficial del canal, que es desde donde lo reproduce su propio player.
+ * TDTChannels marca con REF, REFI1, REFC1... los streams que exigen cabecera Referer.
+ * Las etiquetas de CDN conocidas usan el Referer del CDN; el resto, el origen de la web
+ * oficial del canal, que es desde donde lo reproduce su propio player.
  */
 internal fun refererFor(extraInfo: List<String>?, web: String?): String {
-    if (extraInfo.orEmpty().none { it.startsWith(MapperConstants.REFERER_TAG_PREFIX) }) return ""
+    val tags = extraInfo.orEmpty()
+    tags.firstNotNullOfOrNull { MapperConstants.CDN_REFERERS[it] }?.let { return it }
+    if (tags.none { it.startsWith(MapperConstants.REFERER_TAG_PREFIX) }) return ""
     val origin = web?.let { Regex("^https?://[^/?#]+").find(it)?.value } ?: return ""
     return "$origin/"
 }

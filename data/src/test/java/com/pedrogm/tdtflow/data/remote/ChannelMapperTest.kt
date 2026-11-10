@@ -277,9 +277,23 @@ class ChannelMapperTest {
 
     @Test
     fun `toChannel uses web origin as referer when extra_info requires it`() {
-        val channel = tdtChannel(web = "https://101play.tv/es/pl/362", extraInfo = listOf("UAG", "REFI1"))
+        val channel = tdtChannel(web = "https://www.telebilbao.es/directo", extraInfo = listOf("UAG", "REF"))
 
-        assertEquals("https://101play.tv/", channel.toChannel("Andalucía")?.referer)
+        assertEquals("https://www.telebilbao.es/", channel.toChannel("País Vasco")?.referer)
+    }
+
+    @Test
+    fun `toChannel uses the cdnmedia referer for REFI1 channels`() {
+        val channel = tdtChannel(web = "https://www.tvcostabrava.com/", extraInfo = listOf("UAG", "REFI1"))
+
+        assertEquals("https://cdnmedia.tv/", channel.toChannel("Cataluña")?.referer)
+    }
+
+    @Test
+    fun `toChannel uses the castr player referer for REFC1 channels`() {
+        val channel = tdtChannel(web = "https://www.rtvmanilva.com/", extraInfo = listOf("NONAV", "REFC1"))
+
+        assertEquals("https://player.castr.com/", channel.toChannel("Andalucía")?.referer)
     }
 
     @Test
