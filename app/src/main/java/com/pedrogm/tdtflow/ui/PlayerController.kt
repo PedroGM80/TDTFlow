@@ -64,7 +64,8 @@ class PlayerController(
             streamUrl = channel.url,
             channelName = channel.name,
             channelLogo = channel.logo,
-            isRadio = channel.isRadio
+            isRadio = channel.isRadio,
+            referer = channel.referer
         )
         _currentChannel.value = channel
         context?.startService(Intent(context, PlaybackService::class.java))

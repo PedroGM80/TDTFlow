@@ -11,14 +11,16 @@ data class ChannelEntity(
     val name: String,
     val logo: String,
     val category: String,
-    val ambit: String? = null
+    val ambit: String? = null,
+    val referer: String = ""
 )
 
 fun ChannelEntity.toDomain(): Channel = Channel(
     name = name,
     url = url,
     logo = logo,
-    category = ChannelCategory.valueOf(category)
+    category = ChannelCategory.valueOf(category),
+    referer = referer
 )
 
 fun Channel.toEntity(ambit: String? = null): ChannelEntity = ChannelEntity(
@@ -26,5 +28,6 @@ fun Channel.toEntity(ambit: String? = null): ChannelEntity = ChannelEntity(
     url = url,
     logo = logo,
     category = category.name,
-    ambit = ambit
+    ambit = ambit,
+    referer = referer
 )

@@ -13,4 +13,5 @@ class FakeBrokenChannelTracker : BrokenChannelTracker {
     override fun markAsBroken(url: String) { _brokenUrls.update { it + url } }
     override fun unmarkAsBroken(url: String) { _brokenUrls.update { it - url } }
     override fun clearAll() { _brokenUrls.value = emptySet() }
+    override fun clearIfExpired() = Unit
 }

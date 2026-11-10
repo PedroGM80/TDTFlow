@@ -7,4 +7,7 @@ interface BrokenChannelTracker {
     fun markAsBroken(url: String)
     fun unmarkAsBroken(url: String)
     fun clearAll()
+
+    /** Vacía la lista si ha pasado el intervalo de limpieza automática desde la última vez. */
+    fun clearIfExpired()
 }
