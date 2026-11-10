@@ -22,6 +22,8 @@ import com.pedrogm.tdtflow.analytics.Telemetry
 import com.pedrogm.tdtflow.navigation.AppNavGraph
 import com.pedrogm.tdtflow.ui.TdtViewModel
 import com.pedrogm.tdtflow.ui.options.OptionsMenuViewModel
+import com.pedrogm.tdtflow.player.PlayerState
+import com.pedrogm.tdtflow.util.ReviewPrompter
 import com.pedrogm.tdtflow.util.ShareLinks
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -60,6 +62,7 @@ class MainActivity : AppCompatActivity() {
         )
         enableEdgeToEdge()
         observePipEligibility()
+        observeReviewMoments()
         if (savedInstanceState == null) openSharedChannel(intent)
         setContent {
             com.pedrogm.tdtflow.ui.components.TdtAppScaffold(optionsViewModel = optionsViewModel) {
@@ -89,6 +92,29 @@ class MainActivity : AppCompatActivity() {
         if (data.scheme != ShareLinks.DEEP_LINK_SCHEME || data.host != ShareLinks.DEEP_LINK_HOST) return
         val name = data.getQueryParameter(ShareLinks.CHANNEL_PARAM)?.takeIf { it.isNotBlank() } ?: return
         viewModel.onIntent(com.pedrogm.tdtflow.ui.TdtIntent.OpenChannelByName(name))
+    }
+
+    /** Cuenta los canales que llegan a reproducirse y pide la valoración al cerrar el reproductor. */
+    private fun observeReviewMoments() {
+        val reviewPrompter = ReviewPrompter(this)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                var lastCountedUrl: String? = null
+                var hadChannel = false
+                viewModel.uiState
+                    .map { it.currentChannel?.url to (it.playerState == PlayerState.PLAYING) }
+                    .distinctUntilChanged()
+                    .collect { (url, isPlaying) ->
+                        if (isPlaying && url != lastCountedUrl) {
+                            lastCountedUrl = url
+                            reviewPrompter.onChannelPlaying()
+                        }
+                        if (url == null && hadChannel) reviewPrompter.onPlayerClosed()
+                        hadChannel = url != null
+                        if (url == null) lastCountedUrl = null
+                    }
+            }
+        }
     }
 
     private fun observePipEligibility() {

@@ -127,6 +127,7 @@ dependencies {
     implementation(libs.media3.cast)
     implementation(libs.androidx.mediarouter)
     implementation(libs.play.services.cast.framework)
+    implementation(libs.play.review.ktx)
 
     // TV
     implementation(libs.tv.compose.material)
