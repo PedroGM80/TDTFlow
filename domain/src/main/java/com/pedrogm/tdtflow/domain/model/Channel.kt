@@ -9,7 +9,9 @@ data class Channel(
     val logo: String = "",
     val category: ChannelCategory = ChannelCategory.GENERAL,
     val epgId: String = "",
-    val isRadio: Boolean = false
+    val isRadio: Boolean = false,
+    /** Cabecera Referer que exige el servidor del stream; vacío si no hace falta. */
+    val referer: String = ""
 ) {
     init {
         require(name.isNotBlank()) { "Channel name cannot be blank" }

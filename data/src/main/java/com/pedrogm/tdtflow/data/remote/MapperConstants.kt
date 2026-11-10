@@ -18,4 +18,7 @@ object MapperConstants {
     val RADIO_EXCEPTIONS = listOf(
         "TV"
     )
+
+    /** Prefijo de las etiquetas de extra_info que indican que el stream exige Referer. */
+    const val REFERER_TAG_PREFIX = "REF"
 }

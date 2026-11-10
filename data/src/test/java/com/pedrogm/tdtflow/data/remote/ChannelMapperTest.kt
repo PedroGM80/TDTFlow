@@ -19,14 +19,16 @@ class ChannelMapperTest {
         name: String = "Test Channel",
         logo: String = "https://logo.png",
         epgId: String? = "test.epg",
-        options: List<TdtOption> = listOf(option("m3u8", "https://stream.m3u8"))
+        options: List<TdtOption> = listOf(option("m3u8", "https://stream.m3u8")),
+        web: String? = null,
+        extraInfo: List<String>? = null
     ) = TdtChannel(
         name = name,
-        web = null,
+        web = web,
         logo = logo,
         epgId = epgId,
         options = options,
-        extraInfo = null
+        extraInfo = extraInfo
     )
 
     // ── toChannel: null when options empty ──────────────────────────────────
@@ -269,5 +271,28 @@ class ChannelMapperTest {
         )
         val result = channel.toChannel("Deportivos")!!
         assertEquals(false, result.isRadio)
+    }
+
+    // ── toChannel: referer ──────────────────────────────────────────────────
+
+    @Test
+    fun `toChannel uses web origin as referer when extra_info requires it`() {
+        val channel = tdtChannel(web = "https://101play.tv/es/pl/362", extraInfo = listOf("UAG", "REFI1"))
+
+        assertEquals("https://101play.tv/", channel.toChannel("Andalucía")?.referer)
+    }
+
+    @Test
+    fun `toChannel has no referer when extra_info does not require it`() {
+        val channel = tdtChannel(web = "https://ptvtelecom.com/canales/sevilla.html", extraInfo = listOf("UAGB"))
+
+        assertEquals("", channel.toChannel("Andalucía")?.referer)
+    }
+
+    @Test
+    fun `toChannel has no referer when channel has no web`() {
+        val channel = tdtChannel(web = null, extraInfo = listOf("REF"))
+
+        assertEquals("", channel.toChannel("Andalucía")?.referer)
     }
 }

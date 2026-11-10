@@ -38,8 +38,19 @@ fun TdtChannel.toChannel(
         logo = logo,
         category = mappedCategory,
         epgId = epgId ?: "",
-        isRadio = finalIsRadio
+        isRadio = finalIsRadio,
+        referer = refererFor(extraInfo, web)
     )
+}
+
+/**
+ * TDTChannels marca con REF, REFI1, REFG1... los streams que exigen cabecera Referer.
+ * Se usa el origen de la web oficial del canal, que es desde donde lo reproduce su propio player.
+ */
+internal fun refererFor(extraInfo: List<String>?, web: String?): String {
+    if (extraInfo.orEmpty().none { it.startsWith(MapperConstants.REFERER_TAG_PREFIX) }) return ""
+    val origin = web?.let { Regex("^https?://[^/?#]+").find(it)?.value } ?: return ""
+    return "$origin/"
 }
 
 private fun isRadioAmbit(ambitName: String): Boolean {
